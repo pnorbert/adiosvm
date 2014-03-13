@@ -85,31 +85,33 @@ I. Set up a Linux VM
    You can postpone step 6 and 7 after 8 if you have a github account
    and want to edit this repository content.
 
+   $ cd
    $ git clone https://github.com/pnorbert/adiosvm.git
 
 7. VIM setup
    $ sudo apt-get vim
    copy from this repo: vimrc to ~/.vimrc
+   $ cp ~/adiosvm/vimrc .vimrc
 
 8. Github access setup
    This is only needed to get ADIOS master from github.
 
    We need an account to github and a config for ssh.
+   A minimum .ssh/config is found in this repository:  
    $ cd 
    $ mkdir .ssh
+   $ cp ~/adiosvm/ssh_config ~/.ssh/config
 
    If the shared folder has access to you .ssh:
 
    $ cp /media/sf_<yourfolder>/.ssh/config .ssh
    $ cp /media/sf_<yourfolder>/.ssh/id_dsa_github* .ssh
 
-   Otherwise get them however you can...
-   A minimum .ssh/config is found in this repository:  ssh_config
-     - download this repo as 
-   $ git clone https://github.com/pnorbert/adiosvm.git
+   If you have a github account and the config already, and postponed
+   step 6, get the adiosvm repo now:
 
-   or if you have a github account and the config already, get this repo 
    $ git clone github-cork:pnorbert/adiosvm.git
+
 
 II. Preparations to install ADIOS
 =================================
