@@ -1,0 +1,30 @@
+Host github
+  Hostname github.com
+  User git
+  IdentityFile /home/adios/.ssh/id_dsa_github
+
+Host github-cork
+  Hostname github.com
+  User git
+  IdentityFile /home/adios/.ssh/id_dsa_github
+  ProxyCommand corkscrew snowman.ornl.gov 3128 %h %p
+
+Host bitbucket
+  Hostname bitbucket.org
+  User git
+  IdentityFile /home/adios/.ssh/id_dsa_github
+
+Host bitbucket-cork
+  Hostname bitbucket.org
+  User git
+  IdentityFile /home/adios/.ssh/id_dsa_github
+  ProxyCommand corkscrew snowman.ornl.gov 3128 %h %p
+
+
+Host *
+  ServerAliveInterval 120
+  ServerAliveCountMax 10
+#  ControlMaster auto
+#  ControlPath /home/adios/.ssh/ssh_%h
+  
+
