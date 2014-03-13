@@ -1,0 +1,16 @@
+sudo modprobe rdma_cm
+sudo modprobe ib_uverbs
+sudo modprobe rdma_ucm
+
+sudo modprobe rdma_cm
+sudo modprobe ib_uverbs
+sudo modprobe rdma_ucm
+
+KERNELVERSION=`uname -r`
+sudo insmod  /lib/modules/${KERNELVERSION}/extra/siw.ko
+
+#ls /dev/infiniband/
+#ibv_devinfo
+ibv_devices
+
+
