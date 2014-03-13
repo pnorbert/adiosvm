@@ -116,7 +116,10 @@ I. Set up a Linux VM
 II. Preparations to install ADIOS
 =================================
 
-1. Install Soft-iWarp to get the Infiniband network
+1. Linux Packages
+   $ sudo apt-get install gfortran mpich2
+
+2. Install Soft-iWarp to get the Infiniband network
    This is required to enable DataSpaces on the VM, which is required to run
    the staging demos. 
    
@@ -128,19 +131,34 @@ II. Preparations to install ADIOS
 
    We prepared those commands in a single script, run that:
 
-   $ ./softiwarp.install
+   $ ~/adiosvm/softiwarp.install
+
+   Add a line to the end in /etc/security/limits.conf
+   $ sudo vi /etc/security/limits.conf
+   *                -       memlock         unlimited
+
+   Restart the VM
+
+   At each time we need to run ~/adiosvm/softiwarp.setup to load the infiniband 
+   and softiwarp kernel modules!
 
 
+3. Install DataSpaces
+   Only if everything is okay with Soft-iWarp.
 
+   Download dataspaces from www.dataspaces.org, or use 1.3 from adiosvm
 
+   $ cd
+   $ mkdir -p Software
+   $ cd Software
+   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.3.0.tar.gz 
+   $ cd dataspaces-1.3.0
+   $ ./configure --prefix=/opt/dataspaces/1.3.0 CC=mpicc FC=mpif90
+   $ make
+   $ make install
 
+   Test DataSpaces: follow the instructions in 
+      ~/adiosvm/adiospackages/test_dataspaces.txt
 
-
-
-
-
-
-
-
-
+4. Install MXML
 

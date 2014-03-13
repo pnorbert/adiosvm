@@ -1,0 +1,62 @@
+   Test DataSpaces: 
+   
+   Open 3 terminals in ~/Software/dataspaces-1.3.0
+
+   Terminal 1:
+   $ ~/adiosvm/softiwarp.setup
+   $ mpirun -n 1 ./tests/C/dataspaces_server -s 1 -c 2
+
+   Terminal 2:
+   $ mpirun -n 1 tests/C/test_writer DATASPACES 1 1 1 1 32 32 32 10 
+
+   Terminal 3:
+   $ mpirun -n 1 tests/C/test_reader DATASPACES 1 1 1 1 32 32 32 10
+
+   You should see:
+
+   Terminal 1:
+   ----------
+   $ mpirun -n 1 ./tests/C/dataspaces_server -s 1 -c 2
+   'dsg_alloc()' error loading config file, starting with defaults.
+   'ds_boot_master()': all the peer are registered.3 2
+   'ds_alloc()': init ok.
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   data to be fetched is size(262144) from peer(1).
+   All ok.
+
+   Terminal 2:
+   ----------
+   $ mpirun -n 1 tests/C/test_writer DATASPACES 1 1 1 1 32 32 32 10 
+   data to be fetched is size(48) from peer(0).
+   data to be fetched is size(72) from peer(0).
+   dc_alloc succeed 1.
+   test_put_run(): done
+
+   Terminal 3:
+   ----------
+   $ mpirun -n 1 tests/C/test_reader DATASPACES 1 1 1 1 32 32 32 10
+   data to be fetched is size(48) from peer(0).
+   data to be fetched is size(72) from peer(0).
+   dc_alloc succeed 2.
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   data to be fetched is size(204) from peer(0).
+   test_get_run(): done
+
+
+
