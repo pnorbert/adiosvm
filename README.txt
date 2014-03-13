@@ -110,6 +110,7 @@ I. Set up a Linux VM
    If you have a github account and the config already, and postponed
    step 6, get the adiosvm repo now:
 
+   $ sudo apt-get corkscrew
    $ git clone github-cork:pnorbert/adiosvm.git
 
 
@@ -155,10 +156,53 @@ II. Preparations to install ADIOS
    $ cd dataspaces-1.3.0
    $ ./configure --prefix=/opt/dataspaces/1.3.0 CC=mpicc FC=mpif90
    $ make
-   $ make install
+   $ sudo make install
 
    Test DataSpaces: follow the instructions in 
       ~/adiosvm/adiospackages/test_dataspaces.txt
 
 4. Install MXML
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/mxml-2.7.tar.gz 
+   $ cd mxml-2.7/
+   $ ./configure --prefix=/opt/mxml
+   $ make
+   $ sudo make install
+
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/mxml/lib"
+
+
+N. Download ADIOS
+   1. ADIOS 1.6 is in this repo: 
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.6.0.tar.gz
+   $ cd adios-1.6.0
+
+   2. Download ADIOS master from repository
+   $ cd ~/Software
+   $ git clone github-cork:ornladios/ADIOS.git
+     OR
+   $ git clone https://github.com/ornladios/ADIOS.git
+   $ cd ADIOS
+
+   Then:
+   $ cp ~/adiosvm/adiospackages/runconf.adiosvm .
+   $ . ./runconf.adiosvm
+   $ make -j 4; make -j 4 
+   $ make check
+
+   $ cd tests/suite
+   $ ./test.sh 01
+     and so on up to 16 tests
+     Some test fail because multiple processes write a text file which is 
+     compared to a reference file, but some lines can get mixed up. Try 
+     running the same test a couple of times. One 'OK' means the particular
+     test is okay.
+
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.6.0/lib" and 
+     add to PATH "/opt/adios/1.6.0/bin"
+
+
+   
+
 
