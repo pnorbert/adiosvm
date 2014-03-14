@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# This script is for configuring adios on the authors' machines
+# You can study it to figure out how to configure adios on your system
+#
+
+SRCDIR=`dirname ${BASH_SOURCE[0]}`
+
+if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
+
+    #####################
+    # ADIOS Virtual Box #
+    #####################
+    echo "Configure on ADIOS VirtualBox."
+    export MPICC=mpicc
+    export MPICXX=mpicxx
+    export MPIFC=mpif90
+    export CC=gcc
+    export CXX=g++
+    export FC=gfortran
+
+    #export CFLAGS="-g -O0 -fPIC" 
+    ${SRCDIR}/configure --prefix=/opt/adios/1.6 \
+        --enable-dependency-tracking \
+        --with-mxml=/opt/mxml \
+        --with-dataspaces=/opt/dataspaces/1.3.0 \
+        --with-zlib=/usr \
+        --with-bzip2=/usr \
+        --with-szip=/opt/szip \
+        --with-isobar=/opt/isobar \
+        --with-flexpath=/opt/chaos \
+        --with-hdf5=/opt/hdf5-1.8.12 \
+        --with-phdf5=/opt/hdf5-1.8.12-parallel \
+        --with-netcdf=/opt/netcfdf-4.3.0 
+#        --with-nc4par=/opt/netcfdf-4.3.0-parallel 
+
+else
+    echo "Could not determine what machine is this."
+    echo "This script is for configuring adios on the authors' machines."
+    echo "You can study it to figure out how to configure adios on your system."
+fi
+    
+    
+ 
