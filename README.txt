@@ -123,6 +123,12 @@ I. Set up a Linux VM
    $ sudo apt-get corkscrew
    $ git clone github-cork:pnorbert/adiosvm.git
 
+   Git settings:
+   $ git config --global user.name "<your name>"
+   $ git config --global user.email "<your email>"
+   $ git config --global core.editor vim
+
+   Of course, set an editor what you like.
 
 II. Preparations to install ADIOS
 =================================
