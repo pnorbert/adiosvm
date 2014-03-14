@@ -3,6 +3,8 @@ adiosvm
 
 Packages and howtos for creating a linux system for ADIOS tutorials
 
+Required steps to get plain ADIOS working: I.1,2,3,5 II.1,4 III.1
+
 Steps:
 
 I. Set up a Linux VM
@@ -35,6 +37,9 @@ I. Set up a Linux VM
     password: adios 
     Log in automatically: yes, because this is a tutorial vm
 
+    Note: if you use a computer name other than adiosVM, make sure you substitute for the name
+    everywhere in this document (e.g. Flexpath install)
+
    - Instead of restart, shut down and remove the linux DVD, start again
      - Click left-top icon (Dash Home) and search for Terminal
        - start it and immediately on the icon in the tray: right-click and "Lock to Launcher"
@@ -63,6 +68,11 @@ I. Set up a Linux VM
      $ vi ~/.bashrc
      increase HISTSIZE (to 5000) and HISTFILESIZE (to 10000)
 
+   - Turn off screen saver and lock
+     System Settings / Brightness and Lock
+     Turn off screen when inactive for: Never
+     Lock: off
+
 4. Shared folder between your host machine and the VM (optional)
    This is not needed for tutorial, just if you want to share files between host and vm.
 
@@ -77,7 +87,7 @@ I. Set up a Linux VM
 
 
 5. Install some linux packages (apt-get install)
-   $ sudo apt-get install  build-essential git-core libtool autoconf 
+   $ sudo apt-get install  build-essential git-core libtool autoconf apt-file subversion cmake
    $ sudo apt-get autoremove 
      - this one to get rid of unnecessary packages after removing LibreOffice
 
@@ -145,6 +155,7 @@ II. Preparations to install ADIOS
 
 
 3. Install DataSpaces
+   Only if you want staging demos.
    Only if everything is okay with Soft-iWarp.
 
    Download dataspaces from www.dataspaces.org, or use 1.3 from adiosvm
@@ -171,8 +182,131 @@ II. Preparations to install ADIOS
 
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/mxml/lib"
 
+5. Compression libraries
+   Only if you want to demo the transform library.
 
-N. Download ADIOS
+   zlib and bzip2 are installed as linux packages:
+   $ sudo apt-get install bzip2 libbz2-dev zlib1g zlib1g-dev
+
+   SZIP and ISOBAR are provided in adiospackages/
+
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/szip-2.1.tar.gz 
+   $ cd szip-2.1/
+   $ ./configure --prefix=/opt/szip
+   $ make
+   $ sudo make install
+
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/szip/lib"
+
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/isobar.0.3.0.tgz 
+   $ cd isobar.0.3.0
+
+   On 32bit systems, edit
+      projs/ISOBAR_library/nbproject/Makefile-gcc-release-x64-static.mk
+   and remove -m64 from CFLAGS
+
+   $ make install
+
+     This creates ./lib/libisobar.a
+   
+   Manually install it to /opt/isobar
+   $ sudo mkdir /opt/isobar
+   $ cd /opt/isobar
+   $ sudo ln -s $HOME/Software/isobar.0.3.0/include 
+   $ sudo ln -s $HOME/Software/isobar.0.3.0/lib 
+
+6. Flexpath support
+   Only if you want staging demos.
+   We need to get CHAOS from Georgia Tech and build it. This will take a while...
+   
+   $ sudo apt-get install bison libbison-dev flex
+   $ sudo mkdir -p /opt/chaos
+   $ sudo chgrp adios /opt/chaos
+   $ sudo chmod g+w /opt/chaos
+   $ cd ~/Software
+   $ svn --username anon --password anon co https://anon@svn.research.cc.gatech.edu/kaos/chaos_base/trunk chaos
+   $ cd chaos
+   $ cp build_config build_config.adiosVM
+   Edit build_config.adiosVM
+   - we only need to install: dill cercs_env gen_thread atl ffs evpath
+   - comment out the rest of packages
+   - change the build area
+     BUILD_AREA=/home/adios/Software/chaos
+     RESULTS_FILES_DIR=$HOME/Software/chaos
+   - change the install target
+     INSTALL_DIRECTORY=/opt/chaos
+
+   $ perl chaos_build.pl -c build_config.adiosVM 
+
+   Type anon for both username and password if requested at svn checkout commands.
+
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/chaos/lib"
+
+
+7. Sequential HDF5 support
+   Only if you want bp2h5 conversion code.
+
+   $ cd ~/Software
+   $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.12.tar.bz2
+   $ mv hdf5-1.8.12 hdf5-1.8.12-serial
+   $ cd hdf5-1.8.12-serial
+   $ ./configure --with-zlib=/usr --with-szlib=/opt/szlib --prefix=/opt/hdf5-1.8.12 --enable-fortran
+   $ make -j 4
+   $ sudo make install
+
+
+8. Parallel HDF5 support
+   Only if you want PHDF5 transport method in ADIOS.
+
+   $ cd ~/Software
+   $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.12.tar.bz2
+   $ mv hdf5-1.8.12 hdf5-1.8.12-parallel
+   $ cd hdf5-1.8.12-parallel
+   $ ./configure --with-zlib=/usr --with-szlib=/opt/szlib --prefix=/opt/hdf5-1.8.12-parallel --enable-parallel --enable-fortran --with-pic  CC=mpicc FC=mpif90
+
+   Verify that in the Features list:
+        Parallel HDF5: yes
+
+   Note: the -fPIC option is required for building parallel NetCDF4 later
+
+   $ make -j 4
+   $ sudo make install
+
+
+9. Sequential NetCDF support
+   Only if you want bp2ncd conversion code.
+
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/netcdf-4.3.0.tar.gz
+   $ mv netcdf-4.3.0 netcdf-4.3.0-serial
+   $ cd netcdf-4.3.0-serial
+   $ ./configure --prefix=/opt/netcfdf-4.3.0 --enable-netcdf4 CPPFLAGS="-I/opt/hdf5-1.8.12/include" LDFLAGS="-L/opt/hdf5-1.8.12/lib"
+   $ make -j 4
+   $ make check         
+     This testing is optional
+   $ sudo make install
+
+
+10. Parallel NetCDF4 support (not PNetCDF!)
+  ###   Just forget about this. It breaks the adios build  ###
+   Only if you want NC4PAR transport method in ADIOS.
+
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/netcdf-4.3.0.tar.gz
+   $ mv netcdf-4.3.0 netcdf-4.3.0-parallel
+   $ cd netcdf-4.3.0-parallel
+   $ ./configure --prefix=/opt/netcfdf-4.3.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.12-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.12-parallel/lib -L/opt/szip/lib" LIBS="-lsz" CC=mpicc FC=mpif90
+   $ make -j 4
+   $ sudo make install
+   
+    
+
+III. ADIOS Installation
+=======================
+
+1. Download ADIOS
    1. ADIOS 1.6 is in this repo: 
    $ cd ~/Software
    $ tar zxf ~/adiosvm/adiospackages/adios-1.6.0.tar.gz
@@ -185,10 +319,13 @@ N. Download ADIOS
    $ git clone https://github.com/ornladios/ADIOS.git
    $ cd ADIOS
 
+2. Build ADIOS
    Then:
    $ cp ~/adiosvm/adiospackages/runconf.adiosvm .
    $ . ./runconf.adiosvm
    $ make -j 4; make -j 4 
+
+3. Test ADIOS a bit
    $ make check
 
    $ cd tests/suite
@@ -199,9 +336,18 @@ N. Download ADIOS
      running the same test a couple of times. One 'OK' means the particular
      test is okay.
 
+4. Install 
+   $ sudo make install
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.6.0/lib" and 
      add to PATH "/opt/adios/1.6.0/bin"
 
+
+
+IV. ADIOS Tutorial code
+=======================
+
+   For ADIOS 1.6, the tutorial is included in this repository
+   ~/adiosvm/Tutorial
 
    
 
