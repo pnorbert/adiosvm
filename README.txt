@@ -344,8 +344,8 @@ III. ADIOS Installation
 
 4. Install 
    $ sudo make install
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.6.0/lib" and 
-     add to PATH "/opt/adios/1.6.0/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.6/lib" and 
+     add to PATH "/opt/adios/1.6/bin"
 
 
 
@@ -355,6 +355,9 @@ IV. ADIOS Tutorial code
    For ADIOS 1.6, the tutorial is included in this repository
    ~/adiosvm/Tutorial
 
+1. Linux Packages
+   KSTAR demo requires gnuplot
+   $ sudo apt-get install gnuplot
    
 
 
