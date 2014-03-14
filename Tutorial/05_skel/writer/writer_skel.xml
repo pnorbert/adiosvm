@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<adios-config host-language="Fortran">
+  <adios-group name="writer">
+    <var name="nx_global" type="integer"/>
+    <var name="ny_global" type="integer"/>
+
+    <var name="offs_x" type="integer"/>
+    <var name="offs_y" type="integer"/>
+    <var name="nx_local" type="integer"/>
+    <var name="ny_local" type="integer"/>
+
+    <global-bounds dimensions="nx_global,ny_global" offsets="offs_x,offs_y">
+        <var dimensions="nx_local,ny_local" name="xy" transform="none" type="real*8"/>
+    </global-bounds>
+
+  </adios-group>
+
+  <!-- Choose an output method for the above group. 
+       MPI: write 1 file, each process writes its own piece into the file
+       VAR_MERGE: aggregate and merge blocks (up to two levels of aggregation)
+                  default aggregation buffer size is 2 MB
+       VAR_MERGE: limit the aggregation level by decreasing the aggregation buffer
+                  size to 300k
+  -->
+  <transport group="writer" method="MPI"/>
+  <!--
+  <transport group="writer" method="VAR_MERGE">io_method=MPI</transport>
+  <transport group="writer" method="VAR_MERGE">chunk_size=300000;io_method=MPI</transport>
+  -->
+
+  <buffer allocate-time="now" size-MB="8"/>
+
+</adios-config>
