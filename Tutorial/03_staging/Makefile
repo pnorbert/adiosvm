@@ -1,7 +1,7 @@
 .PHONY: clean
 
 CC      := mpicc
-CFLAGS  := -g -O0 $(shell adios_config -c) # -D_USE_GNUPLOT #-D_GNUPLOT_INTERACTIVE
+CFLAGS  := -g -O0 $(shell adios_config -c) -D_USE_GNUPLOT -D_GNUPLOT_INTERACTIVE
 LDFLAGS := $(shell adios_config -l)
 
 all: arrays_write arrays_read
