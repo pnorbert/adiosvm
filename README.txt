@@ -361,3 +361,158 @@ IV. ADIOS Tutorial code
    
 
 
+V. Build Visit from release
+===========================
+
+- Need to have many linux packages installed.
+- Build a Visit release using it's build script that
+  downloads/builds a lot of dependencies.
+
+
+1. Linux packages
+  $ sudo apt-get install dialog gcc-multilib subversion libx11-dev tcl tk
+  $ sudo apt-get install libglu1-mesa-dev 
+  $ sudo libxt-dev
+  $ sudo apt-get install xutils-dev
+
+  For Silo reader to believe in good Qt installation
+  $ sudo apt-get install libxmu-dev libxi-dev
+
+
+2. Build latest Visit release (with many dependencies)
+   https://wci.llnl.gov/codes/visit/source.html
+
+   Visit 2.7.1 release uses adios 1.6.0 but it downloads and builds its own
+   version without compression or staging. 
+
+   $ cd ~/Software
+   $ mkdir -p visit
+   $ cd visit
+   $ wget http://portal.nersc.gov/svn/visit/trunk/releases/2.7.1/build_visit2_7_1
+     Or download the latest build script from the website
+     https://wci.llnl.gov/codes/visit/source.html
+
+   $ chmod +x build_visit2_7_1
+   $ ./build_visit2_7_1 --parallel --mesa --adios --hdf5 --silo --xdmf --zlib --szip 
+
+    This script should be started again and again after fixing build problems.
+    All log is founf in build_visit2_7_1_log, appended at each try.
+
+    In the dialogs, just accept everything
+
+
+                     |     You many now try to run VisIt by cd'ing into the     │  
+                     │ visit2.7.1/src/bin directory and invoking "visit".       │  
+                     │                                                          │  
+                     │     To create a binary distribution tarball from this    │  
+                     │ build, cd to                                             │  
+                     │ /home/adios/Software/visit/visit2.7.1/src                │  
+                     │     then enter: "make package"                           │  
+                     │                                                          │  
+                     │     This will produce a tarball called                   │  
+                     │ visitVERSION.ARCH.tar.gz, where     VERSION is the       │  
+                     │ version number, and ARCH is the OS architecure.          │  
+                     │                                                          │  
+                     │     To install the above tarball in a directory called   │  
+                     │ "INSTALL_DIR_PATH",    enter: svn_bin/visit-install      │  
+                     │ VERSION ARCH INSTALL_DIR_PATH                            |
+
+
+
+3. Build Visit from svn trunk
+- Get Visit trunk from repository and build against dependencies
+  that has been built in the previous step
+- You need to do step 2 (build visit from source release)
+
+   $ cd ~/Software
+   $ svn co http://portal.nersc.gov/svn/visit/trunk/src visit.src
+   $ cd visit.src
+   
+   Get the local build cmake config created by build_visit2.7.1 and edit
+   $ cp ~/Software/visit/adiosVM.cmake ./config-site
+   
+     - Add CMAKE_INSTALL_PREFIX to point to desired installation target (/opt/visit):
+
+         VISIT_OPTION_DEFAULT(CMAKE_INSTALL_PREFIX /opt/visit)
+
+     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.6):
+
+         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.6.0)
+
+
+   Configure visit with cmake that was built by visit release
+   $ ~/Software/visit/cmake-2.8.10.2/bin/cmake .
+   $ make -j 4
+   $ make install
+
+
+   If a dependency package's version is updated, you need to download and build a new one.
+   E.g. with VTK 6.1
+
+   $ cd ~/Software/visit
+   $ wget http://www.vtk.org/files/release/6.1/VTK-6.1.0.tar.gz
+   $ tar zxf VTK-6.1.0.tar.gz
+   $ mkdir VTK-6.1.0-build
+   $ cd VTK-6.1.0-build
+   
+   In ../build_visit2.7.1_log, search for "Configuring VTK . . ." and see how cmake was called (a long line).
+   Replace the CMAKE_INSTALL_PREFIX:PATH and run that command
+
+   $ "/home/adios/Software/visit/visit/cmake/2.8.10.2/linux-x86_64_gcc-4.6/bin/cmake" <whatever appears here> ../VTK-6.1.0
+
+
+
+
+V. Build Plotter
+=================
+
+If you still want to use the our own plotter instead of / besides visit.
+
+  $ sudo apt-get install grace
+  $ mkdir ~/Software/vtk-offscreen
+  $ cd ~/Software/vtk-offscreen
+
+  1. Build vtk-5.8 (saved from old Visit config)
+  
+  $ tar zxf ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
+  $ mkdir visit-5.8-build
+  $ cd visit-5.8-build
+  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/vtk-offscreen ../visit-vtk-5.8
+  $ make -j 4
+  $ sudo make install
+
+
+  2. Build Mesa library
+  $ cd ~/Software/vtk-offscreen
+  $ tar zxf ~/adiosvm/plotterpackages/Mesa-7.8.2.tar.gz
+  $ cd Mesa-7.8.2
+  $ ./configure CFLAGS="-I/usr/include/i386-linux-gnu -O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" CXXFLAGS="-O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" --prefix=/opt/vtk-offscreen --with-driver=osmesa --disable-driglx-direct 
+  $ make -j 4
+  $ sudo make install
+
+
+  3. Build plotter
+  $ cd ~/Software
+  $ svn co https://svn.ccs.ornl.gov/svn-ewok/wf.src/trunk/plotter 
+    ...OR...
+  $ tar zxf ~/adiosvm/plotterpackages/plotter.tar.gz
+  $ cd plotter
+  
+  Edit Makefile.adiosVM to point to the correct ADIOS, HDF5, NetCDF, Grace and VTK libraries. 
+
+  $ make
+  $ cp plotter plotter2d$ cd plotter
+  
+  Edit Makefile.adiosVM to point to the correct ADIOS, HDF5, NetCDF, Grace and VTK libraries. 
+
+  $ make
+  $ sudo cp plotter plotter2d /opt/adios/1.6/bin
+
+
+  
+  
+
+
+
+
+
