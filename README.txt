@@ -509,6 +509,16 @@ If you still want to use the our own plotter instead of / besides visit.
   $ sudo cp plotter plotter2d /opt/adios/1.6/bin
 
 
+VI. Clean-up a bit
+==================
+Not much space left after building visit and plotter. You can remove this big offenders
+
+1.9GB  ~/Software/vtk-offscreen/visit-vtk-5.8-build
+1.3GB  ~/Software/visit/qt-everywhere-opensource-src-4.8.3
+       ~/Software/visit/qt-everywhere-opensource-src-4.8.3.tar.gz
+       ~/Software/visit/VTK*-build
+
+
   
   
 
