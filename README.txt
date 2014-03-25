@@ -501,12 +501,9 @@ If you still want to use the our own plotter instead of / besides visit.
   Edit Makefile.adiosVM to point to the correct ADIOS, HDF5, NetCDF, Grace and VTK libraries. 
 
   $ make
-  $ cp plotter plotter2d$ cd plotter
+  $ sudo INSTALL_DIR=/opt/plotter INSTALL_CMD=install make install
   
-  Edit Makefile.adiosVM to point to the correct ADIOS, HDF5, NetCDF, Grace and VTK libraries. 
-
-  $ make
-  $ sudo cp plotter plotter2d /opt/adios/1.6/bin
+  In ~/.bashrc, add to PATH "/opt/plotter/bin"
 
 
 VI. Clean-up a bit
