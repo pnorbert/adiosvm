@@ -382,31 +382,31 @@ V. Build Visit from release
 2. Build latest Visit release (with many dependencies)
    https://wci.llnl.gov/codes/visit/source.html
 
-   Visit 2.7.1 release uses adios 1.6.0 but it downloads and builds its own
+   Visit 2.7.2 release uses adios 1.6.0 but it downloads and builds its own
    version without compression or staging. 
 
    $ cd ~/Software
    $ mkdir -p visit
    $ cd visit
-   $ wget http://portal.nersc.gov/svn/visit/trunk/releases/2.7.1/build_visit2_7_1
+   $ wget http://portal.nersc.gov/svn/visit/trunk/releases/2.7.2/build_visit2_7_2
      Or download the latest build script from the website
      https://wci.llnl.gov/codes/visit/source.html
 
-   $ chmod +x build_visit2_7_1
-   $ ./build_visit2_7_1 --parallel --mesa --adios --hdf5 --silo --xdmf --zlib --szip 
+   $ chmod +x build_visit2_7_2
+   $ ./build_visit2_7_2 --parallel --mesa --adios --hdf5 --silo --xdmf --zlib --szip 
 
     This script should be started again and again after fixing build problems.
-    All log is founf in build_visit2_7_1_log, appended at each try.
+    All log is founf in build_visit2_7_2_log, appended at each try.
 
     In the dialogs, just accept everything
 
 
                      |     You many now try to run VisIt by cd'ing into the     │  
-                     │ visit2.7.1/src/bin directory and invoking "visit".       │  
+                     │ visit2.7.2/src/bin directory and invoking "visit".       │  
                      │                                                          │  
                      │     To create a binary distribution tarball from this    │  
                      │ build, cd to                                             │  
-                     │ /home/adios/Software/visit/visit2.7.1/src                │  
+                     │ /home/adios/Software/visit/visit2.7.2/src                │  
                      │     then enter: "make package"                           │  
                      │                                                          │  
                      │     This will produce a tarball called                   │  
@@ -428,7 +428,7 @@ V. Build Visit from release
    $ svn co http://portal.nersc.gov/svn/visit/trunk/src visit.src
    $ cd visit.src
    
-   Get the local build cmake config created by build_visit2.7.1 and edit
+   Get the local build cmake config created by build_visit2.7.2 and edit
    $ cp ~/Software/visit/adiosVM.cmake ./config-site
    
      - Add CMAKE_INSTALL_PREFIX to point to desired installation target (/opt/visit):
