@@ -30,9 +30,9 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
         --with-flexpath=/opt/chaos \
         --with-hdf5=/opt/hdf5-1.8.12 \
         --with-phdf5=/opt/hdf5-1.8.12-parallel \
-        --with-netcdf=/opt/netcfdf-4.3.0 
+        --with-netcdf=/opt/netcdf-4.3.0 
 #        --with-dataspaces=/opt/dataspaces/1.4.0 \
-#        --with-nc4par=/opt/netcfdf-4.3.0-parallel 
+#        --with-nc4par=/opt/netcdf-4.3.0-parallel 
 
 else
     echo "Could not determine what machine is this."

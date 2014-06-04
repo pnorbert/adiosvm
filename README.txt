@@ -289,7 +289,7 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/netcdf-4.3.0.tar.gz
    $ mv netcdf-4.3.0 netcdf-4.3.0-serial
    $ cd netcdf-4.3.0-serial
-   $ ./configure --prefix=/opt/netcfdf-4.3.0 --enable-netcdf4 CPPFLAGS="-I/opt/hdf5-1.8.12/include" LDFLAGS="-L/opt/hdf5-1.8.12/lib"
+   $ ./configure --prefix=/opt/netcdf-4.3.0 --enable-netcdf4 CPPFLAGS="-I/opt/hdf5-1.8.12/include" LDFLAGS="-L/opt/hdf5-1.8.12/lib"
    $ make -j 4
    $ make check         
      This testing is optional
@@ -304,7 +304,7 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/netcdf-4.3.0.tar.gz
    $ mv netcdf-4.3.0 netcdf-4.3.0-parallel
    $ cd netcdf-4.3.0-parallel
-   $ ./configure --prefix=/opt/netcfdf-4.3.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.12-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.12-parallel/lib -L/opt/szip/lib" LIBS="-lsz" CC=mpicc FC=mpif90
+   $ ./configure --prefix=/opt/netcdf-4.3.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.12-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.12-parallel/lib -L/opt/szip/lib" LIBS="-lsz" CC=mpicc FC=mpif90
    $ make -j 4
    $ sudo make install
    
