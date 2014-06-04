@@ -90,6 +90,7 @@ I. Set up a Linux VM
    $ sudo apt-get install  build-essential git-core libtool autoconf apt-file subversion cmake
    $ sudo apt-get autoremove 
      - this one to get rid of unnecessary packages after removing LibreOffice
+   
 
 6. Download this repository
    You can postpone step 6 and 7 after 8 if you have a github account
@@ -236,7 +237,7 @@ II. Preparations to install ADIOS
    $ cd chaos
    $ cp build_config build_config.adiosVM
    Edit build_config.adiosVM
-   - we only need to install: dill cercs_env gen_thread atl ffs evpath
+   - we only need to install: dill cercs_env atl ffs evpath
    - comment out the rest of packages
    - change the build area
      BUILD_AREA=/home/adios/Software/chaos
@@ -258,7 +259,7 @@ II. Preparations to install ADIOS
    $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.12.tar.bz2
    $ mv hdf5-1.8.12 hdf5-1.8.12-serial
    $ cd hdf5-1.8.12-serial
-   $ ./configure --with-zlib=/usr --with-szlib=/opt/szlib --prefix=/opt/hdf5-1.8.12 --enable-fortran
+   $ ./configure --with-zlib=/usr --with-szlib=/opt/szip --prefix=/opt/hdf5-1.8.12 --enable-fortran
    $ make -j 4
    $ sudo make install
 
@@ -270,7 +271,7 @@ II. Preparations to install ADIOS
    $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.12.tar.bz2
    $ mv hdf5-1.8.12 hdf5-1.8.12-parallel
    $ cd hdf5-1.8.12-parallel
-   $ ./configure --with-zlib=/usr --with-szlib=/opt/szlib --prefix=/opt/hdf5-1.8.12-parallel --enable-parallel --enable-fortran --with-pic  CC=mpicc FC=mpif90
+   $ ./configure --with-zlib=/usr --with-szlib=/opt/szip --prefix=/opt/hdf5-1.8.12-parallel --enable-parallel --enable-fortran --with-pic  CC=mpicc FC=mpif90
 
    Verify that in the Features list:
         Parallel HDF5: yes
@@ -313,10 +314,10 @@ III. ADIOS Installation
 =======================
 
 1. Download ADIOS
-   1. ADIOS 1.6 is in this repo: 
+   1. ADIOS 1.7 is in this repo: 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/adios-1.6.0.tar.gz
-   $ cd adios-1.6.0
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.7.0.tar.gz
+   $ cd adios-1.7.0
 
    2. Download ADIOS master from repository
    $ cd ~/Software
@@ -344,15 +345,15 @@ III. ADIOS Installation
 
 4. Install 
    $ sudo make install
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.6/lib" and 
-     add to PATH "/opt/adios/1.6/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.7/lib" and 
+     add to PATH "/opt/adios/1.7/bin"
 
 
 
 IV. ADIOS Tutorial code
 =======================
 
-   For ADIOS 1.6, the tutorial is included in this repository
+   For ADIOS 1.7, the tutorial is included in this repository
    ~/adiosvm/Tutorial
 
 1. Linux Packages
@@ -435,9 +436,9 @@ V. Build Visit from release
 
          VISIT_OPTION_DEFAULT(CMAKE_INSTALL_PREFIX /opt/visit)
 
-     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.6):
+     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.7):
 
-         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.6.0)
+         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.7.0)
 
 
    Configure visit with cmake that was built by visit release
