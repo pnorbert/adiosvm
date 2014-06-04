@@ -19,11 +19,10 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
     export CXX=g++
     export FC=gfortran
 
-    #export CFLAGS="-g -O0 -fPIC" 
-    ${SRCDIR}/configure --prefix=/opt/adios/1.6 \
+    export CFLAGS="-g -O0 -fPIC -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast"
+    ${SRCDIR}/configure --prefix=/opt/adios/1.7 \
         --enable-dependency-tracking \
         --with-mxml=/opt/mxml \
-        --with-dataspaces=/opt/dataspaces/1.3.0 \
         --with-zlib=/usr \
         --with-bzip2=/usr \
         --with-szip=/opt/szip \
@@ -32,6 +31,7 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
         --with-hdf5=/opt/hdf5-1.8.12 \
         --with-phdf5=/opt/hdf5-1.8.12-parallel \
         --with-netcdf=/opt/netcfdf-4.3.0 
+#        --with-dataspaces=/opt/dataspaces/1.4.0 \
 #        --with-nc4par=/opt/netcfdf-4.3.0-parallel 
 
 else
