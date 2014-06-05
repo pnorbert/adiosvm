@@ -379,6 +379,9 @@ V. Build Visit from release
   For Silo reader to believe in good Qt installation
   $ sudo apt-get install libxmu-dev libxi-dev
 
+  Qt development packages (required or visit will build its own)
+  $ sudo apt-get libqt4-dev 
+  This will install all dependent packages
 
 2. Build latest Visit release (with many dependencies)
    https://wci.llnl.gov/codes/visit/source.html
@@ -395,6 +398,7 @@ V. Build Visit from release
 
    $ chmod +x build_visit2_7_2
    $ ./build_visit2_7_2 --parallel --mesa --adios --hdf5 --silo --xdmf --zlib --szip 
+   $ ./build_visit --system-qt --parallel --mesa --adios --hdf5 --xdmf --zlib --szip --console
 
     This script should be started again and again after fixing build problems.
     All log is founf in build_visit2_7_2_log, appended at each try.
@@ -470,24 +474,28 @@ V. Build Plotter
 If you still want to use the our own plotter instead of / besides visit.
 
   $ sudo apt-get install grace
-  $ mkdir ~/Software/vtk-offscreen
-  $ cd ~/Software/vtk-offscreen
+
+  If not installed Visit yet:
+  $ sudo apt-get install libglu1-mesa-dev libxt-dev
+
+  $ mkdir ~/Software/plotter
+  $ cd ~/Software/plotter
 
   1. Build vtk-5.8 (saved from old Visit config)
   
   $ tar zxf ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
   $ mkdir visit-5.8-build
   $ cd visit-5.8-build
-  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/vtk-offscreen ../visit-vtk-5.8
+  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/plotter ../visit-vtk-5.8
   $ make -j 4
   $ sudo make install
 
 
   2. Build Mesa library
-  $ cd ~/Software/vtk-offscreen
+  $ cd ~/Software/plotter
   $ tar zxf ~/adiosvm/plotterpackages/Mesa-7.8.2.tar.gz
   $ cd Mesa-7.8.2
-  $ ./configure CFLAGS="-I/usr/include/i386-linux-gnu -O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" CXXFLAGS="-O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" --prefix=/opt/vtk-offscreen --with-driver=osmesa --disable-driglx-direct 
+  $ ./configure CFLAGS="-I/usr/include/i386-linux-gnu -O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" CXXFLAGS="-O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" --prefix=/opt/plotter --with-driver=osmesa --disable-driglx-direct 
   $ make -j 4
   $ sudo make install
 
@@ -499,7 +507,7 @@ If you still want to use the our own plotter instead of / besides visit.
   $ tar zxf ~/adiosvm/plotterpackages/plotter.tar.gz
   $ cd plotter
   
-  Edit Makefile.adiosVM to point to the correct ADIOS, HDF5, NetCDF, Grace and VTK libraries. 
+  Edit Makefile.adiosVM to point to the correct ADIOS, HDF5 (sequential), NetCDF (sequential), Grace and VTK libraries. 
 
   $ make
   $ sudo INSTALL_DIR=/opt/plotter INSTALL_CMD=install make install
@@ -511,7 +519,7 @@ VI. Clean-up a bit
 ==================
 Not much space left after building visit and plotter. You can remove this big offenders
 
-1.9GB  ~/Software/vtk-offscreen/visit-vtk-5.8-build
+1.9GB  ~/Software/plotter/visit-vtk-5.8-build
 1.3GB  ~/Software/visit/qt-everywhere-opensource-src-4.8.3
        ~/Software/visit/qt-everywhere-opensource-src-4.8.3.tar.gz
        ~/Software/visit/VTK*-build
