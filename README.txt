@@ -136,6 +136,7 @@ II. Preparations to install ADIOS
 
 1. Linux Packages
    $ sudo apt-get install gfortran mpich2
+   $ sudo apt-get install python-cheetah python-yaml
 
 2. Install Soft-iWarp to get the Infiniband network
    This is required to enable DataSpaces on the VM, which is required to run
@@ -481,21 +482,37 @@ If you still want to use the our own plotter instead of / besides visit.
   $ mkdir ~/Software/plotter
   $ cd ~/Software/plotter
 
-  1. Build vtk-5.8 (saved from old Visit config)
-  
-  $ tar zxf ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
-  $ mkdir visit-5.8-build
-  $ cd visit-5.8-build
-  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/plotter ../visit-vtk-5.8
-  $ make -j 4
-  $ sudo make install
 
-
-  2. Build Mesa library
+  1. Build Mesa library
   $ cd ~/Software/plotter
   $ tar zxf ~/adiosvm/plotterpackages/Mesa-7.8.2.tar.gz
   $ cd Mesa-7.8.2
   $ ./configure CFLAGS="-I/usr/include/i386-linux-gnu -O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" CXXFLAGS="-O2 -DUSE_MGL_NAMESPACE -fPIC -DGLX_USE_TLS" --prefix=/opt/plotter --with-driver=osmesa --disable-driglx-direct 
+  $ make -j 4
+  $ sudo make install
+
+
+  2. Build vtk-5.8 (saved from old Visit config)
+  
+  $ tar zx  <-- This is OFF!!f ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
+  $ mkdir vtk-5.8-build
+  $ cd vtk-5.8-build
+  $ export LD_LIBRARY_PATH=/opt/plotter/lib:$LD_LIBRARY_PATH
+  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/plotter ../visit-vtk-5.8
+
+  Check if CMakeCache.txt has VTK_OPENGL_HAS_OSMESA:BOOL=ON, if not, turn on and rerun cmake. 
+  It has to find the Mesa options and have this in CMakeCache.txt
+
+    //Path to a file.
+    OSMESA_INCLUDE_DIR:PATH=/opt/plotter/include
+
+    //Path to a library.
+    OSMESA_LIBRARY:FILEPATH=/opt/plotter/lib/libOSMesa.so
+    ...
+    //Use mangled Mesa with OpenGL.
+    VTK_USE_MANGLED_MESA:BOOL=OFF  <-- This is OFF!!
+
+
   $ make -j 4
   $ sudo make install
 
@@ -519,7 +536,7 @@ VI. Clean-up a bit
 ==================
 Not much space left after building visit and plotter. You can remove this big offenders
 
-1.9GB  ~/Software/plotter/visit-vtk-5.8-build
+1.9GB  ~/Software/plotter/vtk-5.8-build
 1.3GB  ~/Software/visit/qt-everywhere-opensource-src-4.8.3
        ~/Software/visit/qt-everywhere-opensource-src-4.8.3.tar.gz
        ~/Software/visit/VTK*-build
