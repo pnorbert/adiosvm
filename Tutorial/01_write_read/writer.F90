@@ -37,8 +37,8 @@ program writer
   npy = 3
   !ndx = 65
   !ndy = 129
-  ndx = 650
-  ndy = 1290
+  ndx = 250
+  ndy = 400
   ! will work with each core writing ndx = 65, ndy = 129, (65*4,129*3) global
   if (nproc.ne.npx*npy) then
      if (rank==0) write(6,*) 'ERROR with nproc=',nproc,'npx=',npx,'npy=',npy
