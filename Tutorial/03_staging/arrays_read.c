@@ -110,7 +110,8 @@ int main (int argc, char ** argv)
     adios_init ("adios.xml", comm);
 #endif
 
-    while(adios_errno != err_end_of_stream && adios_errno != err_step_notready)
+    //while(adios_errno != err_end_of_stream && adios_errno != err_step_notready)
+    while(fp != NULL)
     {
         steps++;
         // Reading
