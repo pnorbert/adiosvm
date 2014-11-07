@@ -111,14 +111,15 @@ int main (int argc, char ** argv)
 #endif
 
     //while(adios_errno != err_end_of_stream && adios_errno != err_step_notready)
-    while(fp != NULL)
+    while(1)
     {
         steps++;
         // Reading
         adios_schedule_read (fp, sel, "var_2d_array", 0, 1, t);
         adios_perform_reads (fp, 1);
         
-        printf("step=%d\trank=%d\t[%d,%d]\n", steps, rank, len, NY);
+        printf("step=%d\trank=%d\tfp->current_step=%d\t[%d,%d]\n", 
+                steps, rank, fp->current_step, len, NY);
         /*
         // Debugging
         for (i=0; i<len; i++) {
@@ -196,16 +197,34 @@ int main (int argc, char ** argv)
         // Advance
         MPI_Barrier (comm);
         adios_advance_step(fp, 0, TIMEOUT_SEC);
+        if (adios_errno == err_end_of_stream)
+        {
+            printf("rank %d, Stream terminated. Quit\n", rank);
+            break; // quit while loop
+        }
+        else if (adios_errno == err_step_notready)
+        {
+            printf ("rank %d: No new step arrived within the timeout. Quit.\n", rank);
+            break; // quit while loop
+        }
+        else if (adios_errno != err_no_error) {
+            printf("ADIOS returned code=%d, msg:\n", 
+                    adios_errno, adios_get_last_errmsg()); 
+            break; // quit while loop
+        }
     }
     //
     free(t);
 
     adios_read_close(fp);
+    //printf("rank %d, Successfully closed stream\n", rank);
 
     adios_read_finalize_method(ADIOS_READ_METHOD_FLEXPATH);
+    //printf("rank %d, Successfully finalized read method\n", rank);
 
 #ifndef _USE_GNUPLOT
     adios_finalize (rank);
+    //printf("rank %d, Successfully finalized adios\n", rank);
 #else
     if (rank==0) {
         free(tmp);
