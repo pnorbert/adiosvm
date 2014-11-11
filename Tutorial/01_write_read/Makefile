@@ -22,7 +22,6 @@ reader: reader.F90
 	${LINKER}   -g -o reader reader.o ${ADIOSREAD_FLIB} 
 
 clean:
-	rm -f *.o *.mod *.fh core.* fort.* *.png
+	rm -rf *.o *.mod *.fh core.* fort.* *.png *.dir
 	rm -f writer reader  writer*.bp writer*.h5 writer*.nc
-	rm -f writer_base reader_base
 
