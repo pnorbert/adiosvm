@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <adios-config host-language="C" schema-version="1.1">
   <adios-group name="tri2d" >
-    <var name="nx_global"  path="" type="integer"/>
-    <var name="ny_global"  path="" type="integer"/>
-    <var name="nproc" path="" type="integer"/>
-    <attribute name="description" path="/nproc" value="Number of writers"/>
+    <var name="nx_global" type="integer"/>
+    <var name="ny_global" type="integer"/>
+    <var name="nproc"     type="integer"/>
+    <attribute name="nproc/description" value="Number of writers"/>
 
-    <var name="npoints" path="" type="integer"/>
-    <attribute name="description" path="/npoints" value="Number of points"/>
+    <var name="npoints"   type="integer"/>
+    <attribute name="npoints/description" value="Number of points"/>
 
-    <var name="num_cells" path="" type="integer"/>
-    <attribute name="description" path="/num_cells" value="Number of triangles"/>
+    <var name="num_cells" type="integer"/>
+    <attribute name="num_cells/description" value="Number of triangles"/>
 
-    <var name="offs_x" path="" type="integer"/>
-    <var name="offs_y" path="" type="integer"/>
-    <var name="nx_local"  path="" type="integer"/>
-    <var name="ny_local"  path="" type="integer"/>
+    <var name="offs_x"    type="integer"/>
+    <var name="offs_y"    type="integer"/>
+    <var name="nx_local"  type="integer"/>
+    <var name="ny_local"  type="integer"/>
 
     <var name="op" type="integer"/>
     <var name="lp" type="integer"/>
@@ -43,13 +43,13 @@
         <var name="N" type="double" dimensions="lp"
              mesh="trimesh" center="point"/>
     </global-bounds>
-    <attribute name="description" path="/N" value="Node centered data"/>
+    <attribute name="N/description" value="Node centered data"/>
 
     <global-bounds dimensions="num_cells" offsets="oc">
         <var name="C" type="double" dimensions="lc"
              mesh="trimesh" center="cell"/>
     </global-bounds>
-    <attribute name="description" path="/C" value="Cell centered data"/>
+    <attribute name="C/description" value="Cell centered data"/>
     
 
   </adios-group>
