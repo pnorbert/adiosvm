@@ -542,7 +542,26 @@ Not much space left after building visit and plotter. You can remove this big of
        ~/Software/visit/VTK*-build
 
 
-  
+VII. Others
+===========
+Ubuntu Metacity's Ambiance theme
+--------------------------------
+  The window border is a single pixel, it's hard to resize window. 
+  http://askubuntu.com/questions/8498/how-can-i-make-the-draggable-window-border-thicker-without-changing-the-appeara
+
+  Change the following parameters in the appropriate Metacity XML file.  
+  $ sudo vi /usr/share/themes/Ambiance/metacity-1/metacity-theme-1.xml
+
+  The folowing parameters change the width of the borders and consequently the width of the re-size area:
+
+  "<distance name="left_width" value="1"/>"
+  "<distance name="right_width" value="1"/>"
+  "<distance name="bottom_height" value="1"/>"
+
+  By default they are set to "1", but I found that changing them to 4 to 6 doesn't change the appearance very drastically, but makes it very much easier to re-size using the mouse.
+    
+  To reload the theme without logging out you can run the command: 
+  $ metacity-message reload-theme  
   
 
 
