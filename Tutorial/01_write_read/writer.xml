@@ -27,8 +27,11 @@
   -->
   <transport group="writer" method="MPI"/>
   <!--
-  <transport group="writer" method="VAR_MERGE">chunk_size=30000000;io_method=MPI</transport>
+  <transport group="writer" method="MPI_AGGREGATE">num_aggregators=4;num_ost=4</transport>
   <transport group="writer" method="VAR_MERGE">io_method=MPI</transport>
+  <transport group="writer" method="VAR_MERGE">chunk_size=30000000;io_method=MPI</transport>
+  <transport group="writer" method="VAR_MERGE">chunk_size=4000000;io_method=MPI</transport>
+  <transport group="writer" method="PHDF5"></transport>
   -->
 
   <buffer size-MB="30" allocate-time="now"/>
