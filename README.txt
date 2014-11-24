@@ -248,7 +248,8 @@ II. Preparations to install ADIOS
 
    $ perl chaos_build.pl -c build_config.adiosVM 
 
-   Type anon for both username and password if requested at svn checkout commands.
+   Enter 'anon' for both username and password if requested at svn checkout commands.
+   Enter 'adios' for a question like "Password for 'default' GNOME keyring:"
 
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/chaos/lib"
 
