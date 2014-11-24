@@ -1,0 +1,38 @@
+2D Heat Transfer example
+Fortran 90 code, 2D array with 2D decomposition
+
+1. Build
+--------
+Edit make.settings for 
+- compiler and compiler options
+- ADIOS installation directory
+
+Then run 'make'
+
+2. Run
+-------
+
+$ ./heat_transfer 
+ Usage: heat_transfer  output  N  M   nx  ny   steps iterations
+ output: name of output file
+ N:      number of processes in X dimension
+ M:      number of processes in Y dimension
+ nx:     local array size in X dimension per processor
+ ny:     local array size in Y dimension per processor
+ steps:  the total number of steps to output
+ iterations: one step consist of this many iterations
+
+$ mpirun -np 12 ./heat_transfer heat.bp  3 4    50 40   5 500
+
+will perform the calculation 
+- on 12 processes 
+- on a 3*50 x 4*40 2D array 
+- for 5*500 iterations, 
+- producing an output of 1+5 steps stored in heat.bp (initial data plus 5 steps)
+
+$ bpls -l heat.bp T
+  double   T            6*{160, 150} = 0 / 999.989 / 746.111 / 359.615 
+
+$ ./plot_T.sh heat.bp
+$ eog . 
+

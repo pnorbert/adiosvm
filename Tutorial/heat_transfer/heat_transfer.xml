@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<adios-config host-language="Fortran">
+  <adios-group name="heat">
+    <var name="/dims/gndx" type="integer"/>
+    <var name="/dims/gndy" type="integer"/>
+
+    <var name="/info/nproc" type="integer"/>
+    <attribute name="/info/nproc/description" value="Number of writers"/>
+    <var name="/info/npx" type="integer"/>
+    <attribute name="/info/npx/description" value="Number of processors in x dimension"/>
+    <var name="/info/npy" type="integer"/>
+    <attribute name="/info/npy/description" value="Number of processors in y dimension"/>
+
+
+    <!-- Auxiliary variables for global array indexing -->
+    <var name="/aux/offx" type="integer"/>
+    <var name="/aux/offy" type="integer"/>
+    <var name="/aux/ndx"  type="integer"/>
+    <var name="/aux/ndy"  type="integer"/>
+
+    <var name="step"       type="integer"/>
+    <var name="iterations" type="integer"/>
+
+    <!-- 2D array -->
+    <global-bounds dimensions="/dims/gndx,/dims/gndy" 
+                   offsets="/aux/offx,/aux/offy">
+        <var name="T" gwrite="T(:,:,curr)" path="" type="real*8" 
+             dimensions="/aux/ndx,/aux/ndy"/>
+    </global-bounds>
+    <attribute name="T/description" value="2D array with 2D decomposition"/>
+
+
+  </adios-group>
+
+  <method group="heat" method="MPI">verbose=3</method>
+
+  <buffer size-MB="20" allocate-time="now"/>
+
+</adios-config>
