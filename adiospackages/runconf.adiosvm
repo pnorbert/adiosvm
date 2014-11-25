@@ -21,6 +21,7 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
 
     export CFLAGS="-g -O0 -fPIC -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast"
     ${SRCDIR}/configure --prefix=/opt/adios/1.8 \
+        --disable-maintainer-mode \
         --enable-dependency-tracking \
         --with-mxml=/opt/mxml \
         --with-zlib \
