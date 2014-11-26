@@ -31,8 +31,13 @@ will perform the calculation
 - producing an output of 1+5 steps stored in heat.bp (initial data plus 5 steps)
 
 $ bpls -l heat.bp T
-  double   T            6*{160, 150} = 0 / 999.989 / 746.111 / 359.615 
+  double   T            6*{160, 150} = 0 / 999.364 / 346.132 / 331.178 
+  double   dT           6*{160, 150} = 0 / 0.720097 / 0.122617 / 0.124352
 
-$ ./plot_T.sh heat.bp
+$ ./plot_heat.sh heat.bp
 $ eog . 
 
+
+--------------------------------------------
+A 100 output step, almost reaching full heat
+$ mpirun -np 6 ./heat_transfer heat.bp 3 2 100 200 100 400
