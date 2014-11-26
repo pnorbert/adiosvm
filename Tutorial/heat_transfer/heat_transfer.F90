@@ -35,6 +35,7 @@ module heat_common
     integer :: posx, posy  ! position index in the array
 
     real*8, dimension(:,:,:), allocatable :: T    ! data array 
+    real*8, dimension(:,:), allocatable   :: dT   ! data array 
     integer, dimension(:,:), allocatable :: heatmap
 
     ! MPI COMM_WORLD is for all codes started up at once on Cray XK6 
@@ -135,7 +136,9 @@ program heat_transfer
 
     ! allocate and initialize data array
     allocate( T(0:ndx+1, 0:ndy+1, 2) )
+    allocate( dT(1:ndx, 1:ndy) )
     T = 0.0
+    dT = 0.0
 
     ! allocate and initialize heat map
     allocate( heatmap(0:6,0:6) )
@@ -145,14 +148,14 @@ program heat_transfer
                    1000,    0,    0,    0,    0,    0, 1000,        &
                    1000,    0,    0,    0,    0,    0, 1000,        &
                    1000,    0,    0,    0,    0,    0, 1000,        &
+                   1000,    0,    0,  500,    0,    0, 1000,        &
                    1000,    0,    0,    0,    0,    0, 1000,        &
-                   1000,    0,    0,    0,    0,    0, 1000,        &
-                  -1000,-1000,-1000,-1000,-1000,-1000,-1000 /),     &
+                   0000, 0000, 0000, 0000, 0000, 0000, 0000 /),     &
            (/ size(heatmap, 2), size(heatmap, 1) /)))
 
 
     curr = 1;
-    call heat(curr)
+    call heatEdges(curr)
     call writeADIOS(0,curr)  ! write out init values
 
     do tstep=1,steps
@@ -161,7 +164,7 @@ program heat_transfer
         do it=1,iters
             call iterate(curr)
             curr = 2/curr  !  flip between 1 and 2, current and next array
-            call heat(curr)
+            call heatEdges(curr)
             call exchange(curr)
             !print '("Rank ",i4," done exchange")', rank
         end do ! iterations
@@ -250,6 +253,7 @@ subroutine iterate(curr)
             T(i,j,next) = omega/4*(T(i-1,j,curr)+T(i+1,j,curr)+ &
                 T(i,j-1,curr)+T(i,j+1,curr) ) + &
                 (1.0-omega)*T(i,j,curr)
+            dT(i,j) = T(i,j,next) - T(i,j,curr)
             !if (rank==1) then
             !    print '(i0,",",i0,":(",5f9.3,")")', &
             !    j,i, &
@@ -344,7 +348,7 @@ subroutine writeADIOS(tstep,curr)
     call MPI_BARRIER(app_comm, adios_err)
     io_start_time = MPI_WTIME()
     call adios_open (adios_handle, "heat", outputfile, mode, app_comm, adios_err)
-    adios_groupsize = 11*4 + 8*ndx*ndy
+    adios_groupsize = 11*4 + 2*8*ndx*ndy 
     call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
     call adios_write (adios_handle, "/dims/gndx", gndx, adios_err)
     call adios_write (adios_handle, "/dims/gndy", gndy, adios_err)
@@ -358,6 +362,7 @@ subroutine writeADIOS(tstep,curr)
     call adios_write (adios_handle, "step", tstep, adios_err)
     call adios_write (adios_handle, "iterations", iters, adios_err)
     call adios_write (adios_handle, "T", T(1:ndx,1:ndy,curr), adios_err)
+    call adios_write (adios_handle, "dT", dT, adios_err)
     call adios_close (adios_handle, adios_err)
     call MPI_BARRIER(app_comm ,adios_err)
     io_end_time = MPI_WTIME()

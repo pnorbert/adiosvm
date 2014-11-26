@@ -26,8 +26,11 @@
                    offsets="/aux/offx,/aux/offy">
         <var name="T" gwrite="T(:,:,curr)" path="" type="real*8" 
              dimensions="/aux/ndx,/aux/ndy"/>
+        <var name="dT" gwrite="dT(:,:)" path="" type="real*8" 
+             dimensions="/aux/ndx,/aux/ndy"/>
     </global-bounds>
-    <attribute name="T/description" value="2D array with 2D decomposition"/>
+    <attribute name="T/description" value="Temperature 2D array with 2D decomposition"/>
+    <attribute name="dT/description" value="delta T"/>
 
 
   </adios-group>
