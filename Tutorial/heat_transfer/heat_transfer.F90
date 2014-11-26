@@ -35,6 +35,7 @@ module heat_common
     integer :: posx, posy  ! position index in the array
 
     real*8, dimension(:,:,:), allocatable :: T    ! data array 
+    integer, dimension(:,:), allocatable :: heatmap
 
     ! MPI COMM_WORLD is for all codes started up at once on Cray XK6 
     integer :: wrank, wnproc
@@ -136,9 +137,22 @@ program heat_transfer
     allocate( T(0:ndx+1, 0:ndy+1, 2) )
     T = 0.0
 
+    ! allocate and initialize heat map
+    allocate( heatmap(0:6,0:6) )
+    heatmap = 0
+    heatmap = transpose(reshape(            &
+                (/ 1000, 1000, 1000, 1000, 1000, 1000, 1000,        & 
+                   1000,    0,    0,    0,    0,    0, 1000,        &
+                   1000,    0,    0,    0,    0,    0, 1000,        &
+                   1000,    0,    0,    0,    0,    0, 1000,        &
+                   1000,    0,    0,    0,    0,    0, 1000,        &
+                   1000,    0,    0,    0,    0,    0, 1000,        &
+                  -1000,-1000,-1000,-1000,-1000,-1000,-1000 /),     &
+           (/ size(heatmap, 2), size(heatmap, 1) /)))
+
 
     curr = 1;
-    call heatEdges(curr)
+    call heat(curr)
     call writeADIOS(0,curr)  ! write out init values
 
     do tstep=1,steps
@@ -147,7 +161,7 @@ program heat_transfer
         do it=1,iters
             call iterate(curr)
             curr = 2/curr  !  flip between 1 and 2, current and next array
-            call heatEdges(curr)
+            call heat(curr)
             call exchange(curr)
             !print '("Rank ",i4," done exchange")', rank
         end do ! iterations
@@ -160,6 +174,7 @@ program heat_transfer
 
     ! Terminate
     deallocate (T)
+    deallocate (heatmap)
     call MPI_Barrier (app_comm, ierr)
     call adios_finalize (rank, ierr)
     call MPI_Finalize (ierr)
@@ -181,6 +196,43 @@ subroutine heatEdges(curr)
     if (posy==npy-1) T(:,ndy+1,curr) = edgetemp
 
 end subroutine heatEdges
+
+!!***************************
+subroutine heat(curr)
+    use heat_common
+    implicit none
+    integer, intent(in) :: curr
+    integer :: mx, my, i, j
+    real :: cx, cy
+    integer :: mapx, mapy
+
+    mx = size (heatmap,1)
+    my = size (heatmap,2)
+    cx = (mx) / (gndx+2.0)
+    cy = (my) / (gndy+2.0)
+
+!    if (rank==0) then
+!        print '("mx=",i0," my=",i0," cx=",f9.3," cy=",5f9.3)', &
+!            mx, my, cx, cy
+!    endif
+!    print '(i0,": offx=",i0," offy=",i0)', &
+!        rank, offx, offy
+
+    do j=0,ndy+1
+        mapy = (offy+j) * cy 
+        do i=0,ndx+1
+           mapx = (offx+i) * cx 
+!           if (rank==1) then
+!              print '(i0,": i=",i0," mapx=",i0," j=",i0," mapy=",i0)', &
+!                  rank, i, mapx, j, mapy
+!           endif
+           if (heatmap(mapx, mapy) /= 0.0) then
+               T(i,j,curr) = (T(i,j,curr) + heatmap (mapx, mapy))/2.0
+           endif
+        enddo
+    enddo
+
+end subroutine heat
 
 
 !!***************************
