@@ -36,6 +36,9 @@
   </adios-group>
 
   <method group="heat" method="MPI">verbose=3</method>
+<!--
+  <method group="heat" method="FLEXPATH">QUEUE_SIZE=4;verbose=3</method>
+-->
 
   <buffer size-MB="20" allocate-time="now"/>
 
