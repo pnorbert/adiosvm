@@ -22,47 +22,10 @@
 ! (c) Oak Ridge National Laboratory, 2009
 ! Author: Norbert Podhorszki
 !
-module heat_common
-    ! arguments
-    character(len=256) :: outputfile, inputfile
-    integer :: npx, npy    ! # of processors in x-y direction
-    integer :: ndx, ndy    ! size of array per processor (without ghost cells)
-    integer :: steps       ! number of steps to write
-    integer :: iters       ! number of iterations between steps
-
-    integer :: gndx, gndy  ! size of the global array (without ghost cells)
-    integer :: offx,offy   ! offsets of local array in the global array
-    integer :: posx, posy  ! position index in the array
-
-    real*8, dimension(:,:,:), allocatable :: T    ! data array 
-    real*8, dimension(:,:), allocatable   :: dT   ! data array 
-    integer, dimension(:,:), allocatable :: heatmap
-
-    ! MPI COMM_WORLD is for all codes started up at once on Cray XK6 
-    integer :: wrank, wnproc
-
-    ! MPI 'world' for this app variables
-    integer :: app_comm, color
-    integer :: rank, nproc
-    integer :: ierr
-    integer :: rank_left, rank_right, rank_up, rank_down ! neighbours' ranks
-
-    ! ADIOS variables
-    character (len=200) :: group
-    character (len=200) :: filename
-    !character (len=6)   :: nprocstr
-    integer*8 :: handle, total_size, group_size, adios_totalsize
-    integer   :: err
-
-    real*8 :: start_time, end_time, total_time,gbs,sz
-    real*8 :: io_start_time, io_end_time, io_total_time
-
-
-end module heat_common
-
 
 program heat_transfer
-    use heat_common
+    use heat_vars
+    use heat_io
     implicit none
     include 'mpif.h'
     integer :: tstep ! current timestep (1..steps)
@@ -85,7 +48,7 @@ program heat_transfer
     call MPI_Comm_rank (app_comm, rank, ierr)
     call MPI_Comm_size (app_comm, nproc , ierr)
 
-    call adios_init ("heat_transfer.xml", app_comm, ierr)
+    call io_init()
     call MPI_Barrier (app_comm, ierr)
 
     call processArgs()
@@ -156,7 +119,7 @@ program heat_transfer
 
     curr = 1;
     call heatEdges(curr)
-    call writeADIOS(0,curr)  ! write out init values
+    call io_write(0,curr)  ! write out init values
 
     do tstep=1,steps
         if (rank==0) print '("Step ",i4,":")', tstep
@@ -169,7 +132,7 @@ program heat_transfer
             !print '("Rank ",i4," done exchange")', rank
         end do ! iterations
 
-        call writeADIOS(tstep,curr) 
+        call io_write(tstep,curr) 
         !print '("Rank ",i4," done write")', rank
 
     end do ! steps
@@ -179,7 +142,7 @@ program heat_transfer
     deallocate (T)
     deallocate (heatmap)
     call MPI_Barrier (app_comm, ierr)
-    call adios_finalize (rank, ierr)
+    call io_finalize()
     call MPI_Finalize (ierr)
 end program heat_transfer
 
@@ -187,7 +150,7 @@ end program heat_transfer
 
 !!***************************
 subroutine heatEdges(curr)
-    use heat_common
+    use heat_vars
     implicit none
     integer, intent(in) :: curr
     real*8, parameter :: edgetemp = 1000.0
@@ -202,7 +165,7 @@ end subroutine heatEdges
 
 !!***************************
 subroutine heat(curr)
-    use heat_common
+    use heat_vars
     implicit none
     integer, intent(in) :: curr
     integer :: mx, my, i, j
@@ -240,7 +203,7 @@ end subroutine heat
 
 !!***************************
 subroutine iterate(curr)
-    use heat_common
+    use heat_vars
     implicit none
     integer, intent(in) :: curr
     include 'mpif.h'
@@ -268,7 +231,7 @@ end subroutine iterate
 
 !!***************************
 subroutine exchange(curr)
-    use heat_common
+    use heat_vars
     implicit none
     integer, intent(in) :: curr
     include 'mpif.h'
@@ -326,53 +289,6 @@ subroutine exchange(curr)
 
 end subroutine exchange
 
-!!***************************
-subroutine writeADIOS(tstep,curr)
-    use heat_common
-    implicit none
-    include 'mpif.h'
-    integer, intent(in) :: tstep
-    integer, intent(in) :: curr
-
-    integer*8 adios_handle, adios_groupsize
-    integer adios_err
-    character(2) :: mode = "w"
-
-
-    if (rank==0.and.tstep==0) then
-        print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
-    endif
-  
-    if (tstep > 0) mode = "a"
-
-    call MPI_BARRIER(app_comm, adios_err)
-    io_start_time = MPI_WTIME()
-    call adios_open (adios_handle, "heat", outputfile, mode, app_comm, adios_err)
-    adios_groupsize = 11*4 + 2*8*ndx*ndy 
-    call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
-    call adios_write (adios_handle, "/dims/gndx", gndx, adios_err)
-    call adios_write (adios_handle, "/dims/gndy", gndy, adios_err)
-    call adios_write (adios_handle, "/info/nproc", nproc, adios_err)
-    call adios_write (adios_handle, "/info/npx", npx, adios_err)
-    call adios_write (adios_handle, "/info/npy", npy, adios_err)
-    call adios_write (adios_handle, "/aux/offx", offx, adios_err)
-    call adios_write (adios_handle, "/aux/offy", offy, adios_err)
-    call adios_write (adios_handle, "/aux/ndx", ndx, adios_err)
-    call adios_write (adios_handle, "/aux/ndy", ndy, adios_err)
-    call adios_write (adios_handle, "step", tstep, adios_err)
-    call adios_write (adios_handle, "iterations", iters, adios_err)
-    call adios_write (adios_handle, "T", T(1:ndx,1:ndy,curr), adios_err)
-    call adios_write (adios_handle, "dT", dT, adios_err)
-    call adios_close (adios_handle, adios_err)
-    call MPI_BARRIER(app_comm ,adios_err)
-    io_end_time = MPI_WTIME()
-    io_total_time = io_end_time - io_start_time
-    sz = adios_totalsize * nproc/1024.d0/1024.d0/1024.d0 !size in GB
-    gbs = sz/io_total_time
-    if (rank==0) print '("Step ",i3,": ",a20,d12.2,2x,d12.2,2x,d12.3)', &
-        tstep,outputfile,sz,io_total_time,gbs
-end subroutine writeADIOS
-
 
 !!***************************
 subroutine usage()
@@ -388,7 +304,7 @@ end subroutine usage
 
 !!***************************
 subroutine processArgs()
-    use heat_common
+    use heat_vars
 
 #ifndef __GFORTRAN__
 #ifndef __GNUC__
@@ -426,46 +342,4 @@ subroutine processArgs()
 
 end subroutine processArgs
 
-
-!!******  NOT  WORKING  YET **********
-subroutine exchange_async(curr)
-    use heat_common
-    implicit none
-    integer, intent(in) :: curr
-    include 'mpif.h'
-    integer request(8),status(MPI_STATUS_SIZE,8)
-
-    request = MPI_REQUEST_NULL
-    status  = 0
-
-    ! Exchange ghost cells, in the order left-right-up-down
-    !  call MPI_Isend(buf,nsize,type,target_rank,tag,comm,request,ierr) 
-    !  call MPI_Irecv(buf,nsize,type,target_rank,tag,comm,request,ierr)
-
-    ! send to left + receive from left
-    if (posx > 0) then
-        call MPI_Isend(T(1,:,curr), ndy+2, MPI_REAL8, rank-1, 0, app_comm, request(1), ierr) 
-        call MPI_Irecv(T(0,:,curr), ndy+2, MPI_REAL8, rank-1, 0, app_comm, request(2), ierr) 
-    endif
-    ! send to right + receive from right
-    if (posx < npx-1) then
-        call MPI_Isend(T(ndx,:,curr), ndy+2, MPI_REAL8, rank+1, 0, app_comm, request(3), ierr) 
-        call MPI_Irecv(T(ndx+1,:,curr), ndy+2, MPI_REAL8, rank+1, 0, app_comm, request(4), ierr) 
-    endif
-
-    ! send up + receive from above
-    if (posy > 0 ) then
-        call MPI_Isend(T(:,1,curr), ndy+2, MPI_REAL8, rank-npx, 0, app_comm, request(5), ierr) 
-        call MPI_Irecv(T(:,0,curr), ndy+2, MPI_REAL8, rank-npx, 0, app_comm, request(6), ierr) 
-    endif
-    ! send down + receive from below 
-    if (posy < npy-1) then
-        call MPI_Isend(T(:,ndy,curr), ndy+2, MPI_REAL8, rank+npx, 0, app_comm, request(7), ierr) 
-        call MPI_Irecv(T(:,ndy+1,curr), ndy+2, MPI_REAL8, rank+npx, 0, app_comm, request(8), ierr) 
-    endif
-
-    ! Wait for all communication to be finished
-    call MPI_Waitall(8,request,status,ierr)
-
-end subroutine exchange_async
 
