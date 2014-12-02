@@ -8,8 +8,6 @@
 !
 !  2D heat transfer example with ghost cells
 !
-!  Write an ADIOS BP file from many processor for test purposes.
-!
 !  nx * ny      processes write a 2D array, where each process writes an
 !  ndx * ndy    piece 
 !
