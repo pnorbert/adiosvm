@@ -310,7 +310,17 @@ II. Preparations to install ADIOS
    $ make -j 4
    $ sudo make install
    
-    
+11. Fastbit indexing support (needed for queries)
+   $ cd ~/Software
+   $ svn co https://codeforge.lbl.gov/anonscm/fastbit/trunk
+   $ mv trunk fastbit
+   $ cd fastbit/
+   $ ./configure --with-pic -prefix=/opt/fastbit
+   $ make
+   -- this will be slooooow
+   $ sudo make install
+
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/fastbit/lib"
 
 III. ADIOS Installation
 =======================
