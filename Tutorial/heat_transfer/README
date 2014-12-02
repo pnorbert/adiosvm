@@ -3,11 +3,11 @@ Fortran 90 code, 2D array with 2D decomposition
 
 1. Build
 --------
-Edit make.settings for 
+Edit make.settings 
 - compiler and compiler options
 - ADIOS installation directory
 
-Then run 'make'
+$ make adios
 
 2. Run
 -------
