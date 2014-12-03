@@ -100,7 +100,7 @@ I. Set up a Linux VM
    $ git clone https://github.com/pnorbert/adiosvm.git
 
 7. VIM setup
-   $ sudo apt-get vim
+   $ sudo apt-get install vim
    copy from this repo: vimrc to ~/.vimrc
    $ cp ~/adiosvm/vimrc .vimrc
 
