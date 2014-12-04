@@ -11,14 +11,14 @@ import numpy as np
 """ 
 Read all
 """
-T = ad.readvar("heat.bp", "T")
+T = ad.readvar("../heat.bp", "T")
 print ">>> shape:", T.shape
 print T
 
 """ 
 Read step by step
 """
-f = ad.file("heat.bp")
+f = ad.file("../heat.bp")
 v = f.var['T']
 
 for i in range(v.nsteps):

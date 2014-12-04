@@ -1,0 +1,7 @@
+2D Heat Transfer Python read example
+
+Read by Adios python wrapper. 
+It opens ../heat.bp
+
+$ python ./heat_transfer.py
+
