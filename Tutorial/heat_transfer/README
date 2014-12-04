@@ -41,3 +41,8 @@ $ eog .
 --------------------------------------------
 A 100 output step, almost reaching full heat
 $ mpirun -np 6 ./heat_transfer heat.bp 3 2 100 200 100 400
+
+3. Read by Adios python wrapper
+-------
+$ python ./heat_transfer.py
+
