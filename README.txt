@@ -360,6 +360,29 @@ III. ADIOS Installation
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.7/lib" and 
      add to PATH "/opt/adios/1.7/bin"
 
+5. Build and install python wrapper
+
+   To build Adios python wrapper, install following packages by:
+   $ sudo apt-get install python python-dev
+   $ sudo apt-get install python-numpy
+
+   Then, go to the wrapper/numpy directory under the adios source
+   directory:
+   $ cd wrapper/numpy
+
+   Type the following to build Adios python wrapper:
+   $ python setup.py build_ext -lrt
+
+   The following command is to install:
+   $ sudo python setup.py install
+
+   If the above command won't work with a no directory error, you can
+   try the following:
+   $ sudo "PATH=$PATH" python setup.py install
+   
+   A quick test can be done:
+   $ cd wrapper/numpy/tests
+   $ python test_adios.py
 
 
 IV. ADIOS Tutorial code
