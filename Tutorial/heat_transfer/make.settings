@@ -1,9 +1,15 @@
 TARGET=pgi
 
 ## Set ADIOS_DIR here or before doing make
-#override ADIOS_DIR=/opt/adios/1.8
-override ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/sith.${TARGET}
+override ADIOS_DIR=/opt/adios/1.8
+#override ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/sith.${TARGET}
 
+#Location of the HDF5 libraries
+HDF5=/opt/hdf5-1.8.12
+PHDF5=/opt/hdf5-1.8.12-parallel
+HDF5_FLIB=-I$(HDF5)/include $(HDF5)/lib/libhdf5_fortran.a $(HDF5)/lib/libhdf5.a
+PHDF5_FLIB=-I$(PHDF5)/include $(PHDF5)/lib/libhdf5_fortran.a $(PHDF5)/lib/libhdf5.a
+ 
 ## mpicc and mpif90 SETTINGS
 CC=mpicc
 FC=mpif90
