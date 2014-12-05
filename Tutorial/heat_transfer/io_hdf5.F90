@@ -48,16 +48,16 @@ subroutine io_write(tstep,curr)
     character(2) :: mode = "w"
 
 
-    if (rank==0.and.tstep==0) then
-        print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
-    endif
+    write(filename,'(a,".",i3.3,".h5")') trim(outputfile), rank
+    print '("rank ",i0," writes to: ",a)', rank, trim(filename)
+
   
     if (tstep > 0) mode = "a"
 
     call MPI_BARRIER(app_comm, err)
     io_start_time = MPI_WTIME()
 ! TODO: generate filename from outputfile
-    call H5Fcreate_f (outputfile, H5F_ACC_TRUNC_F, file_id, err)
+    call H5Fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err)
 !    call adios_open (adios_handle, "heat", outputfile, mode, app_comm, adios_err)
     io_size = 11*4 + 2*8*ndx*ndy 
 !    call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
@@ -81,7 +81,7 @@ subroutine io_write(tstep,curr)
     sz = io_size * nproc/1024.d0/1024.d0/1024.d0 !size in GB
     gbs = sz/io_total_time
     if (rank==0) print '("Step ",i3,": ",a20,d12.2,2x,d12.2,2x,d12.3)', &
-        tstep,outputfile,sz,io_total_time,gbs
+        tstep,filename,sz,io_total_time,gbs
 end subroutine io_write
 
 end module heat_io

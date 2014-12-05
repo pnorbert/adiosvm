@@ -52,7 +52,6 @@ program heat_transfer
     call processArgs()
     
     if (rank == 0) then
-        print *,"Output file(s): "//trim(outputfile)//".<step>.bp"
         print '(" Process number        : ",i0," x ",i0)', npx,npy
         print '(" Array size per process at first step: ",i0," x ",i0)', ndx,ndy
 
