@@ -40,9 +40,14 @@ subroutine io_write(tstep,curr)
     integer, intent(in) :: tstep
     integer, intent(in) :: curr
 
+    integer :: ndims
+    integer*8, dimension(1:2) :: dims
+
     integer*8 io_size
 
     INTEGER(HID_T) :: file_id
+    INTEGER(HID_T) :: dset_id
+    INTEGER(HID_T) :: dspace_id
 
     character (len=200) :: filename
     character(2) :: mode = "w"
@@ -51,16 +56,28 @@ subroutine io_write(tstep,curr)
     write(filename,'(a,".",i3.3,".h5")') trim(outputfile), rank
     print '("rank ",i0," writes to: ",a)', rank, trim(filename)
 
-  
-    if (tstep > 0) mode = "a"
-
     call MPI_BARRIER(app_comm, err)
     io_start_time = MPI_WTIME()
-! TODO: generate filename from outputfile
-    call H5Fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err)
-!    call adios_open (adios_handle, "heat", outputfile, mode, app_comm, adios_err)
+
+    ndims = 2
+    dims(1) = ndx
+    dims(2) = ndy
+
+    IF (tstep > 0) THEN
+        call h5fopen_f(filename, H5F_ACC_RDWR_F, file_id, err)
+        call h5dopen_f(file_id, "T", dset_id, err)
+    ELSE
+        call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err)
+        call h5screate_simple_f(ndims, dims, dspace_id, err) 
+        call h5dcreate_f(file_id, "T", H5T_NATIVE_DOUBLE, dspace_id, &
+                         dset_id, err)
+    END IF
+
     io_size = 11*4 + 2*8*ndx*ndy 
 !    call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
+
+    call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:ndx,1:ndy,curr), dims, err)
+
 !    call adios_write (adios_handle, "/dims/gndx", gndx, adios_err)
 !    call adios_write (adios_handle, "/dims/gndy", gndy, adios_err)
 !    call adios_write (adios_handle, "/info/nproc", nproc, adios_err)
@@ -75,6 +92,19 @@ subroutine io_write(tstep,curr)
 !    call adios_write (adios_handle, "T", T(1:ndx,1:ndy,curr), adios_err)
 !    call adios_write (adios_handle, "dT", dT, adios_err)
 !    call adios_close (adios_handle, adios_err)
+
+
+! close dataset
+    call h5dclose_f(dset_id, err)
+
+! close dataspace
+    IF (tstep == 0) THEN
+        call h5sclose_f(dspace_id, err)
+    END IF
+
+! close file
+    call h5fclose_f(file_id, err)
+
     call MPI_BARRIER(app_comm ,err)
     io_end_time = MPI_WTIME()
     io_total_time = io_end_time - io_start_time
