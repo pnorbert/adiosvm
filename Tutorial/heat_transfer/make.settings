@@ -1,14 +1,13 @@
-TARGET=pgi
 
 ## Set ADIOS_DIR here or before doing make
 override ADIOS_DIR=/opt/adios/1.8
-#override ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/sith.${TARGET}
+#override ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/sith.pgi
 
-#Location of the HDF5 libraries
-HDF5=/opt/hdf5-1.8.12
-PHDF5=/opt/hdf5-1.8.12-parallel
-HDF5_FLIB=-I$(HDF5)/include $(HDF5)/lib/libhdf5_fortran.a $(HDF5)/lib/libhdf5.a
-PHDF5_FLIB=-I$(PHDF5)/include $(PHDF5)/lib/libhdf5_fortran.a $(PHDF5)/lib/libhdf5.a
+#Location of the (sequential) HDF5 libraries
+HDF5_DIR=/opt/hdf5-1.8.12
+
+#Location of the Parallel HDF5 libraries
+PHDF5_DIR=/opt/hdf5-1.8.12-parallel
  
 ## mpicc and mpif90 SETTINGS
 CC=mpicc
@@ -23,3 +22,16 @@ FFLAGS=-g -fcheck=bounds #-fcheck=array-temps
 #CFLAGS = -O3
 #LDFLAGS =
 
+#
+# settings that may need modification
+#
+# HDF5
+HDF5_CINC=-I$(HDF5_DIR)/include 
+HDF5_FINC=-I$(HDF5_DIR)/include 
+HDF5_CLIB=$(HDF5_DIR)/lib/libhdf5.la 
+HDF5_FLIB=$(HDF5_DIR)/lib/libhdf5_fortran.la 
+# Parallel HDF5
+PHDF5_CINC=-I$(PHDF5_DIR)/include 
+PHDF5_FINC=-I$(PHDF5_DIR)/include 
+PHDF5_CLIB=$(PHDF5_DIR)/lib/libhdf5.la 
+PHDF5_FLIB=$(PHDF5_DIR)/lib/libhdf5_fortran.la 

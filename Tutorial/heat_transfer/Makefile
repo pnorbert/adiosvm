@@ -2,8 +2,7 @@ include make.settings
 
 ## Set ADIOS_DIR here or before doing make
 override ADIOS_FINC=-I${ADIOS_DIR}/include
-#override ADIOS_FLIB=`${ADIOS_DIR}/bin/adios_config -l -f`
-override ADIOS_FLIB=
+override ADIOS_FLIB=`${ADIOS_DIR}/bin/adios_config -l -f`
 
 default: 
 	@echo "Make targets: fort adios hdf5 phdf5"
@@ -17,22 +16,25 @@ help: default
 
 
 io_hdf5.o : io_hdf5.F90 
-	${FC} ${FFLAGS} -c ${ADIOS_FINC} $< ${HDF5_FLIB}
+	${FC} ${FFLAGS} -c ${HDF5_FINC} $< 
 
 io_phdf5.o : io_phdf5.F90 
-	${FC} ${FFLAGS} -c ${ADIOS_FINC} $< ${PHDF5_FLIB}
+	${FC} ${FFLAGS} -c ${PHDF5_FINC} $< 
 
-%.o : %.F90 
+io_adios.o : io_adios.F90 
 	${FC} ${FFLAGS} -c ${ADIOS_FINC} $< 
 
+%.o : %.F90 
+	${FC} ${FFLAGS} -c $< 
+
 fort: heat_vars.o io_fort.o heat_transfer.o
-	${FC} ${FFLAGS} -o heat_transfer_fort $^ ${ADIOS_FLIB} 
+	${FC} ${FFLAGS} -o heat_transfer_fort $^ 
 
 hdf5: heat_vars.o io_hdf5.o heat_transfer.o
-	${FC} ${FFLAGS} -o heat_transfer_hdf5 $^ ${HDF5_FLIB} 
+	libtool --mode=link --tag=FC ${FC} ${FFLAGS} -o heat_transfer_hdf5 $^ ${HDF5_FLIB} 
 
 phdf5: heat_vars.o io_phdf5.o heat_transfer.o
-	${FC} ${FFLAGS} -o heat_transfer_phdf5 $^ ${PHDF5_FLIB} 
+	libtool --mode=link --tag=FC ${FC} ${FFLAGS} -o heat_transfer_phdf5 $^ ${PHDF5_FLIB} 
 
 adios: heat_vars.o io_adios.o heat_transfer.o
 	${FC} ${FFLAGS} -o heat_transfer_adios $^ ${ADIOS_FLIB} 
@@ -44,6 +46,7 @@ clean:
 	rm -f heat_transfer_hdf5 heat_transfer_phdf5
 
 distclean: clean
-	rm -f fort.*
-	rm -rf *.png *.bp *.bp.dir
+	rm -f fort.* 
+	rm -f *.png minmax 
+	rm -rf *.bp *.bp.dir *.idx
 
