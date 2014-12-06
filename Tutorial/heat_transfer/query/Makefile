@@ -25,5 +25,5 @@ clean:
 
 
 distclean: clean
-	rm -f log.* *.bp
+	rm -f log.* *.bp *.png
 
