@@ -53,7 +53,7 @@ subroutine io_write(tstep,curr)
     character(2) :: mode = "w"
 
 
-    write(filename,'(a,".",i3.3,".h5")') trim(outputfile), rank
+    write(filename,'(a,".",i3.3,".",i3.3,".h5")') trim(outputfile), rank, tstep
     print '("rank ",i0," writes to: ",a)', rank, trim(filename)
 
     call MPI_BARRIER(app_comm, err)
@@ -63,44 +63,21 @@ subroutine io_write(tstep,curr)
     dims(1) = ndx
     dims(2) = ndy
 
-    IF (tstep > 0) THEN
-        call h5fopen_f(filename, H5F_ACC_RDWR_F, file_id, err)
-        call h5dopen_f(file_id, "T", dset_id, err)
-    ELSE
-        call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err)
-        call h5screate_simple_f(ndims, dims, dspace_id, err) 
-        call h5dcreate_f(file_id, "T", H5T_NATIVE_DOUBLE, dspace_id, &
-                         dset_id, err)
-    END IF
+    call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err)
+    call h5screate_simple_f(ndims, dims, dspace_id, err) 
+    call h5dcreate_f(file_id, "T", H5T_NATIVE_DOUBLE, dspace_id, &
+                     dset_id, err)
 
     io_size = 11*4 + 2*8*ndx*ndy 
-!    call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
 
     call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:ndx,1:ndy,curr), dims, err)
-
-!    call adios_write (adios_handle, "/dims/gndx", gndx, adios_err)
-!    call adios_write (adios_handle, "/dims/gndy", gndy, adios_err)
-!    call adios_write (adios_handle, "/info/nproc", nproc, adios_err)
-!    call adios_write (adios_handle, "/info/npx", npx, adios_err)
-!    call adios_write (adios_handle, "/info/npy", npy, adios_err)
-!    call adios_write (adios_handle, "/aux/offx", offx, adios_err)
-!    call adios_write (adios_handle, "/aux/offy", offy, adios_err)
-!    call adios_write (adios_handle, "/aux/ndx", ndx, adios_err)
-!    call adios_write (adios_handle, "/aux/ndy", ndy, adios_err)
-!    call adios_write (adios_handle, "step", tstep, adios_err)
-!    call adios_write (adios_handle, "iterations", iters, adios_err)
-!    call adios_write (adios_handle, "T", T(1:ndx,1:ndy,curr), adios_err)
-!    call adios_write (adios_handle, "dT", dT, adios_err)
-!    call adios_close (adios_handle, adios_err)
 
 
 ! close dataset
     call h5dclose_f(dset_id, err)
 
 ! close dataspace
-    IF (tstep == 0) THEN
-        call h5sclose_f(dspace_id, err)
-    END IF
+    call h5sclose_f(dspace_id, err)
 
 ! close file
     call h5fclose_f(file_id, err)
