@@ -265,6 +265,8 @@ II. Preparations to install ADIOS
    $ make -j 4
    $ sudo make install
 
+   In ~/.bashrc, add to PATH "/opt/hdf5-1.8.12/bin"
+
 
 8. Parallel HDF5 support
    Only if you want PHDF5 transport method in ADIOS.
