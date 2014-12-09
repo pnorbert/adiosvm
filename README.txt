@@ -386,6 +386,19 @@ III. ADIOS Installation
    $ cd wrapper/numpy/tests
    $ python test_adios.py
 
+   Note: To use a parallel version, we need to build and install
+   mpi4py from the source (current package is out-dated).
+
+   $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-1.3.1.tar.gz
+   $ tar xvf mpi4py-1.3.1.tar.gz
+   $ cd mpi4py-1.3.1
+   $ python setup.py build
+   $ python "PATH=$PATH" setup.py install
+
+   Then, go to wrapper/numpy directory and build:
+
+   $ python setup_mpi.py build_ext -lrt
+   $ sudo "PATH=$PATH" python setup_mpi.py install
 
 IV. ADIOS Tutorial code
 =======================
