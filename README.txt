@@ -387,7 +387,14 @@ III. ADIOS Installation
    $ python test_adios.py
 
    Note: To use a parallel version, we need to build and install
-   mpi4py from the source (current package is out-dated).
+   mpi4py. However, package install from Ubuntu repository is not
+   working here; it was out-dated and mal-configured. Instead, we can
+   install by using pip:
+
+   $ sudo apt-get install python-pip
+   $ sudo pip install mpi4py
+   
+   Alternatively, we can install from a source code too:
 
    $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-1.3.1.tar.gz
    $ tar xvf mpi4py-1.3.1.tar.gz
