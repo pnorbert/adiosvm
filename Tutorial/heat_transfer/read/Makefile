@@ -13,6 +13,8 @@ default:
 all: default
 help: default
 
+heat_read_hdf5.o : heat_read_hdf5.F90
+	${FC} ${FFLAGS} -c ${HDF5_FINC} $< 
 
 %.o : %.F90 
 	${FC} ${FFLAGS} -c ${ADIOS_FINC} $<
@@ -21,8 +23,8 @@ adios: print.o heat_read_adios.o
 	${FC} ${FFLAGS} -o heat_read_adios $^ ${ADIOS_FLIB} 
 
 hdf5: print.o heat_read_hdf5.o
-	${FC} ${FFLAGS} -o heat_read_hdf5 $^ ${HDF5_FLIB} 
-
+	libtool --mode=link --tag=FC ${FC} ${FFLAGS} -o heat_read_hdf5 $^ ${HDF5_FLIB} 
+#	${FC} ${FFLAGS} -o heat_read_hdf5 $^ ${HDF5_FLIB} 
 
 
 clean:
