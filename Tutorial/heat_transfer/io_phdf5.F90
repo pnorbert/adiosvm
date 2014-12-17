@@ -107,6 +107,7 @@ subroutine io_write(tstep,curr)
         call h5dcreate_f(file_id, "T", H5T_NATIVE_DOUBLE, dspace_id, &
                      dset_id, err, plist_id)
         call h5sclose_f(dspace_id, err)
+        call h5pclose_f(plist_id, err)
 
         call h5dget_space_f(dset_id, dspace_id, err)
         call h5sselect_hyperslab_f (dspace_id, H5S_SELECT_SET_F, &
@@ -131,6 +132,7 @@ subroutine io_write(tstep,curr)
 
         call h5fopen_f(filename, H5F_ACC_RDWR_F, file_id, err, &
                        access_prp = plist_id)
+        call h5pclose_f(plist_id, err)
         call h5dopen_f(file_id, "T", dset_id, err)
         call h5screate_simple_f(ndims, dims, memspace, err)
 
