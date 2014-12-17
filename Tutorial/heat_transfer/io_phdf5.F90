@@ -8,7 +8,7 @@
 !  Write an ADIOS BP file 
 !
 ! (c) Oak Ridge National Laboratory, 2009
-! Author: Norbert Podhorszki
+! Authors: Jeremy Logan, Norbert Podhorszki
 !
 module heat_io
 
@@ -42,14 +42,12 @@ subroutine io_write(tstep,curr)
 
     integer :: ndims
     !integer*8, dimension(1:2) :: dims !local chunk
-    integer*8, dimension(1:2) :: global_dims
-    integer*8, dimension(1:2) :: offsets 
+    !integer*8, dimension(1:2) :: global_dims
 
-    INTEGER(HSIZE_T),  DIMENSION(2) :: count  
-    INTEGER(HSSIZE_T), DIMENSION(2) :: offset 
-    INTEGER(HSIZE_T),  DIMENSION(2) :: stride
-    INTEGER(HSIZE_T),  DIMENSION(2) :: dims 
-
+    INTEGER(HSSIZE_T), DIMENSION(3) :: offset 
+    INTEGER(HSIZE_T),  DIMENSION(3) :: dims 
+    INTEGER(HSIZE_T),  DIMENSION(3) :: global_dims 
+    INTEGER(HSIZE_T),  DIMENSION(3) :: max_dims 
 
     integer*8 io_size
 
@@ -73,33 +71,35 @@ subroutine io_write(tstep,curr)
     call MPI_BARRIER(app_comm, err)
     io_start_time = MPI_WTIME()
 
-    ndims = 2
+    ndims = 3
     dims(1) = ndx
     dims(2) = ndy
+    dims(3) = 1
 
     global_dims(1) = gndx 
     global_dims(2) = gndy
+    global_dims(3) = 1
+
+    max_dims(1) = gndx 
+    max_dims(2) = gndy
+    max_dims(3) = H5S_UNLIMITED_F
 
     offset(1) = offx
     offset(2) = offy
-
-    stride(1) = 1 
-    stride(2) = 1 
-    count(1) =  1 
-    count(2) =  1
+    offset(3) = 0
 
     io_size = 11*4 + 2*8*ndx*ndy 
+
+    call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, err)
+    call h5pset_fapl_mpio_f(plist_id, comm, info, err)
 
 
     IF (tstep == 0) THEN
 
-        call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, err)
-        call h5pset_fapl_mpio_f(plist_id, comm, info, err)
-
         call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err, access_prp = plist_id)
         call h5pclose_f(plist_id, err)
 
-        call h5screate_simple_f(ndims, global_dims, dspace_id, err)
+        call h5screate_simple_f(ndims, global_dims, dspace_id, err, max_dims)
         call h5screate_simple_f(ndims, dims, memspace, err)
 
         call h5pcreate_f(H5P_DATASET_CREATE_F, plist_id, err)
@@ -110,25 +110,62 @@ subroutine io_write(tstep,curr)
 
         call h5dget_space_f(dset_id, dspace_id, err)
         call h5sselect_hyperslab_f (dspace_id, H5S_SELECT_SET_F, &
-                                    offsets, count, err, &
-                                    stride, dims)
+                                    offset, dims, err)
+
 
         call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, err) 
         call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, err)
 
-        call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:ndx,1:ndy,curr), &
-                        global_dims, err, &
-                        file_space_id = dspace_id, mem_space_id = memspace, &
-                        xfer_prp = plist_id)
+        ! For collective writes
+        call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:dims(1),1:dims(2),curr), &
+                        dims, err, &
+                        memspace, dspace_id, plist_id)
 
-        ! close hdf5 objects
-        call h5pclose_f(plist_id, err)
-        call h5dclose_f(dset_id, err)
-        call h5sclose_f(dspace_id, err)
-        call h5sclose_f(memspace, err)
-        call h5fclose_f(file_id, err)
+        ! For independent writes
+        !call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:dims(1),1:dims(2),curr), &
+        !                dims, err, &
+        !                memspace, dspace_id)
+
+
+    ELSE
+
+        call h5fopen_f(filename, H5F_ACC_RDWR_F, file_id, err, &
+                       access_prp = plist_id)
+        call h5dopen_f(file_id, "T", dset_id, err)
+        call h5screate_simple_f(ndims, dims, memspace, err)
+
+        global_dims(3) = tstep + 1
+
+        call h5dset_extent_f(dset_id, global_dims, err)
+        
+        offset(3) = tstep
+
+        call h5dget_space_f(dset_id, dspace_id, err)
+        call h5sselect_hyperslab_f(dspace_id, H5S_SELECT_SET_F, &
+                                   offset, dims, err)
+
+        call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, err) 
+        call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, err)
+
+        ! For collective writes
+        call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:dims(1),1:dims(2),curr), &
+                        dims, err, &
+                        memspace, dspace_id, plist_id)
+
+        ! For independent writes
+        !call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, T(1:dims(1),1:dims(2),curr), &
+        !                dims, err, &
+        !                memspace, dspace_id)
+
 
     END IF
+
+    ! close hdf5 objects
+    call h5pclose_f(plist_id, err)
+    call h5dclose_f(dset_id, err)
+    call h5sclose_f(dspace_id, err)
+    call h5sclose_f(memspace, err)
+    call h5fclose_f(file_id, err)
 
     call MPI_BARRIER(app_comm ,err)
     io_end_time = MPI_WTIME()
