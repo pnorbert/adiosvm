@@ -51,12 +51,12 @@ clean:
 	rm -f *.o *.mod *.fh core.*
 	rm -f heat_transfer_fort heat_transfer_adios 
 	rm -f heat_transfer_hdf5_a heat_transfer_hdf5_b heat_transfer_phdf5
-	rm -rf *.h5
 
 distclean: clean
 	rm -f fort.* 
 	rm -f *.png minmax 
 	rm -rf *.bp *.bp.dir *.idx
+	rm -rf *.h5
 
 
 
