@@ -182,8 +182,8 @@ II. Preparations to install ADIOS
 
 4. Install MXML
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/mxml-2.7.tar.gz 
-   $ cd mxml-2.7/
+   $ tar zxf ~/adiosvm/adiospackages/mxml-2.9.tar.gz 
+   $ cd mxml-2.9/
    $ ./configure --prefix=/opt/mxml
    $ make
    $ sudo make install
