@@ -49,15 +49,15 @@ subroutine io_write(tstep,curr)
     call adios_open (adios_handle, "heat", filename, mode, app_comm, adios_err)
     adios_groupsize = 11*4 + 2*8*ndx*ndy 
     call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
-    call adios_write (adios_handle, "/dims/gndx", gndx, adios_err)
-    call adios_write (adios_handle, "/dims/gndy", gndy, adios_err)
+    call adios_write (adios_handle, "gndx", gndx, adios_err)
+    call adios_write (adios_handle, "gndy", gndy, adios_err)
     call adios_write (adios_handle, "/info/nproc", nproc, adios_err)
     call adios_write (adios_handle, "/info/npx", npx, adios_err)
     call adios_write (adios_handle, "/info/npy", npy, adios_err)
-    call adios_write (adios_handle, "/aux/offx", offx, adios_err)
-    call adios_write (adios_handle, "/aux/offy", offy, adios_err)
-    call adios_write (adios_handle, "/aux/ndx", ndx, adios_err)
-    call adios_write (adios_handle, "/aux/ndy", ndy, adios_err)
+    call adios_write (adios_handle, "offx", offx, adios_err)
+    call adios_write (adios_handle, "offy", offy, adios_err)
+    call adios_write (adios_handle, "ndx", ndx, adios_err)
+    call adios_write (adios_handle, "ndy", ndy, adios_err)
     call adios_write (adios_handle, "step", tstep, adios_err)
     call adios_write (adios_handle, "iterations", iters, adios_err)
     call adios_write (adios_handle, "T", T(1:ndx,1:ndy,curr), adios_err)
@@ -68,7 +68,7 @@ subroutine io_write(tstep,curr)
     io_total_time = io_end_time - io_start_time
     sz = adios_totalsize * nproc/1024.d0/1024.d0/1024.d0 !size in GB
     gbs = sz/io_total_time
-    if (rank==0) print '("Step ",i3,": ",a20,d12.2,2x,d12.2,2x,d12.3)', &
+    if (rank==0) print '("Step ",i3,": ",a20,f12.4,2x,f12.3,2x,f12.3)', &
         tstep,filename,sz,io_total_time,gbs
 end subroutine io_write
 

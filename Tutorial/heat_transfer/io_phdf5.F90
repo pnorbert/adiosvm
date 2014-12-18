@@ -65,8 +65,11 @@ subroutine io_write(tstep,curr)
     comm = MPI_COMM_WORLD
     info = MPI_INFO_NULL
 
+    if (rank==0.and.tstep==0) then
+        print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
+    endif
     write(filename,'(a,".h5")') trim(outputfile)
-    print '("rank ",i0," writes to: ",a)', rank, trim(filename)
+    !print '("rank ",i0," writes to: ",a)', rank, trim(filename)
 
     call MPI_BARRIER(app_comm, err)
     io_start_time = MPI_WTIME()
@@ -155,7 +158,7 @@ subroutine io_write(tstep,curr)
     io_total_time = io_end_time - io_start_time
     sz = io_size * nproc/1024.d0/1024.d0/1024.d0 !size in GB
     gbs = sz/io_total_time
-    if (rank==0) print '("Step ",i3,": ",a20,d12.2,2x,d12.2,2x,d12.3)', &
+    if (rank==0) print '("Step ",i3,": ",a20,f12.4,2x,f12.3,2x,f12.3)', &
         tstep,filename,sz,io_total_time,gbs
 end subroutine io_write
 

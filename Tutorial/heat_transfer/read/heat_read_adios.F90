@@ -42,8 +42,8 @@ program reader
     call adios_read_open_file (fh, filename, ADIOS_READ_METHOD_BP, group_comm, ierr)
 
     ! adios_get_scalar() gets the value from metadata in memory
-    call adios_get_scalar(fh, "/dims/gndx", gndx, ierr)
-    call adios_get_scalar(fh, "/dims/gndy", gndy, ierr)
+    call adios_get_scalar(fh, "gndx", gndx, ierr)
+    call adios_get_scalar(fh, "gndy", gndy, ierr)
     readsize(1) = gndx 
     readsize(2) = gndy / nproc
 

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <adios-config host-language="Fortran">
   <adios-group name="heat">
-    <var name="/dims/gndx" type="integer"/>
-    <var name="/dims/gndy" type="integer"/>
+    <var name="gndx" type="integer"/>
+    <var name="gndy" type="integer"/>
 
     <var name="/info/nproc" type="integer"/>
     <attribute name="/info/nproc/description" value="Number of writers"/>
@@ -13,22 +13,24 @@
 
 
     <!-- Auxiliary variables for global array indexing -->
-    <var name="/aux/offx" type="integer"/>
-    <var name="/aux/offy" type="integer"/>
-    <var name="/aux/ndx"  type="integer"/>
-    <var name="/aux/ndy"  type="integer"/>
+    <var name="offx" type="integer"/>
+    <var name="offy" type="integer"/>
+    <var name="ndx"  type="integer"/>
+    <var name="ndy"  type="integer"/>
 
     <var name="step"       type="integer"/>
     <var name="iterations" type="integer"/>
 
     <!-- 2D array -->
-    <global-bounds dimensions="/dims/gndx,/dims/gndy" 
-                   offsets="/aux/offx,/aux/offy">
-        <var name="T" gwrite="T(:,:,curr)" path="" type="real*8" 
-             dimensions="/aux/ndx,/aux/ndy"/>
-        <var name="dT" gwrite="dT(:,:)" path="" type="real*8" 
-             dimensions="/aux/ndx,/aux/ndy"/>
+    <global-bounds dimensions="gndx,gndy" 
+                   offsets="offx,offy">
+        <var name="T"      gwrite="T(1:ndx,1:ndy,curr)" 
+             type="real*8" dimensions="ndx,ndy"/>
+
+        <var name="dT"     gwrite="dT(:,:)" 
+             type="real*8" dimensions="ndx,ndy"/>
     </global-bounds>
+
     <attribute name="T/description" value="Temperature 2D array with 2D decomposition"/>
     <attribute name="dT/description" value="delta T"/>
 
@@ -37,7 +39,7 @@
 
   <method group="heat" method="MPI"/>
 <!--
-  <method group="heat" method="FLEXPATH">QUEUE_SIZE=4;verbose=3</method>
+  <method group="heat" method="FLEXATH">QUEUE_SIZE=4;verbose=3</method>
   <method group="heat" method="MPI_AGGREGATE">num_aggregators=4;verbose=3</method>
 -->
 
