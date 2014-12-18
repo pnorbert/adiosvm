@@ -1,0 +1,5 @@
+library(pbdMPI, quiet = TRUE) 
+init() 
+x <- comm.rank() 
+comm.print(x, all.rank = TRUE) 
+finalize()

@@ -588,6 +588,8 @@ If you still want to use the our own plotter instead of / besides visit.
   In ~/.bashrc, add to PATH "/opt/plotter/bin"
 
 
+
+
 VI. Clean-up a bit
 ==================
 Not much space left after building visit and plotter. You can remove this big offenders
@@ -596,6 +598,79 @@ Not much space left after building visit and plotter. You can remove this big of
 1.3GB  ~/Software/visit/qt-everywhere-opensource-src-4.8.3
        ~/Software/visit/qt-everywhere-opensource-src-4.8.3.tar.gz
        ~/Software/visit/VTK*-build
+
+
+
+
+VII. Installing R and pbdR 
+===========================
+
+This is for the pbdR tutorial. Not required for an ADIOS-only tutorial. 
+
+Packages that will be needed: 
+$ sudo apt-get install libcurl4-gnutls-dev
+
+Install R
+---------
+See instructions on http://cran.r-project.org/bin/linux/ubuntu/
+
+$ sudo vi /etc/apt/sources.list
+add a line to the end:
+deb http://mirrors.nics.utk.edu/cran/bin/linux/ubuntu precise/
+
+Add the key for this mirror
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+
+$ sudo apt-get install r-base r-base-dev
+
+If these above don't work, you need to resort building from source.
+from http://cran.r-project.org/sources.html
+e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
+
+
+Install 'rlecuyer' 
+------------------
+from http://cran.r-project.org/web/packages/rlecuyer/index.html
+
+$ sudo R
+> install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/")
+should get messages ending with:
+* DONE (rlecuyer)
+> q()
+quit R (or ctrl+D)
+
+Test if it is installed correctly:
+$ R
+> library(help=rlecuyer)
+> q()
+
+
+Install pbdR
+-------------
+
+$ sudo R
+install.packages("devtools", repos="http://mirrors.nics.utk.edu/cran/")
+library(devtools)
+install_github("RBigData/pbdMPI")
+install_github("RBigData/pbdSLAP")
+install_github("wrathematics/RNACI")
+install_github("RBigData/pbdBASE") 
+install_github("RBigData/pbdDMAT") 
+install_github("RBigData/pbdDEMO") 
+install_github("RBigData/pbdPAPI") 
+install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
+> q()
+
+
+Quick test of pbdR
+------------------
+$ cd ~/adiosvm
+$ mpirun -np 2 Rscript test_pbdR.r 
+COMM.RANK = 0
+[1] 0
+COMM.RANK = 1
+[1] 1
+
 
 
 VII. Others
