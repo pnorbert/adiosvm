@@ -5,9 +5,9 @@
 !  Copyright (c) 2008 - 2009.  UT-BATTELLE, LLC. All rights reserved.
 !
 !
-!  Global variables
+!  Global variables for the heat_transfer example
 !
-! (c) Oak Ridge National Laboratory, 2009
+! (c) Oak Ridge National Laboratory, 2014
 ! Author: Norbert Podhorszki
 !
 module heat_vars

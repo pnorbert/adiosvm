@@ -5,9 +5,9 @@
 !  Copyright (c) 2008 - 2009.  UT-BATTELLE, LLC. All rights reserved.
 !
 !
-!  Write an ADIOS BP file 
+!  Parallel HDF5 based I/O for the heat_transfer example
 !
-! (c) Oak Ridge National Laboratory, 2009
+! (c) Oak Ridge National Laboratory, 2014
 ! Authors: Jeremy Logan, Norbert Podhorszki
 !
 module heat_io

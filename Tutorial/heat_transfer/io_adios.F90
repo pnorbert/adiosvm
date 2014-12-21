@@ -5,9 +5,9 @@
 !  Copyright (c) 2008 - 2009.  UT-BATTELLE, LLC. All rights reserved.
 !
 !
-!  Write an ADIOS BP file 
+!  ADIOS/XML based I/O for the heat_transfer example
 !
-! (c) Oak Ridge National Laboratory, 2009
+! (c) Oak Ridge National Laboratory, 2014
 ! Author: Norbert Podhorszki
 !
 module heat_io
@@ -16,16 +16,19 @@ contains
 
 subroutine io_init()
     use heat_vars
+    use adios_write_mod
     call adios_init ("heat_transfer.xml", app_comm, ierr)
 end subroutine io_init
 
 subroutine io_finalize()
     use heat_vars
+    use adios_write_mod
     call adios_finalize (rank, ierr)
 end subroutine io_finalize
 
 subroutine io_write(tstep,curr)
     use heat_vars
+    use adios_write_mod
     implicit none
     include 'mpif.h'
     integer, intent(in) :: tstep

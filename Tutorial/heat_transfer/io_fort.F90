@@ -7,7 +7,7 @@
 !
 !  Write fort.<rank+100> text files, one per process
 !
-! (c) Oak Ridge National Laboratory, 2009
+! (c) Oak Ridge National Laboratory, 2014
 ! Author: Norbert Podhorszki
 !
 module heat_io

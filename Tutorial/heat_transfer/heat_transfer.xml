@@ -4,11 +4,11 @@
     <var name="gndx" type="integer"/>
     <var name="gndy" type="integer"/>
 
-    <var name="/info/nproc" type="integer"/>
+    <var name="/info/nproc" gwrite="nproc" type="integer"/>
     <attribute name="/info/nproc/description" value="Number of writers"/>
-    <var name="/info/npx" type="integer"/>
+    <var name="/info/npx"   gwrite="npx" type="integer"/>
     <attribute name="/info/npx/description" value="Number of processors in x dimension"/>
-    <var name="/info/npy" type="integer"/>
+    <var name="/info/npy"   gwrite="npy" type="integer"/>
     <attribute name="/info/npy/description" value="Number of processors in y dimension"/>
 
 
@@ -18,17 +18,17 @@
     <var name="ndx"  type="integer"/>
     <var name="ndy"  type="integer"/>
 
-    <var name="step"       type="integer"/>
-    <var name="iterations" type="integer"/>
+    <var name="step"       gwrite="tstep" type="integer"/>
+    <var name="iterations" gwrite="iters" type="integer"/>
 
     <!-- 2D array -->
     <global-bounds dimensions="gndx,gndy" 
                    offsets="offx,offy">
         <var name="T"      gwrite="T(1:ndx,1:ndy,curr)" 
-             type="real*8" dimensions="ndx,ndy"/>
+             type="real*8" dimensions="ndx,ndy" transform="none"/>
 
         <var name="dT"     gwrite="dT(:,:)" 
-             type="real*8" dimensions="ndx,ndy"/>
+             type="real*8" dimensions="ndx,ndy" transform="none"/>
     </global-bounds>
 
     <attribute name="T/description" value="Temperature 2D array with 2D decomposition"/>
