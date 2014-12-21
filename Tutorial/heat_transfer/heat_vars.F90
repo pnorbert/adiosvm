@@ -24,7 +24,6 @@ module heat_vars
 
     real*8, dimension(:,:,:), allocatable :: T    ! data array 
     real*8, dimension(:,:), allocatable   :: dT   ! data array 
-    integer, dimension(:,:), allocatable :: heatmap
 
     ! MPI COMM_WORLD is for all codes started up at once on Cray XK6 
     integer :: wrank, wnproc

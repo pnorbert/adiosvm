@@ -1,10 +1,8 @@
-
 !  ADIOS is freely available under the terms of the BSD license described
 !  in the COPYING file in the top level directory of this source distribution.
 !
 !  Copyright (c) 2008 - 2009.  UT-BATTELLE, LLC. All rights reserved.
 !
-
 !
 !  2D heat transfer example with ghost cells
 !
@@ -17,7 +15,7 @@
 !  Output N times after every K iterations
 ! 
 !
-! (c) Oak Ridge National Laboratory, 2009
+! (c) Oak Ridge National Laboratory, 2014
 ! Author: Norbert Podhorszki
 !
 
@@ -100,20 +98,6 @@ program heat_transfer
     T = 0.0
     dT = 0.0
 
-    ! allocate and initialize heat map
-    allocate( heatmap(0:6,0:6) )
-    heatmap = 0
-    heatmap = transpose(reshape(            &
-                (/ 1000, 1000, 1000, 1000, 1000, 1000, 1000,        & 
-                   1000,    0,    0,    0,    0,    0, 1000,        &
-                   1000,    0,    0,    0,    0,    0, 1000,        &
-                   1000,    0,    0,    0,    0,    0, 1000,        &
-                   1000,    0,    0,  500,    0,    0, 1000,        &
-                   1000,    0,    0,    0,    0,    0, 1000,        &
-                   0000, 0000, 0000, 0000, 0000, 0000, 0000 /),     &
-           (/ size(heatmap, 2), size(heatmap, 1) /)))
-
-
     curr = 1;
     call heatEdges(curr)
     call io_write(0,curr)  ! write out init values
@@ -137,7 +121,6 @@ program heat_transfer
 
     ! Terminate
     deallocate (T)
-    deallocate (heatmap)
     call MPI_Barrier (app_comm, ierr)
     call io_finalize()
     call MPI_Finalize (ierr)
@@ -159,43 +142,6 @@ subroutine heatEdges(curr)
     if (posy==npy-1) T(:,ndy+1,curr) = edgetemp
 
 end subroutine heatEdges
-
-!!***************************
-subroutine heat(curr)
-    use heat_vars
-    implicit none
-    integer, intent(in) :: curr
-    integer :: mx, my, i, j
-    real :: cx, cy
-    integer :: mapx, mapy
-
-    mx = size (heatmap,1)
-    my = size (heatmap,2)
-    cx = (mx) / (gndx+2.0)
-    cy = (my) / (gndy+2.0)
-
-!    if (rank==0) then
-!        print '("mx=",i0," my=",i0," cx=",f9.3," cy=",5f9.3)', &
-!            mx, my, cx, cy
-!    endif
-!    print '(i0,": offx=",i0," offy=",i0)', &
-!        rank, offx, offy
-
-    do j=0,ndy+1
-        mapy = (offy+j) * cy 
-        do i=0,ndx+1
-           mapx = (offx+i) * cx 
-!           if (rank==1) then
-!              print '(i0,": i=",i0," mapx=",i0," j=",i0," mapy=",i0)', &
-!                  rank, i, mapx, j, mapy
-!           endif
-           if (heatmap(mapx, mapy) /= 0.0) then
-               T(i,j,curr) = (T(i,j,curr) + heatmap (mapx, mapy))/2.0
-           endif
-        enddo
-    enddo
-
-end subroutine heat
 
 
 !!***************************
