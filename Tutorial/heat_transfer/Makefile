@@ -74,7 +74,8 @@ distclean: clean
 	rm -f fort.* 
 	rm -f *.png minmax 
 	rm -rf *.bp *.bp.dir *.idx
-	rm -rf *.h5
+	rm -f *.h5
+	rm -f fort.*
 
 
 
