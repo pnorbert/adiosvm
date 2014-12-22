@@ -22,17 +22,17 @@ $ ./heat_transfer
  steps:  the total number of steps to output
  iterations: one step consist of this many iterations
 
-$ mpirun -np 12 ./heat_transfer heat.bp  4 3    40 50   5 500
+$ mpirun -np 12 ./heat_transfer_adios1 heat  4 3    40 50   6 500
 
 will perform the calculation 
 - on 12 processes 
 - on a 4*40 x 3*50 2D array (Fortran column-major ordering)
-- for 5*500 iterations, 
-- producing an output of 1+5 steps stored in heat.bp (initial data plus 5 steps)
+- for 6*500 iterations, 
+- producing an output of 6 steps stored in heat.bp 
 
 $ bpls -l heat.bp T
-  double   T            6*{150, 160} = 0 / 999.364 / 346.132 / 331.178 
-  double   dT           6*{150, 160} = 0 / 0.720097 / 0.122617 / 0.124352 
+  double   T            6*{150, 160} = 0.000212009 / 999.47 / 442.536 / 318.995 
+  double   dT           6*{150, 160} = 6.27403e-06 / 0.720097 / 0.135503 / 0.115625
 
 $ ./plot_heat.sh heat.bp
 $ eog . 
