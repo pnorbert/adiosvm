@@ -89,7 +89,7 @@ subroutine io_write(tstep,curr)
 
     io_size = 11*4 + 2*8*ndx*ndy 
 
-    IF (tstep > 0) THEN
+    IF (tstep > 1) THEN
         ! subsequent timestep, open existing file and dataset
         call h5fopen_f(filename, H5F_ACC_RDWR_F, file_id, err)
         call h5dopen_f(file_id, "T", dset_id, err)

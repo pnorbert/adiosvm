@@ -51,14 +51,14 @@ subroutine io_write(tstep,curr)
 
 
     write(filename,'(a,".bp")') trim(outputfile)
-    if (rank==0.and.tstep==0) then
+    if (rank==0.and.tstep==1) then
         print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
     endif
   
-    if (tstep > 0) mode = "a"
+    if (tstep > 1) mode = "a"
 
     ! Define variables at the first time
-    if (tstep.eq.0) then
+    if (tstep.eq.1) then
         call adios_define_var (g, "gndx", "", adios_integer, &
                                "", "", "", varid)
         call adios_define_var (g, "gndy", "", adios_integer, &

@@ -41,7 +41,7 @@ subroutine io_write(tstep,curr)
 
 
     write(filename,'(a,".bp")') trim(outputfile)
-    if (rank==0.and.tstep==0) then
+    if (rank==0.and.tstep==1) then
         print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
     endif
   

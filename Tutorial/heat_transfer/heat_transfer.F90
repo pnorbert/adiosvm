@@ -100,7 +100,6 @@ program heat_transfer
 
     curr = 1;
     call heatEdges(curr)
-    call io_write(0,curr)  ! write out init values
 
     do tstep=1,steps
         if (rank==0) print '("Step ",i4,":")', tstep

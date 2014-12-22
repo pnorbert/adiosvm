@@ -41,7 +41,7 @@ subroutine io_write(tstep,curr)
 
     write(filename,'(a,".bp")') trim(outputfile)
   
-    if (tstep > 0) mode = "a"
+    if (tstep > 1) mode = "a"
 
     call adios_open (adios_handle, "heat", filename, mode, app_comm, adios_err)
 #include "gwrite_heat.fh"
