@@ -672,6 +672,29 @@ COMM.RANK = 1
 [1] 1
 
 
+Download pbdR tutorial examples
+-------------------------------
+$ cd 
+$ wget https://github.com/RBigData/RBigData.github.io/blob/master/tutorial/scripts.zip?raw=true
+$ unzip  scripts.zip?raw=true
+
+or get it using a browser from http://r-pbd.org/tutorial
+
+Quick test of scripts:
+----------------------
+$ scripts/pbdMPI/quick_examples
+$ mpirun -np 4 Rscript 1_rank.r
+COMM.RANK = 0
+[1] 0
+COMM.RANK = 1
+[1] 1
+COMM.RANK = 2
+[1] 2
+COMM.RANK = 3
+[1] 3
+
+
+
 
 VII. Others
 ===========
