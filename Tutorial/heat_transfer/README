@@ -39,8 +39,14 @@ $ eog .
 
 
 --------------------------------------------
-A 100 output step, almost reaching full heat
-$ mpirun -np 6 ./heat_transfer heat.bp 3 2 100 200 100 400
+A 100 output step on less processes, with more computation between steps. 
+For staging demos.
+$ mpirun -np 4 ./heat_transfer_adios2 heat 2 2 300 300 100 600
+
+If output method in heat_transfer.xml is FLEXPATH, 
+run the staging reader-writer in another terminal
+
+$ mpirun -np 2 stage_write/stage_write heat.bp staged.bp FLEXPATH "" MPI "" 2
 
 
 
