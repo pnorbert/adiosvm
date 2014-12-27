@@ -1,0 +1,41 @@
+
+First, generate a data file in the parent directory:
+
+$ ﻿﻿﻿mpirun -np 12 ./heat_transfer_adios1   heat  4 3    40 50   6 500
+$ ls -l heat.bp
+
+Now run matlab from this directory.
+Make sure that the ADIOS-Matlab libraries are in MATLABPATH
+
+$ cd matlab
+$ ls -l reader.m
+$ matlab -nodesktop -nosplash -nojvm
+
+>> reader('../heat.bp');
+...
+ans = 
+         Name: 'T'
+         Type: 'double'
+         Dims: [160 150 6]
+      Timedim: 1
+    GlobalMin: 2.1201e-04
+    GlobalMax: 999.4699
+
+>> whos
+ Name     Size       Bytes   Class   Attributes
+   T     160x150x6  1152000  double
+
+-- One can plot a 2D slice this way
+
+>> T1=T(:,:,1);
+>> imagesc(T1);
+
+-- One can save the plot this way
+
+>> h1=imagesc(T1);                  
+>> saveas(h1,'img.png','png')
+
+
+>> quit
+
+
