@@ -11,6 +11,28 @@ $ cd matlab
 $ ls -l reader.m
 $ matlab -nodesktop -nosplash -nojvm
 
+%% Some commands to try first
+
+>> data=adiosread('../heat.bp','T','Slice',[40 2;50 2;1 1]) 
+data =
+    5.0916    4.9956
+    4.1541    4.0581
+
+>> f=adiosopen('../heat.bp');
+>> T=adiosread(f.Groups,'T');
+>> whos T
+ Name     Size        Bytes  Class    Attributes
+    T   160x150x6    1152000  double
+>> adiosclose(f);
+
+>> help adios
+>> help adiosopen
+>> help adiosread
+>> help adiosclose
+
+
+%% Use the reader.m function 
+
 >> reader('../heat.bp');
 ...
 ans = 
@@ -25,7 +47,7 @@ ans =
  Name     Size       Bytes   Class   Attributes
    T     160x150x6  1152000  double
 
--- One can plot a 2D slice this way
+%% One can plot a 2D slice this way
 
 >> T1=T(:,:,1);
 >> imagesc(T1);
