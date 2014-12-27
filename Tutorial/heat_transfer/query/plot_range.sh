@@ -9,8 +9,8 @@ if test -z "$FN"; then
 fi
 
 
-plotter2d -f ${FN} -v T -s "t0,0,0" -c "-1,-1,-1" -o T 
+plotter2d -f ${FN} -v T -s "t0,0,0" -c "-1,-1,-1" -o T -min 0 -max 1000
 
-plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -zonal -colormap XGCLog 
+plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -zonal -colormap XGCLog --minmaxfile ../minmax --use-global-minmax
 
 

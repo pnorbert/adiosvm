@@ -42,9 +42,6 @@ double mynan;
 
 static const enum ADIOS_READ_METHOD read_method = ADIOS_READ_METHOD_BP;
 
-static const int max_read_buffer_size  = 1024*1024*1024;
-static const int max_write_buffer_size = 1024*1024*1024;
-
 static int timeout_sec = 0; // will stop if no data found for this time (-1: never stop)
 
 static const char v1name[] = "T";
@@ -412,7 +409,7 @@ int do_queries(int step)
     int hasMore =  adios_query_evaluate(q, boxsel, 0, batchSize, &hitlist);
 
     if (hasMore == -1) {
-        print ("rank %d: Query failed. It returned a NULL list: %s\n", rank, adios_errmsg());
+        print ("rank %d: Query evaluation failed with error: %s\n", rank, adios_errmsg());
     } 
     else if (hasMore==1) 
     {
@@ -462,7 +459,7 @@ int read_vars(int step)
     if (hitlist) {
         hitdata = (double *) malloc (nhits * sizeof(double));
 
-        adios_schedule_read (f, hitlist, v1name, 1, 1, hitdata);
+        adios_schedule_read (f, hitlist, v1name, 0, 1, hitdata);
         adios_perform_reads (f, 1);   
 
         for (k=0; k < nhits; k++) {
@@ -472,7 +469,7 @@ int read_vars(int step)
         }
 
         // do the same for v2
-        adios_schedule_read (f, hitlist, v2name, 1, 1, hitdata);
+        adios_schedule_read (f, hitlist, v2name, 0, 1, hitdata);
         adios_perform_reads (f, 1);   
 
         for (k=0; k < nhits; k++) {
@@ -489,11 +486,11 @@ int read_vars(int step)
     // read the original v1 completely and do manual evaluation
     double *v1m = (double *) malloc (ldims[0]*ldims[1]*sizeof(double));
     ADIOS_SELECTION *sel = adios_selection_boundingbox (vinfo->ndim, offs, ldims);
-    adios_schedule_read (f, sel, v1name, 1, 1, v1m);
+    adios_schedule_read (f, sel, v1name, 0, 1, v1m);
     adios_perform_reads (f, 1);   
     adios_selection_delete (sel);
 
-    // manually evaluate query on xy and store in xy/manual
+    // manually evaluate query and count the hits
     k=0; uint64_t manualhits=0;
     for (i=0; i<ldims[0]; i++) {
         for (j=0; j<ldims[1]; j++) {
