@@ -28,6 +28,7 @@ program heat_transfer
     integer :: it    ! current iteration (1..iters)
     integer :: curr  ! 1 or 2:   T(:,:,curr) = T(t) current step  
                      ! the other half of T is the next step T(t+1)
+    real*8  :: tstart, tend
 
     call MPI_Init (ierr)
     ! World comm spans all applications started with the same aprun command 
@@ -43,6 +44,8 @@ program heat_transfer
 
     call MPI_Comm_rank (app_comm, rank, ierr)
     call MPI_Comm_size (app_comm, nproc , ierr)
+
+    tstart = MPI_Wtime()
 
     call io_init()
     call MPI_Barrier (app_comm, ierr)
@@ -122,7 +125,12 @@ program heat_transfer
     deallocate (T)
     call MPI_Barrier (app_comm, ierr)
     call io_finalize()
+
+    call MPI_Barrier (app_comm, ierr)
+    tend = MPI_Wtime()
+
     call MPI_Finalize (ierr)
+    if (rank==0) print '("Total runtime = ",f6.3,"s")', tend-tstart
 end program heat_transfer
 
 
