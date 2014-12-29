@@ -45,7 +45,7 @@ subroutine io_write(tstep,curr)
         print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
     endif
   
-    if (tstep > 0) mode = "a"
+    if (tstep > 1) mode = "a"
 
     call MPI_BARRIER(app_comm, adios_err)
     io_start_time = MPI_WTIME()
