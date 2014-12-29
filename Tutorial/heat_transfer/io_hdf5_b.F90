@@ -154,7 +154,7 @@ subroutine io_write(tstep,curr)
     io_total_time = io_end_time - io_start_time
     sz = io_size * nproc/1024.d0/1024.d0/1024.d0 !size in GB
     gbs = sz/io_total_time
-    if (rank==0) print '("Step ",i3,": ",a20,d12.2,2x,d12.2,2x,d12.3)', &
+    if (rank==0) print '("Step ",i3,": ",a20,f12.4,2x,f12.3,2x,f12.3)', &
         tstep,filename,sz,io_total_time,gbs
 end subroutine io_write
 
