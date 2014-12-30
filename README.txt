@@ -627,6 +627,7 @@ If these above don't work, you need to resort building from source.
 from http://cran.r-project.org/sources.html
 e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
 
+--- SUDO version below, non-SUDO after ---
 
 Install 'rlecuyer' 
 ------------------
@@ -644,6 +645,7 @@ $ R
 > library(help=rlecuyer)
 > q()
 
+> install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/")
 
 Install pbdR
 -------------
@@ -660,6 +662,50 @@ install_github("RBigData/pbdDEMO")
 install_github("RBigData/pbdPAPI") 
 install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
 > q()
+
+
+Install pbdADIOS
+----------------
+$ cd ~/Software
+$ git clone https://github.com/sgn11/pbdADIOS.git
+$ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.8" --no-test-load
+-- quick test
+$ R
+> library(pbdADIOS)
+Loading required package: pbdMPI
+Loading required package: rlecuyer
+> quit()
+
+
+--- non-SUDO version below, SUDO above ---
+
+$ sudo mkdir -p /opt/R/library
+$ sudo chgrp -R adios /opt/R
+$ sudo chmod -R g+w /opt/R
+
+$ export R_LIBS_USER=/opt/R/library
+$ R
+> install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
+> install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
+
+install_github("RBigData/pbdMPI")
+install_github("RBigData/pbdSLAP")
+install_github("wrathematics/RNACI")
+install_github("RBigData/pbdBASE")
+install_github("RBigData/pbdDMAT")
+install_github("RBigData/pbdDEMO")
+install_github("RBigData/pbdPAPI")
+install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
+quit()
+
+
+$ cd source
+$ git clone https://github.com/sgn11/pbdADIOS.git
+$ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.8" --no-test-load
+
+Add to ~/.bashrc
+    export R_LIBS_USER=/opt/R/library
+
 
 
 Quick test of pbdR
