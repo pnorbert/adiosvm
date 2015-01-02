@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<adios-config host-language="Fortran">
+  <adios-group name="heat">
+    <var name="gndx" type="integer"/>
+    <var name="gndy" type="integer"/>
+
+    <var name="/info/nproc" gwrite="nproc" type="integer"/>
+    <attribute name="/info/nproc/description" value="Number of writers"/>
+    <var name="/info/npx"   gwrite="npx" type="integer"/>
+    <attribute name="/info/npx/description" value="Number of processors in x dimension"/>
+    <var name="/info/npy"   gwrite="npy" type="integer"/>
+    <attribute name="/info/npy/description" value="Number of processors in y dimension"/>
+
+
+    <!-- Auxiliary variables for global array indexing -->
+    <var name="offx" type="integer"/>
+    <var name="offy" type="integer"/>
+    <var name="ndx"  type="integer"/>
+    <var name="ndy"  type="integer"/>
+
+    <var name="step"       gwrite="tstep" type="integer"/>
+    <var name="iterations" gwrite="iters" type="integer"/>
+
+    <mesh name="uniformmesh" type="uniform" time-varying="no">
+        <nspace value="2" />
+        <dimensions value="gndy,gndx" />
+        <origin value="-100,100" />
+        <spacing value="2,2" />
+    </mesh>
+
+
+    <!-- 2D array -->
+    <global-bounds dimensions="gndx,gndy" 
+                   offsets="offx,offy">
+        <var name="T"      gwrite="T(1:ndx,1:ndy,curr)" 
+             mesh="uniformmesh" center="point"
+             type="real*8" dimensions="ndx,ndy" transform="none"/>
+
+        <var name="dT"     gwrite="dT(:,:)" 
+             mesh="uniformmesh" center="point"
+             type="real*8" dimensions="ndx,ndy" transform="none"/>
+    </global-bounds>
+
+    <attribute name="T/description" value="Temperature 2D array with 2D decomposition"/>
+    <attribute name="T/unit" value="C"/>
+    <attribute name="dT/description" value="delta T"/>
+
+
+  </adios-group>
+
+  <method group="heat" method="MPI"/>
+<!--
+  <method group="heat" method="FLEXPATH">QUEUE_SIZE=4;verbose=3</method>
+  <method group="heat" method="MPI_AGGREGATE">num_aggregators=4;verbose=3</method>
+-->
+
+  <buffer size-MB="20" allocate-time="now"/>
+
+</adios-config>
