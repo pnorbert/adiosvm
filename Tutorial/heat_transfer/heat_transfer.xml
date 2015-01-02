@@ -32,6 +32,7 @@
     </global-bounds>
 
     <attribute name="T/description" value="Temperature 2D array with 2D decomposition"/>
+    <attribute name="T/unit" value="C"/>
     <attribute name="dT/description" value="delta T"/>
 
 
