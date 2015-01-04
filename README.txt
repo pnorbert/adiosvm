@@ -454,8 +454,8 @@ V. Build Visit from release
      https://wci.llnl.gov/codes/visit/source.html
 
    $ chmod +x build_visit2_7_2
-   $ ./build_visit2_7_2 --parallel --mesa --adios --hdf5 --silo --xdmf --zlib --szip 
-   $ ./build_visit --system-qt --parallel --mesa --adios --hdf5 --xdmf --zlib --szip --console
+   $ ./build_visit2_7_2 --parallel --mesa --mxml --adios --hdf5 --xdmf --zlib --szip --silo
+   $ ./build_visit --system-qt --parallel --mesa --mxml --adios --hdf5 --xdmf --zlib --szip --silo --console
 
     This script should be started again and again after fixing build problems.
     All log is founf in build_visit2_7_2_log, appended at each try.
