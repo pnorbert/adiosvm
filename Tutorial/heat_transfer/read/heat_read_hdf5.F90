@@ -84,23 +84,8 @@ program reader
                    memspace, dataspace, H5P_DEFAULT_F)
 
 
-    call print_array (T(:,:,1), offset, rank, 3)
-    !write (100+rank, '("rank=",i0," size=",i0,"x",i0," offsets=",i0,":",i0," steps=",i0)') &
-    !    rank, readsize(1), readsize(2), offset(1), offset(2), ts
-    !write (100+rank, '(" time   row   columns ",i0,"...",i0)'), offset(2), offset(2)+readsize(2)-1  
-    !write (100+rank, '("        ",$)') 
-    !do j=1,readsize(2)
-    !    write (100+rank, '(i9,$)'), offset(2)+j-1
-    !enddo
-    !write (100+rank, '(" ")')
-    !write (100+rank, '("--------------------------------------------------------------")') 
-    !do i=1,readsize(1)
-    !    write (100+rank, '(2i5,$)') ts,offset(1)+i-1
-    !    do j=1,readsize(2)
-    !        write (100+rank, '(f9.2,$)') T(i,j)
-    !    enddo
-    !    write (100+rank, '(" ")')
-    !enddo
+    ts   = dims(3)-1 ! Read the latest timestep
+    call print_array (T(:,:,1), offset, rank, ts)
 
     call h5dclose_f(dset_id, ierr)
 

@@ -10,11 +10,6 @@ program reader
     
     real*8, dimension(:,:),   allocatable :: T, dT 
 
-    ! Offsets and sizes
-    integer :: gndx, gndy
-    integer*8, dimension(2) :: offset=0, readsize=1
-    integer*8           :: sel  ! ADIOS selection object
-
     ! MPI variables
     integer :: group_comm
     integer :: rank
@@ -23,11 +18,15 @@ program reader
     integer :: ts=0   ! actual timestep
     integer :: i,j
 
-    integer :: ntsteps
-    
-    ! This example can read from 1-260 readers
-    integer             :: gcnt, vcnt, acnt
-    integer*8           :: fh, gh, read_bytes
+    ! ADIOS related variables
+    integer*8                :: fh   ! File handle
+    integer*8                :: sel  ! ADIOS selection object
+    ! Variable information
+    integer                  :: vartype, nsteps, ndim
+    integer*8, dimension(2)  :: dims
+    ! Offsets and sizes
+    integer                  :: gndx, gndy
+    integer*8, dimension(2)  :: offset=0, readsize=1
 
 
 
@@ -47,6 +46,11 @@ program reader
     readsize(1) = gndx 
     readsize(2) = gndy / nproc
 
+    ! We can also inquire the dimensions, type and number of steps 
+    ! of a variable directly
+    call adios_inq_var (fh, "T", vartype, nsteps, ndim, dims, ierr)
+    ts = nsteps-1 ! Let's read the last timestep
+
     offset(1)   = 0
     offset(2)   = rank * readsize(2)
 
@@ -62,26 +66,10 @@ program reader
        
     ! Arrays are read by scheduling one or more of them
     ! and performing the reads at once
-    call adios_schedule_read(fh, sel, "T", 3, 1, T, ierr)
+    call adios_schedule_read(fh, sel, "T", ts, 1, T, ierr)
     call adios_perform_reads (fh, ierr)
 
-    call print_array (T, offset, rank, 3)
-    !write (100+rank, '("rank=",i0," size=",i0,"x",i0," offsets=",i0,":",i0," steps=",i0)') &
-    !    rank, readsize(1), readsize(2), offset(1), offset(2), ts
-    !write (100+rank, '(" time   row   columns ",i0,"...",i0)'), offset(2), offset(2)+readsize(2)-1  
-    !write (100+rank, '("        ",$)') 
-    !do j=1,readsize(2)
-    !    write (100+rank, '(i9,$)'), offset(2)+j-1
-    !enddo
-    !write (100+rank, '(" ")')
-    !write (100+rank, '("--------------------------------------------------------------")') 
-    !do i=1,readsize(1)
-    !    write (100+rank, '(2i5,$)') ts,offset(1)+i-1
-    !    do j=1,readsize(2)
-    !        write (100+rank, '(f9.2,$)') T(i,j)
-    !    enddo
-    !    write (100+rank, '(" ")')
-    !enddo
+    call print_array (T, offset, rank, ts)
 
     call adios_read_close (fh, ierr)
     ! Terminate
