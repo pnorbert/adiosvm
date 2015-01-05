@@ -6,7 +6,6 @@ program reader
     include 'mpif.h'
 
     character(len=256) :: filename, errmsg
-    integer :: timesteps      ! number of times to read data    
     integer :: nproc          ! number of processors
     
     real*8, dimension(:,:,:),   allocatable :: T, dT 
@@ -25,12 +24,6 @@ program reader
 
     integer :: ts=0   ! actual timestep
     integer :: i,j
-
-    integer :: ntsteps
-    
-    ! This example can read from 1-260 readers
-    integer             :: gcnt, vcnt, acnt
-    integer*8           :: fh, gh, read_bytes
 
     INTEGER(HID_T) :: file_id       ! File identifier
     INTEGER(HID_T) :: dset_id       ! Dataset identifier
