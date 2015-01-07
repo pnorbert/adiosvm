@@ -1,0 +1,21 @@
+VERSION 1.0
+gridfiles: tgvortex_data/grid/p%06d     # grid files
+datafiles: tgvortex_data/viz%04d/p%06d  # data files
+domainsize:     64    64    64  # overall grid dimensions
+blocksize:     16    16    16  # grid dimensions per processor
+origin:  0.490873852100000D-01  0.490873852100000D-01  0.490873852100000D-01  # xmin, ymin, zmin
+spacing:  0.981747704200000D-01  0.981747704200000D-01  0.981747704200000D-01  # dx, dy, dz
+variables:    9  # number of variables
+  velocity 3  -8.449623E-01   8.449623E-01  -8.449623E-01   8.449623E-01  -8.756487E-01   8.756487E-01
+  density 1   9.955822E-01   1.002877E+00
+  energy 1   1.495067E+02   1.501533E+02
+  Ideal1 1   1.000000E+00   1.000000E+00
+  pressure 1   9.952383E+01   1.001359E+02
+  temperature 1   1.198767E-06   1.203952E-06
+  sound_speed 1   1.288870E+01   1.291654E+01
+  viscosity 1   1.623720E-05   2.460700E-03
+  conductivity 1   8.528608E+02   3.858018E+04
+timesteps:   3  # number of times to plot
+  0000     0.000000E+00
+  0001     1.000000E+00
+  0002     2.000000E+00
