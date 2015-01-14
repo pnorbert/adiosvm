@@ -740,6 +740,14 @@ COMM.RANK = 3
 [1] 3
 
 
+Install R Studio
+----------------
+$ sudo apt-get install libjpeg62
+$ cd adiosvm/Rpackages
+ if not there, get it from the web
+$ wget http://download1.rstudio.org/rstudio-0.98.1091-i386.deb
+
+$ sudo dpkg -i rstudio-0.98.1091-i386.deb
 
 
 VII. Others
