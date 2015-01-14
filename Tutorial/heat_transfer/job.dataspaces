@@ -10,8 +10,7 @@
 #
 source /home/adios/modules-openmpi-gnu.sh
 
-DATASPACES_DIR=/home/adios/sw/dataspaces/1.4.0/openmpi-gnu
-SERVER=$DATASPACES_DIR/bin/dataspaces_server
+SERVER=dataspaces_server
 RUNCMD="mpirun -np"
 
 WRITEPROC=12
@@ -42,7 +41,7 @@ rm -rf staged.bp* heat.bp*
 # Prepare config file for DataSpaces
 # dimensions are the same as in Fortran (first dimension is for the contiguous dimension)
 let GDX="WX*NDX"
-let GDY="WX*NDY"
+let GDY="WY*NDY"
 echo "## Config file for DataSpaces
 ndim = 2
 dims = "${GDX}","${GDY}"
@@ -71,11 +70,11 @@ echo "-- DataSpaces IDs: P2TNID = $P2TNID   P2TPID = $P2TPID"
 
 # Start STAGE_WRITE
 echo "-- Start STAGE_WRITE on $READPROC PEs"
-$RUNCMD $READPROC ../stage_write/stage_write heat.bp staged.bp DATASPACES "" MPI "" $READPROC 1 1 >& log.stage_write &
+$RUNCMD $READPROC stage_write/stage_write heat.bp staged.bp DATASPACES "" MPI "" $READPROC 1 1 >& log.stage_write &
 
 # Start Application
 echo "-- Start Application on $WRITEPROC PEs"
-$RUNCMD $WRITEPROC ../heat_transfer_adios2 heat $WX $WY $NDX $NDY 10 500 >& log.heat_transfer
+$RUNCMD $WRITEPROC ./heat_transfer_adios2 heat $WX $WY $NDX $NDY 10 500 >& log.heat_transfer
 
 wait
 rm -f conf
