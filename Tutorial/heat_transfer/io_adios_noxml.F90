@@ -24,6 +24,7 @@ subroutine io_init()
     call adios_allocate_buffer (20, ierr)
     call adios_declare_group (g, "heat", "", 1, ierr)
     call adios_select_method (g, "MPI", "", "", ierr)
+    !call adios_select_method (g, "MPI_AGGREGATE", "num_aggregators=2;num_ost=2;verbose=3", "", ierr)
 end subroutine io_init
 
 subroutine io_finalize()
