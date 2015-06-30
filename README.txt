@@ -328,10 +328,10 @@ III. ADIOS Installation
 =======================
 
 1. Download ADIOS
-   1. ADIOS 1.7 is in this repo: 
+   1. ADIOS 1.9 is in this repo: 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/adios-1.7.0.tar.gz
-   $ cd adios-1.7.0
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.9.0.tar.gz
+   $ cd adios-1.9.0
 
    2. Download ADIOS master from repository
    $ cd ~/Software
@@ -359,8 +359,8 @@ III. ADIOS Installation
 
 4. Install 
    $ sudo make install
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.7/lib" and 
-     add to PATH "/opt/adios/1.7/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.9/lib" and 
+     add to PATH "/opt/adios/1.9/bin"
 
 5. Build and install python wrapper
 
@@ -410,7 +410,7 @@ III. ADIOS Installation
 IV. ADIOS Tutorial code
 =======================
 
-   For ADIOS 1.7, the tutorial is included in this repository
+   For ADIOS 1.9, the tutorial is included in this repository
    ~/adiosvm/Tutorial
 
 1. Linux Packages
@@ -497,12 +497,13 @@ V. Build Visit from release
 
          VISIT_OPTION_DEFAULT(CMAKE_INSTALL_PREFIX /opt/visit)
 
-     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.7):
+     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.9):
 
-         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.7.0)
+         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.9.0)
 
 
    Configure visit with cmake that was built by visit release
+   $ rm CMakeCache.txt
    $ ~/Software/visit/cmake-2.8.10.2/bin/cmake .
    $ make -j 4
    $ make install
@@ -550,7 +551,7 @@ If you still want to use the our own plotter instead of / besides visit.
 
   2. Build vtk-5.8 (saved from old Visit config)
   
-  $ tar zx  <-- This is OFF!!f ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
+  $ tar zxf  ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
   $ mkdir vtk-5.8-build
   $ cd vtk-5.8-build
   $ export LD_LIBRARY_PATH=/opt/plotter/lib:$LD_LIBRARY_PATH
@@ -668,7 +669,7 @@ Install pbdADIOS
 ----------------
 $ cd ~/Software
 $ git clone https://github.com/sgn11/pbdADIOS.git
-$ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.8" --no-test-load
+$ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.9" --no-test-load
 -- quick test
 $ R
 > library(pbdADIOS)
@@ -701,7 +702,7 @@ quit()
 
 $ cd source
 $ git clone https://github.com/sgn11/pbdADIOS.git
-$ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.8" --no-test-load
+$ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.9" --no-test-load
 
 Add to ~/.bashrc
     export R_LIBS_USER=/opt/R/library
