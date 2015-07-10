@@ -90,7 +90,9 @@ I. Set up a Linux VM
    $ sudo apt-get install  build-essential git-core libtool autoconf apt-file subversion cmake
    $ sudo apt-get autoremove 
      - this one to get rid of unnecessary packages after removing LibreOffice
-   
+   $ sudo apt-get install dkms
+     - Dynamic Kernel Modules, to ensure rebuilding Guest Additions at future kernel updates
+     - or just reinstall Guest Additions each time if you don't want dkms installed
 
 6. Download this repository
    You can postpone step 6 and 7 after 8 if you have a github account
