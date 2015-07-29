@@ -41,6 +41,7 @@
 <!--
   <method group="heat" method="MPI_AGGREGATE">num_aggregators=4;num_ost=2;have_metadata_file=1;verbose=3</method>
   <method group="heat" method="FLEXPATH">QUEUE_SIZE=4;verbose=3</method>
+  <method group="heat" method="DATASPACES"/>
 -->
 
   <buffer size-MB="20" allocate-time="now"/>

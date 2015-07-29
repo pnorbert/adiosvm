@@ -15,9 +15,6 @@ I. Set up a Linux VM
 2. Get a debian linux ISO image
    We currently use Ubuntu 12.04 64bit and the descriptions below all refer to that system. 
 
-   Note: We could not install Soft-iWarp (Infiniband layer) on Ubuntu 12.04 32bit and Ubuntu 10.4
-      That means DataSpaces does not work and staging demos with DataSpaces don't work.
-
 3. Create a new VM
    Type=Linux, System=Ubuntu (64bit)
    Memory: at least 2048MB, we use 3072MB just for the sake of it
@@ -50,7 +47,7 @@ I. Set up a Linux VM
      - this allows for resizing the window and 
        for copy/paste between the VM and your host machine
         (set Devices/Shared Clipboard/Bidirectional)
-     Note: This has to be repeated when recompiling the kernel for Soft-iWarp...
+     Note: This has to be repeated when updating or recompiling the kernel
 
    - You can remove the LibreOffice products to save some disk space.
      - Start Ubuntu Software Center
@@ -140,49 +137,27 @@ II. Preparations to install ADIOS
    $ sudo apt-get install gfortran mpich2
    $ sudo apt-get install python-cheetah python-yaml
 
-2. Install Soft-iWarp to get the Infiniband network
-   This is required to enable DataSpaces on the VM, which is required to run
-   the staging demos. 
-   
-   Another staging software is Flexpath which does not require anything. But
-   not all staging demos work with it.
 
-   See install guide: 
-      http://voidreflections.blogspot.com/2011/03/how-to-install-soft-iwarp-on-ubuntu.html
-
-   We prepared those commands in a single script, run that:
-
-   $ ~/adiosvm/softiwarp.install
-
-   Add a line to the end in /etc/security/limits.conf
-   $ sudo vi /etc/security/limits.conf
-   *                -       memlock         unlimited
-
-   Restart the VM
-
-   At each time we need to run ~/adiosvm/softiwarp.setup to load the infiniband 
-   and softiwarp kernel modules!
-
-
-3. Install DataSpaces
+2. Install DataSpaces
    Only if you want staging demos.
-   Only if everything is okay with Soft-iWarp.
 
-   Download dataspaces from www.dataspaces.org, or use 1.3 from adiosvm
+   Download dataspaces from www.dataspaces.org, or use 1.6 from adiosvm
 
    $ cd
    $ mkdir -p Software
    $ cd Software
-   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.3.0.tar.gz 
-   $ cd dataspaces-1.3.0
-   $ ./configure --prefix=/opt/dataspaces/1.3.0 CC=mpicc FC=mpif90
+   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.0.tar.gz 
+   $ cd dataspaces-1.6.0
+   $ ./autogen.sh
+   $ ./configure --prefix=/opt/dataspaces --enable-dart-tcp CC=mpicc FC=mpif90 CFLAGS="-g -std=gnu99" LIBS="-lm"
    $ make
    $ sudo make install
 
    Test DataSpaces: follow the instructions in 
       ~/adiosvm/adiospackages/test_dataspaces.txt
 
-4. Install MXML
+
+3. Install MXML
    $ cd ~/Software
    $ tar zxf ~/adiosvm/adiospackages/mxml-2.9.tar.gz 
    $ cd mxml-2.9/
@@ -192,7 +167,8 @@ II. Preparations to install ADIOS
 
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/mxml/lib"
 
-5. Compression libraries
+
+4. Compression libraries
    Only if you want to demo the transform library.
 
    zlib and bzip2 are installed as linux packages:
@@ -227,7 +203,8 @@ II. Preparations to install ADIOS
    $ sudo ln -s $HOME/Software/isobar.0.3.0/include 
    $ sudo ln -s $HOME/Software/isobar.0.3.0/lib 
 
-6. Flexpath support
+
+5. Flexpath support
    Only if you want staging demos.
    We need to get CHAOS from Georgia Tech and build it. This will take a while...
    
@@ -256,7 +233,7 @@ II. Preparations to install ADIOS
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/chaos/lib"
 
 
-7. Sequential HDF5 support
+6. Sequential HDF5 support
    Only if you want bp2h5 conversion code.
 
    $ cd ~/Software
@@ -270,7 +247,7 @@ II. Preparations to install ADIOS
    In ~/.bashrc, add to PATH "/opt/hdf5-1.8.12/bin"
 
 
-8. Parallel HDF5 support
+7. Parallel HDF5 support
    Only if you want PHDF5 transport method in ADIOS.
 
    $ cd ~/Software
@@ -288,7 +265,7 @@ II. Preparations to install ADIOS
    $ sudo make install
 
 
-9. Sequential NetCDF support
+8. Sequential NetCDF support
    Only if you want bp2ncd conversion code.
 
    $ cd ~/Software
@@ -302,7 +279,7 @@ II. Preparations to install ADIOS
    $ sudo make install
 
 
-10. Parallel NetCDF4 support (not PNetCDF!)
+9. Parallel NetCDF4 support (not PNetCDF!)
   ###   Just forget about this. It breaks the adios build  ###
    Only if you want NC4PAR transport method in ADIOS.
 
@@ -314,7 +291,8 @@ II. Preparations to install ADIOS
    $ make -j 4
    $ sudo make install
    
-11. Fastbit indexing support (needed for queries)
+
+10. Fastbit indexing support (needed for queries)
    $ cd ~/Software
    $ svn co https://codeforge.lbl.gov/anonscm/fastbit/trunk
    $ mv trunk fastbit
