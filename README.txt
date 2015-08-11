@@ -775,7 +775,13 @@ Ubuntu Metacity's Ambiance theme
   $ metacity-message reload-theme  
   
 
+Enable GDB debugging
+--------------------
+See http://askubuntu.com/questions/146160/what-is-the-ptrace-scope-workaround-for-wine-programs-and-are-there-any-risks
+Ubuntu prohibits ptrace to see other processes so gdb will fail with permissions. 
+Enable GDB binary to see your processes:
 
-
+  $ sudo apt-get install libcap2-bin 
+  $ sudo setcap cap_sys_ptrace=eip /usr/bin/gdb
 
 
