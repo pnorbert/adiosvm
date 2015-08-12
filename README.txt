@@ -763,3 +763,38 @@ Enable GDB binary to see your processes:
   $ sudo setcap cap_sys_ptrace=eip /usr/bin/gdb
 
 
+GLOBAL/GTAGS
+-------------
+   GTAGS is useful for quickly finding definitions of functions in source codes in VIM
+   It needs to be installed from source to make it work in VIM
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/linuxpackages/global-6.3.4.tar.gz
+   $ cd global-6.3.4
+   $ ./configure
+   $ make
+   $ sudo make install
+
+   $ mkdir -p ~/.vim/plugin
+   $ cp ~/adiosvm/linuxpackages/gtags.vim ~/.vim/plugin/
+   NOTE: .vimrc already contains the flag to turn it on
+
+   Generate the tags for a source
+   $ cd ~/Software/ADIOS/src
+   $ gtags
+   $ ls G*
+   GPATH  GRTAGS  GSYMS  GTAGS
+
+   $ vi write/adios_posix.c
+   /adios_posix_read_version
+   Hit Ctrl-\ Ctrl-\
+   Vi should open new file core/adios_bp_v1.c and jump to the definition of adios_posix_read_version
+   :b#    -- to go back to the previous file
+
+   If there are multiple finds, you can move among them with Ctrl-\ Ctrl-[   and  Ctrl-\ Ctrl-] 
+   The commands can be modified at the bottom of ~/.vim/plugin/gtags.vim
+
+
+
+
+
+
