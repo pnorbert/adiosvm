@@ -794,7 +794,11 @@ GLOBAL/GTAGS
    The commands can be modified at the bottom of ~/.vim/plugin/gtags.vim
 
 
-
+   Add a path of any software so that gtags will search the GTAGS file there to find external references. 
+   In .bashrc, add
+   export GTAGSLIBPATH=/home/adios/Software/ADIOS/src
+ 
+   You also need to run gtags in your application (top) source directory too, to get global/gtag working.
 
 
 
