@@ -348,8 +348,30 @@ III. ADIOS Installation
    $ sudo apt-get install python python-dev
    $ sudo apt-get install python-numpy
 
-   Then, go to the wrapper/numpy directory under the adios source
-   directory:
+   Note: To use a parallel version, we need mpi4py. However, the
+   package installation from Ubuntu repository is not working here; it
+   was out-dated and mal-configured. Instead, we can install by using
+   pip:
+
+   $ sudo apt-get install python-pip
+   $ sudo pip install mpi4py
+   
+   Alternatively, we can install from a source code too:
+
+   $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-2.0.0.tar.gz
+   $ tar xvf mpi4py-2.0.0.tar.gz
+   $ cd mpi4py-2.0.0
+   $ python setup.py build
+   $ sudo python setup.py install
+
+   Then, we are ready to install adios and adios_mpi python module. An
+   easy way is to use "pip".
+   
+   $ sudo "PATH=$PATH" pip install --upgrade \
+     --global-option build_ext --global-option -lrt adios adios_mpi
+
+   If there is any error, we can build from source. Go to the
+   wrapper/numpy directory under the adios source directory:
    $ cd wrapper/numpy
 
    Type the following to build Adios python wrapper:
@@ -358,34 +380,16 @@ III. ADIOS Installation
    The following command is to install:
    $ sudo python setup.py install
 
-   If the above command won't work with a no directory error, you can
-   try the following:
-   $ sudo "PATH=$PATH" python setup.py install
-   
+   Same for adios_mpi module:
+   $ python setup_mpi.py build_ext -lrt
+   $ sudo python setup_mpi.py install
+
+   Test:
    A quick test can be done:
    $ cd wrapper/numpy/tests
    $ python test_adios.py
+   $ mpirun -n 4 python test_adios_mpi.py
 
-   Note: To use a parallel version, we need to build and install
-   mpi4py. However, package install from Ubuntu repository is not
-   working here; it was out-dated and mal-configured. Instead, we can
-   install by using pip:
-
-   $ sudo apt-get install python-pip
-   $ sudo pip install mpi4py
-   
-   Alternatively, we can install from a source code too:
-
-   $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-1.3.1.tar.gz
-   $ tar xvf mpi4py-1.3.1.tar.gz
-   $ cd mpi4py-1.3.1
-   $ python setup.py build
-   $ python "PATH=$PATH" setup.py install
-
-   Then, go to wrapper/numpy directory and build:
-
-   $ python setup_mpi.py build_ext -lrt
-   $ sudo "PATH=$PATH" python setup_mpi.py install
 
 IV. ADIOS Tutorial code
 =======================
