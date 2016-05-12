@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <assert.h>
 #include "mpi.h"
 #include "utils.h"
 #include "adios.h"
@@ -27,6 +28,8 @@
 
 #define _GNU_SOURCE
 #include "math.h"
+
+#include "decompose.h"
 
 // Input arguments
 char   infilename[256];    // File/stream to read 
@@ -46,6 +49,7 @@ static int timeout_sec = 0; // will stop if no data found for this time (-1: nev
 
 static const char v1name[] = "T";
 static const char v2name[] = "dT";
+static const char v3name[] = "T_manual"; // output only, not in input file
 
 
 // Global variables
@@ -74,7 +78,7 @@ void printUsage(char *prgname)
            "    max        Range query maximum value (float)\n"
            "    fillvalue  Fill value (float)\n"
            "               NAN is allowed, its value in this actual executable is: %g\n"
-           "    querymethod   [fastbit|alacrity|unknown]\n"
+           "    querymethod   [minmax|fastbit|alacrity|unknown]\n"
            "               Which query method to use (unknown uses default available\n"
            "    <decomposition>    list of numbers e.g. 32 8 4\n"
            "            Decomposition values in each dimension of an array\n"
@@ -118,6 +122,9 @@ int processArgs(int argc, char ** argv)
     if (get_double_arg (5, argv, &fillval)) return 1;
     
     if (argc > 6) {
+        if (!strcmp (argv[6], "minmax")) {
+            query_method = ADIOS_QUERY_METHOD_MINMAX;
+        }
         if (!strcmp (argv[6], "alacrity")) {
             query_method = ADIOS_QUERY_METHOD_ALACRITY;
         }
@@ -207,7 +214,7 @@ int main (int argc, char ** argv)
     
 
     adios_init ("test_range.xml", comm);
-    err = adios_read_init_method(read_method, comm, "verbose=2");
+    err = adios_read_init_method(read_method, comm, "verbose=4");
 
     if (!err) {
         print0 ("%s\n", adios_errmsg());
@@ -303,41 +310,50 @@ int main (int argc, char ** argv)
 uint64_t offs[10];
 uint64_t ldims[10];
 //uint64_t gdims[10]; // gdims is varinfo->dims
-double *v1;
-double *v2;
+ADIOS_SELECTION *boxsel; // the bounding box selection covering this process' portion (offs, ldims)
 
-// hitlist dimensions
-uint64_t nhits;  // number of hits on this process
-uint64_t nhits_total; // all hits; also hits_gdim for hitlist
-uint64_t hits_off; // offset in hitlist; ldim is point selection -> npoints
-ADIOS_SELECTION *hitlist;
-double * hitdata; // the data, read in from file, for the hits
+double *v1;  // var T
+double *v2;  // var dT
+double *v1m; // var T with manual evaluation
+
+// query and its subqueries;
+ADIOS_QUERY  *q1, *q2, *q;
+
+// selections that satisfy the query
+ADIOS_QUERY_RESULT *query_result;
+
+int nblocks_total; // global number of selections returned by query evaluation
+uint64_t npoints_total; // global number of points satisfying the query;
+
 ADIOS_VARINFO * vinfo;
 
 uint64_t groupsize;
 
-typedef struct {
-    uint64_t        writesize; // size of subset this process writes, 0: do not write
-} VarInfo;
-
-VarInfo * varinfo;
-
 // cleanup all info from previous step 
 void cleanup_step ()
 {
-    free (v1);
-    free (v2);
+    int i;
+    free (v1); v1=NULL;
+    free (v2); v2=NULL;
+    free (v1m); v1m=NULL;
     adios_free_varinfo(vinfo);
-    if (hitlist) {
-        free (hitlist->u.points.points);
-        adios_selection_delete(hitlist);
-        hitlist = NULL;
+    if (boxsel) {
+        free (boxsel);
+        boxsel = NULL;
     }
-    if (hitdata) {
-        free (hitdata);
-        hitdata = NULL;
+    if (query_result){
+        if (query_result->selections)
+            free (query_result->selections);
+        free (query_result);
+        query_result = NULL;
     }
+    adios_query_free(q);
+    adios_query_free(q2);
+    adios_query_free(q1);
+    q = q2 = q1 = NULL;
+
 }
+
 
 void print_type_and_dimensions (ADIOS_VARINFO *v)
 {
@@ -372,76 +388,99 @@ int alloc_vars(int step)
                 rank, v1name, adios_errmsg());
         return 1;
     }
+    adios_inq_var_stat (f, vinfo, 0, 1);
+    adios_inq_var_blockinfo (f, vinfo); // get per-block dimensions and offsets
     print_type_and_dimensions (vinfo);
 
     // determine subset we will query/write
     decompose (numproc, rank, vinfo->ndim, vinfo->dims, decomp_values,
             ldims, offs, &sum_count);
 
+    /* 
+    ldims[0] = ldims[0]/3;
+    ldims[1] = ldims[1]/2;
+    sum_count = sum_count/6;
+    */
+
+    char ints[128];
+    int64s_to_str(vinfo->ndim, ldims, ints);
+    print("rank %d: ldims   in %d-D space = %s\n", rank, vinfo->ndim, ints);
+
     v1 = malloc (sum_count * sizeof(double));
     v2 = malloc (sum_count * sizeof(double));
 
     groupsize += 2 * sum_count * sizeof(double); // v1 + v2
 
+    // limit the query to the bounding box of this process
+    boxsel = adios_selection_boundingbox (vinfo->ndim, offs, ldims);
+
     return retval;
 }
 
+
 int do_queries(int step)
 {
-    // limit the query to the bounding box of this process
-    ADIOS_SELECTION *boxsel = adios_selection_boundingbox (vinfo->ndim, offs, ldims);
-    ADIOS_QUERY *q1 = adios_query_create (f, boxsel, v1name, ADIOS_GTEQ, minstr);
-    ADIOS_QUERY *q2 = adios_query_create (f, boxsel, v1name, ADIOS_LTEQ, maxstr);
-    ADIOS_QUERY* q = adios_query_combine(q1, ADIOS_QUERY_OP_AND, q2);
-
-    // We can call this with unknown too, just testing the default behavior here
-    if (query_method != ADIOS_QUERY_METHOD_UNKNOWN)
-        adios_query_set_method (q, query_method);
+    q1 = adios_query_create (f, boxsel, v1name, ADIOS_GTEQ, minstr);
+    q2 = adios_query_create (f, boxsel, v1name, ADIOS_LTEQ, maxstr);
+    q  = adios_query_combine (q1, ADIOS_QUERY_OP_AND, q2);
 
     if (q == NULL)  {
         print ("rank %d: ERROR: Query creation failed: %s\n", rank, adios_errmsg());
         return 1;
     }
 
-    // retrieve the whole query result at once
-    int64_t batchSize = vinfo->dims[0] * vinfo->dims[1];
-    print ("rank %d: set upper limit to number of hits = %lld\n", rank, batchSize); 
-    int hasMore =  adios_query_evaluate(q, boxsel, 0, batchSize, &hitlist);
+    // We can call this with unknown too, just testing the default behavior here
+    if (query_method != ADIOS_QUERY_METHOD_UNKNOWN)
+        adios_query_set_method (q, query_method);
 
-    if (hasMore == -1) {
+    // retrieve the whole query result at once
+    //int64_t batchSize = vinfo->sum_nblocks;
+    int64_t batchSize = adios_query_estimate(q, 0);
+    print ("rank %d: set upper limit to batch size. Number of total elements in array  = %lld\n", rank, batchSize); 
+    query_result =  adios_query_evaluate(q, boxsel, 0, batchSize);
+
+
+    if (query_result->status == ADIOS_QUERY_RESULT_ERROR) {
         print ("rank %d: Query evaluation failed with error: %s\n", rank, adios_errmsg());
     } 
-    else if (hasMore==1) 
+    else if (query_result->status == ADIOS_QUERY_HAS_MORE_RESULTS)
     {
         print ("rank %d: ERROR: Query retrieval failure: "
                "it says it has more results to retrieve, although we "
                "tried to get all at once\n", rank);
     }
-    
-    if (hitlist) {
-        nhits = hitlist->u.points.npoints;
-        print ("rank %d: Query returned %lld hits\n", rank, nhits);
-    } else {
-        nhits = 0;
-        print ("rank %d: Query returned zero hits\n", rank);
+
+    print ("rank %d: Query returned %lld points in %d blocks as result\n",
+           rank, query_result->npoints, query_result->nselections);
+
+    // FIXME: Gather all nblocks npoints to rank 0
+    nblocks_total = 0;
+    MPI_Allreduce (&query_result->nselections, &nblocks_total, 1, MPI_INT, MPI_SUM, comm);
+    npoints_total = 0;
+    MPI_Allreduce (&query_result->npoints, &npoints_total, 1, MPI_LONG_LONG, MPI_SUM, comm);
+    print0 ("Total number of points %lld: in %d blocks\n", npoints_total, nblocks_total);
+
+    /* Test alacrity point result */
+    /*
+    int i, d;
+    uint64_t n;
+    for (i = 0; i < nblocks; ++i) {
+        ADIOS_SELECTION_POINTS_STRUCT * pts = &query_result->selections[i].u.points;
+        print ("block %d: Number of points: %lld\n", i, pts->npoints);
+        for (n = 0; n < pts->npoints; ++n) {
+            print ("  point %" PRIu64 "\t(%" PRIu64, n, pts->points[n*pts->ndim]);
+            for (d = 1; d < pts->ndim; ++d) {
+                print (", %" PRIu64, pts->points[n*pts->ndim+d]);
+            }
+            print (")\n");
+        }
     }
+    */
 
 
-
-    adios_query_free(q);
-    adios_query_free(q2);
-    adios_query_free(q1);
-    groupsize += 0; // FIXME: Add size of hitlist here
-
-    // FIXME: Gather all npoints to rank 0
-    nhits_total = 0; 
-    MPI_Allreduce (&nhits, &nhits_total, 1, MPI_LONG_LONG, MPI_SUM, comm);
-
-    print0 ("rank %d: Total number of hits: %lld\n", rank, nhits_total);
-
-    adios_selection_delete (boxsel);
-    return 0;
+     return 0;
 }
+
 
 int read_vars(int step)
 {
@@ -455,40 +494,21 @@ int read_vars(int step)
         }
     }
 
-    // read the pointlist and add values to v1
-    if (hitlist) {
-        hitdata = (double *) malloc (nhits * sizeof(double));
+    // Read the data into v1 but only those portions that satisfied the query
+    int timestep = 0;
+    adios_query_read_boundingbox (f, q, v1name, timestep,
+            query_result->nselections, query_result->selections, boxsel, v1);
 
-        adios_schedule_read (f, hitlist, v1name, 0, 1, hitdata);
-        adios_perform_reads (f, 1);   
+    adios_query_read_boundingbox (f, q, v2name, timestep,
+            query_result->nselections, query_result->selections, boxsel, v2);
 
-        for (k=0; k < nhits; k++) {
-            i = hitlist->u.points.points[2*k] - offs[0];
-            j = hitlist->u.points.points[2*k+1] - offs[1];
-            v1 [i*ldims[1]+j] = hitdata[k];
-        }
 
-        // do the same for v2
-        adios_schedule_read (f, hitlist, v2name, 0, 1, hitdata);
-        adios_perform_reads (f, 1);   
 
-        for (k=0; k < nhits; k++) {
-            i = hitlist->u.points.points[2*k] - offs[0];
-            j = hitlist->u.points.points[2*k+1] - offs[1];
-            v2 [i*ldims[1]+j] = hitdata[k];
-        }
-
-    } else {
-        hitdata = NULL;
-    }
-        
     /* Validate result here */
     // read the original v1 completely and do manual evaluation
-    double *v1m = (double *) malloc (ldims[0]*ldims[1]*sizeof(double));
-    ADIOS_SELECTION *sel = adios_selection_boundingbox (vinfo->ndim, offs, ldims);
-    adios_schedule_read (f, sel, v1name, 0, 1, v1m);
-    adios_perform_reads (f, 1);   
-    adios_selection_delete (sel);
+    v1m = (double *) malloc (ldims[0]*ldims[1]*sizeof(double));
+    adios_schedule_read (f, boxsel, v1name, 0, 1, v1m);
+    adios_perform_reads (f, 1);
 
     // manually evaluate query and count the hits
     k=0; uint64_t manualhits=0;
@@ -502,13 +522,14 @@ int read_vars(int step)
             k++;
         }
     }
-    if (nhits != manualhits) {
+    
+
+    if (query_result->npoints != manualhits) {
         print ("rank %d: Validation Error: Manual query evaluation found %lld "
                 "hits in contrast to query engine which found %lld hits\n", 
-                rank, manualhits, nhits);
+                rank, manualhits, query_result->npoints);
     }
-    free(v1m);
-        
+
     return 0;
 }
 
@@ -530,13 +551,16 @@ int write_vars(int step)
     adios_write(fh, "off1",  &offs[0]);
     adios_write(fh, "off2",  &offs[1]);
 
-    if (rank == 0) 
+    if (rank == 0)
     {
-        adios_write(fh, "nhits_total", &nhits_total);
+        adios_write(fh, "npoints_total", &npoints_total);
+        adios_write(fh, "nblocks_total", &nblocks_total);
     }
+
 
     adios_write(fh, v1name, v1);
     adios_write(fh, v2name, v2);
+    adios_write(fh, v3name, v1m);
 
     adios_close (fh); // write out output buffer to file
     return retval;

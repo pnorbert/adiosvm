@@ -17,13 +17,15 @@
     <var name="off2"  type="integer*8"/>
     <var name="ldim1" type="integer*8"/>
     <var name="ldim2" type="integer*8"/>
-    <var name="nhits_total" type="integer*8"/>
+    <var name="nblocks_total" type="integer*4"/>
+    <var name="npoints_total" type="integer*8"/>
     <var name="rank"  type="integer"/>
 
 
     <global-bounds dimensions="gdim1,gdim2" offsets="off1,off2">
         <var name="T"  type="double" dimensions="ldim1,ldim2"/>
         <var name="dT" type="double" dimensions="ldim1,ldim2"/>
+        <var name="T_manual" type="double" dimensions="ldim1,ldim2"/>
     </global-bounds>
     
 
