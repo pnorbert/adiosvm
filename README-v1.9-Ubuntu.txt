@@ -120,7 +120,7 @@ I. Set up a Linux VM
    If you have a github account and the config already, and postponed
    step 6, get the adiosvm repo now:
 
-   $ sudo apt-get corkscrew
+   $ sudo apt-get install corkscrew
    $ git clone github-cork:pnorbert/adiosvm.git
 
    Git settings:
