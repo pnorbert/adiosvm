@@ -1,0 +1,66 @@
+# Object files
+*.o
+
+# Libraries
+*.lib
+*.a
+*.la
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.pyc
+
+
+# http://www.gnu.org/software/autoconf
+
+autom4te.cache
+aclocal.m4
+/compile
+/depcomp
+/install-sh
+/missing
+config.log
+config.status
+config/depcomp
+stamp-h1
+config.h.in
+config.h
+configure
+
+# all crap
+*.~
+.~*
+*.*~
+*.fh
+*.ch
+*.pyc
+\#*
+.DS_Store
+
+# gtags/rtags/ctags files
+GPATH
+GRTAGS
+GTAGS
+tags
+TAGS
+
+# exceptions from all crap
+#!examples/Fortran/*/*.fh
+
+
+#compiled files
+
+
+# Eclipse files
+/.cproject
+/.project
+.ptp-sync/
+.ptp-sync-folder
