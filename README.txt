@@ -122,11 +122,14 @@ I. Set up a Linux VM
    $ cp /media/sf_<yourfolder>/.ssh/config .ssh
    $ cp /media/sf_<yourfolder>/.ssh/id_dsa_github* .ssh
 
+   If you need a proxy to get to GitHub, use corkscrew and edit
+   ~/.ssh/config to add the proxy command to each entry
+   $ sudo apt-get install corkscrew
+
    If you have a github account and the config already, and postponed
    step 6, get the adiosvm repo now:
 
-   $ sudo apt-get install corkscrew
-   $ git clone github-cork:pnorbert/adiosvm.git
+   $ git clone github:pnorbert/adiosvm.git
 
    Git settings:
    $ git config --global user.name "<your name>"
@@ -321,7 +324,7 @@ III. ADIOS Installation
 
    2. Download ADIOS master from repository
    $ cd ~/Software
-   $ git clone github-cork:ornladios/ADIOS.git
+   $ git clone github:ornladios/ADIOS.git
      OR
    $ git clone https://github.com/ornladios/ADIOS.git
    $ cd ADIOS
