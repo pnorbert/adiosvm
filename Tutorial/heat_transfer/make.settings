@@ -1,13 +1,13 @@
 
 ## Set ADIOS_DIR here or before doing make
-override ADIOS_DIR=/opt/adios/1.9
+override ADIOS_DIR=/opt/adios/1.10
 #override ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/sith.pgi
 
 #Location of the (sequential) HDF5 libraries
-HDF5_DIR=/opt/hdf5-1.8.12
+HDF5_DIR=/opt/hdf5-1.8.17
 
 #Location of the Parallel HDF5 libraries
-PHDF5_DIR=/opt/hdf5-1.8.12-parallel
+PHDF5_DIR=/opt/hdf5-1.8.17-parallel
  
 ## mpicc and mpif90 SETTINGS
 CC=mpicc
