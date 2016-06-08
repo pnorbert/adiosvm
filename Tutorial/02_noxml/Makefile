@@ -1,6 +1,6 @@
 CC=mpicc
 FC=mpif90
-ADIOS_DIR = /opt/adios/1.8
+ADIOS_DIR = /opt/adios/1.10
 ADIOS_INC = $(shell ${ADIOS_DIR}/bin/adios_config -c)
 ADIOS_CLIB = $(shell ${ADIOS_DIR}/bin/adios_config -l)
 ADIOS_FLIB = $(shell ${ADIOS_DIR}/bin/adios_config -lf)

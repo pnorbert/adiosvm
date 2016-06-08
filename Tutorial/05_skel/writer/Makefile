@@ -2,11 +2,11 @@
 # To modify this Makefile, edit Makefile_default.tpl file in ~/.skel/templates/
 # and run skel makefile  
 
-include /opt/adios/1.6.0/bin/../etc/skel/compiler_fragment.mk
+include /opt/adios/1.10/bin/../etc/skel/compiler_fragment.mk
 
 #Use adios attached to skel, rather than adios in $PATH
 #ADIOS_DIR=`adios_config -d`
-ADIOS_DIR=/opt/adios/1.6.0/bin/..
+ADIOS_DIR=/opt/adios/1.10/bin/..
 
 ADIOS_CONFIG=${ADIOS_DIR}/bin/adios_config
 
