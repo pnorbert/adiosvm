@@ -3,7 +3,7 @@ adiosvm
 
 Packages and howtos for creating a linux system for ADIOS tutorials
 
-Required steps to get plain ADIOS working: I.1,2,3,5 II.1,4 III.1
+Required steps to get plain ADIOS working: I.1-6,8 II.1,4 III.1
 
 Steps:
 
@@ -13,7 +13,7 @@ I. Set up a Linux VM
 1. Install VirtualBox 
 
 2. Get a linux ISO image
-   We currently use Lubuntu 16.04 32bit and the descriptions below all refer to that system. Debian based systems use 'apt-get' to install packages. 
+   We currently use Lubuntu 16.04 64bit and the descriptions below all refer to that system. Debian based systems use 'apt-get' to install packages. 
 
 
 3. Create a new VM
@@ -42,47 +42,61 @@ I. Set up a Linux VM
 
    Whenever Lubuntu offers updates, do it...
 
-4. Bottom left corner of screen has the start menu, open System Tools/LXTerminal
-
-5. Install some linux packages (sudo apt-get install or can use sudo synaptic)
-   $ sudo apt-get update
-   $ sudo apt-get install build-essential git-core libtool autoconf apt-file subversion cmake
-   $ sudo apt-get gfortran 
-   $ sudo apt-get autoremove 
-     - this one to get rid of unnecessary packages after removing LibreOffice
-   $ sudo apt-get install dkms
-     - Dynamic Kernel Modules, to ensure rebuilding Guest Additions at future kernel updates
-     - or just reinstall Guest Additions each time if you don't want dkms installed
-
-     
-   - VirtualBox VM menu: Devices/Insert Guest Additions CD Image
-     - will install kernel modules, need adios password to run
-     - this allows for resizing the window and 
-       for copy/paste between the VM and your host machine
-        (set Devices/Shared Clipboard/Bidirectional)
-     Note: This has to be repeated when updating or recompiling the kernel
-
+4. LXTerminal: Bottom left corner of screen has the start menu, open System Tools/LXTerminal
    - LXTerminal setup (if you don't like the default one)
      - Start LXTerminal
      - Edit/Profile preferences
-       General tab: unclick "Use the system fixed with font"
-       Colors tab: Black on white
-     - Scrolling tab: increase the scrollback to a few thousand lines (e.g. 5120)
+     - Display tab: increase the scrollback to a few thousand lines (e.g. 5120)
+     - Style tab: set font and background/foreground to your style
+       (Monospace 12 and black font on white background for the tutorial VM)
+
+   - Add terminal icon to task bar: right-click on task bar, select Add/Remove Panel Items
+     Select Application Launch Bar, click Preferences
+     Add System Tools/LXTerminal to the Launchers list
+
+5. Virtualbox Guest Additions
+   $ sudo apt-get update
+   $ sudo apt-get install dkms 
+     - Dynamic Kernel Modules, to ensure rebuilding Guest Additions at future kernel updates
+     - or just reinstall Guest Additions each time if you don't want dkms installed
+
+   - VirtualBox VM menu: Devices/Insert Guest Additions CD Image
+     - under Lubuntu it will not autorun, so in a terminal
+     $ cd /media/adios/VBOXADDITIONS*/
+     $ sudo ./VBoxLinuxAdditions.run
+
+     - this allows for resizing the window and 
+       for copy/paste between the VM and your host machine
+       (and sharing folders between your host machine and this VM if you want)
+     - set in VirtualBox main menu:  Devices/Shared Clipboard/Bidirectional)
+     Note: This has to be repeated when updating or recompiling the kernel unless 
+           the dkms package is installed
+     - reboot the machine
+
+6. Install some linux packages (sudo apt-get install or can use sudo synaptic)
+   $ sudo apt-get install apt-file 
+   $ sudo apt-file update
+   $ sudo apt-get install build-essential git-core libtool libtool-bin autoconf subversion cmake
+   $ sudo apt-get install gfortran 
+   $ sudo apt-get install pkg-config 
+   $ sudo apt-get autoremove 
+   -- this one is to remove unused packages, probably 0 at this point
 
    - Set HISTORY to longer: 
      $ vi ~/.bashrc
      increase HISTSIZE (to 5000) and HISTFILESIZE (to 10000)
 
    - Turn off screen saver and lock
-     Start menu / Preferences  / Power Management
+     Start menu / Preferences  / Power Manager
      Display tab:
        Turn off flag to Handle display power management
+       Set Blank after to the max (60 minutes on Lubuntu)
      Security tab: 
        Automatically lock the session: Never
        Turn off flag to lock screen when system is going to sleep
 
 
-4. Shared folder between your host machine and the VM (optional)
+7. Shared folder between your host machine and the VM (optional)
    This is not needed for tutorial, just if you want to share files between host and vm.
 
    - In VirtualBox, while the VM is shut down, set up a shared folder, with auto-mount.
@@ -96,19 +110,24 @@ I. Set up a Linux VM
 
 
 
-6. Download this repository
+8. Download this repository
    You can postpone step 6 and 7 after 8 if you have a github account
    and want to edit this repository content.
 
    $ cd
    $ git clone https://github.com/pnorbert/adiosvm.git
 
-7. VIM setup
+9. VIM setup
    $ sudo apt-get install vim
    copy from this repo: vimrc to ~/.vimrc
    $ cp ~/adiosvm/vimrc .vimrc
 
-8. Github access setup
+   On Lubuntu for some reason, the root creates ~/.viminfo which we need to remove
+   This will allow vi/vim to create it again under adios user and use it to remember
+   positions in files opened before
+   $ sudo rm ~/.viminfo
+
+10. Github access setup
    This is only needed to get ADIOS master from github.
 
    We need an account to github and a config for ssh.
@@ -142,7 +161,8 @@ II. Preparations to install ADIOS
 =================================
 
 1. Linux Packages
-   $ sudo apt-get install gfortran mpich
+   $ sudo apt-get install openmpi-common openmpi-bin libopenmpi-dev 
+   $ sudo apt-get install gfortran 
    $ sudo apt-get install python-cheetah python-yaml
 
 
@@ -185,8 +205,7 @@ II. Preparations to install ADIOS
    SZIP and ISOBAR are provided in adiospackages/
 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/szudo apt-get install bzip2 libbz2-dev zlib1g zlib1g-dev
-   p-2.1.tar.gz 
+   $ tar zxf ~/adiosvm/adiospackages/szip-2.1.tar.gz 
    $ cd szip-2.1/
    $ ./configure --prefix=/opt/szip --with-pic
    $ make
@@ -198,9 +217,10 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/isobar.0.3.0.tgz 
    $ cd isobar.0.3.0
 
-   On 32bit systems, edit
+   Edit
       projs/ISOBAR_library/nbproject/Makefile-gcc-release-x64-static.mk
-   and remove -m64 from CFLAGS
+   and add -fPIC to CFLAGS
+   On 32bit systems, also remove -m64 from CFLAGS
 
    $ make install
 
@@ -281,7 +301,7 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/netcdf-4.4.0.tar.gz
    $ mv netcdf-4.4.0 netcdf-4.4.0-serial
    $ cd netcdf-4.4.0-serial
-   $ ./configure --prefix=/opt/netcdf-4.4.0 --enable-netcdf4 CPPFLAGS="-I/opt/hdf5-1.8.12/include" LDFLAGS="-L/opt/hdf5-1.8.12/lib"
+   $ ./configure --prefix=/opt/netcdf-4.4.0 --enable-netcdf4 CPPFLAGS="-I/opt/hdf5-1.8.17/include" LDFLAGS="-L/opt/hdf5-1.8.17/lib"
    $ make -j 4
    $ make check         
      This testing is optional
@@ -296,7 +316,7 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/netcdf-4.4.0.tar.gz
    $ mv netcdf-4.4.0 netcdf-4.4.0-parallel
    $ cd netcdf-4.4.0-parallel
-   $ ./configure --prefix=/opt/netcdf-4.4.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.12-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.12-parallel/lib -L/opt/szip/lib" LIBS="-lsz" CC=mpicc FC=mpif90
+   $ ./configure --prefix=/opt/netcdf-4.4.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.17-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.17-parallel/lib -L/opt/szip/lib" LIBS="-lsz" CC=mpicc FC=mpif90
    $ make -j 4
    $ sudo make install
    
@@ -310,6 +330,8 @@ II. Preparations to install ADIOS
    $ make
    -- this will be slooooow
    $ sudo make install
+   $ make clean  
+   -- src/ is about 1.4GB after build
 
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/fastbit/lib"
 
@@ -328,6 +350,7 @@ III. ADIOS Installation
      OR
    $ git clone https://github.com/ornladios/ADIOS.git
    $ cd ADIOS
+   $ ./autogen.sh
 
 2. Build ADIOS
    Then:
@@ -360,7 +383,7 @@ III. ADIOS Installation
    Note: To use a parallel version, we need mpi4py. 
 
    $ sudo apt-get install python-pip
-   $ sudo pip install mpi4py
+   $ sudo -H pip install mpi4py
    
    Alternatively, we can install from a source code too:
 
@@ -373,7 +396,7 @@ III. ADIOS Installation
    Then, we are ready to install adios and adios_mpi python module. An
    easy way is to use "pip".
    
-   $ sudo "PATH=$PATH" pip install --upgrade \
+   $ sudo -H "PATH=$PATH" pip install --upgrade \
      --global-option build_ext --global-option -lrt adios adios_mpi
 
    If there is any error, we can build from source. Go to the
@@ -381,14 +404,15 @@ III. ADIOS Installation
    $ cd wrapper/numpy
 
    Type the following to build Adios python wrapper:
-   $ python setup.py build_ext -lrt
+   $ python setup.py build_ext 
+   If not working, add " -lrt"
 
    The following command is to install:
-   $ sudo python setup.py install
+   $ sudo "PATH=$PATH" python setup.py install
 
    Same for adios_mpi module:
    $ python setup_mpi.py build_ext -lrt
-   $ sudo python setup_mpi.py install
+   $ sudo "PATH=$PATH" python setup_mpi.py install
 
    Test:
    A quick test can be done:
@@ -412,10 +436,19 @@ IV. ADIOS Tutorial code
 V. Build Visit from release
 ===========================
 
+Simple way: install binary release
+  - download a release from https://wci.llnl.gov/simulation/computer-codes/visit/executables
+  E.g.:
+  $ cd /opt
+  $ sudo tar zxf visit2_10_2.linux-x86_64-ubuntu14.tar.gz
+  $ sudo mv visit2_10_2.linux-x86_64 visit
+
+
+Complicated way:
+
 - Need to have many linux packages installed.
 - Build a Visit release using it's build script that
   downloads/builds a lot of dependencies.
-
 
 1. Linux packages
   $ sudo apt-get install dialog gcc-multilib subversion libx11-dev tcl tk
@@ -607,99 +640,100 @@ See instructions on http://cran.r-project.org/bin/linux/ubuntu/
 
 $ sudo vi /etc/apt/sources.list
 add a line to the end:
-deb http://mirrors.nics.utk.edu/cran/bin/linux/ubuntu xenia
+deb http://mirrors.nics.utk.edu/cran/bin/linux/ubuntu xenial/
 
 Add the key for this mirror
 $ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 $ sudo apt-get update
 $ sudo apt-get install r-base r-base-dev
-$ sudo apt-get install openssl libssl-dev libcurl4-openssl-dev
+$ sudo apt-get install openssl libssl-dev libssh2-1-dev libcurl4-openssl-dev
 
 If these above don't work, you need to resort building from source.
 from http://cran.r-project.org/sources.html
 e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
 
---- SUDO version below, non-SUDO after ---
 
-Install 'rlecuyer' 
-------------------
-from http://cran.r-project.org/web/packages/rlecuyer/index.html
+--- non-SUDO version below, SUDO below ---
 
-$ sudo R
-> install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/")
-should get messages ending with:
-* DONE (rlecuyer)
-> q()
-quit R (or ctrl+D)
-
-Test if it is installed correctly:
-$ R
-> library(help=rlecuyer)
-> q()
-
-> install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/")
-
-Install pbdR
--------------
-
-$ sudo R
-install.packages("devtools", repos="http://mirrors.nics.utk.edu/cran/")
-library(devtools)
-install_github("RBigData/pbdMPI")
-install_github("RBigData/pbdSLAP")
-install_github("wrathematics/RNACI")
-install_github("RBigData/pbdBASE") 
-install_github("RBigData/pbdDMAT") 
-install_github("RBigData/pbdDEMO") 
-install_github("RBigData/pbdPAPI") 
-install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
-> q()
+    $ sudo mkdir -p /opt/R/library
+    $ sudo chgrp -R adios /opt/R
+    $ sudo chmod -R g+w /opt/R
+    
+    $ export R_LIBS_USER=/opt/R/library
+    $ R
+    install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
+    install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
+    install.packages("devtools", repos="http://mirrors.nics.utk.edu/cran/")
+    library(devtools)
+    install_github("RBigData/pbdMPI")
+    install_github("RBigData/pbdSLAP")
+    install_github("wrathematics/RNACI")
+    install_github("RBigData/pbdBASE")
+    install_github("RBigData/pbdDMAT")
+    install_github("RBigData/pbdDEMO")
+    install_github("RBigData/pbdPAPI")
+    install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
+    quit()
+    
+    
+    $ cd ~/Software
+    $ git clone https://github.com/sgn11/pbdADIOS.git
+    $ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
+    
+    Add to ~/.bashrc
+        export R_LIBS_USER=/opt/R/library
 
 
-Install pbdADIOS
-----------------
-$ cd ~/Software
-$ git clone https://github.com/sgn11/pbdADIOS.git
-$ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
--- quick test
-$ R
-> library(pbdADIOS)
-Loading required package: pbdMPI
-Loading required package: rlecuyer
-> quit()
+--- SUDO version below, non-SUDO above ---
 
-
---- non-SUDO version below, SUDO above ---
-
-$ sudo mkdir -p /opt/R/library
-$ sudo chgrp -R adios /opt/R
-$ sudo chmod -R g+w /opt/R
-
-$ export R_LIBS_USER=/opt/R/library
-$ R
-install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
-install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
-install.packages("devtools", repos="http://mirrors.nics.utk.edu/cran/")
-library(devtools)
-install_github("RBigData/pbdMPI")
-install_github("RBigData/pbdSLAP")
-install_github("wrathematics/RNACI")
-install_github("RBigData/pbdBASE")
-install_github("RBigData/pbdDMAT")
-install_github("RBigData/pbdDEMO")
-install_github("RBigData/pbdPAPI")
-install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
-quit()
-
-
-$ cd ~/Software
-$ git clone https://github.com/sgn11/pbdADIOS.git
-$ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
-
-Add to ~/.bashrc
-    export R_LIBS_USER=/opt/R/library
-
-
+    Install 'rlecuyer' 
+    ------------------
+    from http://cran.r-project.org/web/packages/rlecuyer/index.html
+    
+    $ sudo R
+    > install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/")
+    should get messages ending with:
+    * DONE (rlecuyer)
+    > q()
+    quit R (or ctrl+D)
+    
+    Test if it is installed correctly:
+    $ R
+    > library(help=rlecuyer)
+    > q()
+    
+    > install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/")
+    
+    Install pbdR
+    -------------
+    
+    $ sudo R
+    install.packages("devtools", repos="http://mirrors.nics.utk.edu/cran/")
+    library(devtools)
+    install_github("RBigData/pbdMPI")
+    install_github("RBigData/pbdSLAP")
+    install_github("wrathematics/RNACI")
+    install_github("RBigData/pbdBASE") 
+    install_github("RBigData/pbdDMAT") 
+    install_github("RBigData/pbdDEMO") 
+    install_github("RBigData/pbdPAPI") 
+    install.packages("pbdPROF", repos="http://mirrors.nics.utk.edu/cran/")
+    > q()
+    
+    
+    Install pbdADIOS
+    ----------------
+    $ cd ~/Software
+    $ git clone https://github.com/sgn11/pbdADIOS.git
+    $ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
+    -- quick test
+    $ R
+    > library(pbdADIOS)
+    Loading required package: pbdMPI
+    Loading required package: rlecuyer
+    > quit()
+    
+--- end of SUDO version above ---
 
 Quick test of pbdR
 ------------------
