@@ -208,7 +208,7 @@ int main (int argc, char ** argv)
             break; // quit while loop
         }
         else if (adios_errno != err_no_error) {
-            printf("ADIOS returned code=%d, msg:\n", 
+            printf("ADIOS returned code=%d, msg:%s\n", 
                     adios_errno, adios_get_last_errmsg()); 
             break; // quit while loop
         }

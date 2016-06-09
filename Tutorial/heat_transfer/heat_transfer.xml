@@ -25,7 +25,7 @@
     <global-bounds dimensions="gndx,gndy" 
                    offsets="offx,offy">
         <var name="T"      gwrite="T(1:ndx,1:ndy,curr)" 
-             type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
+             type="real*8" dimensions="ndx,ndy" transform="none"/>
              <!--
              Options here: use alacrity transform to generate index with alacrity
              type="real*8" dimensions="ndx,ndy" transform="none"/>
@@ -49,6 +49,6 @@
   <method group="heat" method="DATASPACES"/>
 -->
 
-  <buffer size-MB="20" allocate-time="now"/>
+  <buffer max-size-MB="20"/>
 
 </adios-config>

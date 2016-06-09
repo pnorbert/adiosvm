@@ -34,6 +34,6 @@
   <transport group="writer" method="PHDF5"></transport>
   -->
 
-  <buffer size-MB="30" allocate-time="now"/>
+  <buffer max-size-MB="30"/>
 
 </adios-config>

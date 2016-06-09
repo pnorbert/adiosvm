@@ -26,7 +26,7 @@
 <method group="writer"  method="FLEXPATH">QUEUE_SIZE=10;</method>
 <method group="reader"  method="MPI"/>
 
-<buffer size-MB="20" allocate-time="now"/>
+<buffer max-size-MB="20"/>
 
 </adios-config>
 

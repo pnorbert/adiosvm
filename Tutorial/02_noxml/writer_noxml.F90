@@ -34,7 +34,7 @@ program writer
 
   ! call adios_init ("writer.xml", group_comm, ierr) -->
   call adios_init_noxml (group_comm, ierr)
-  call adios_allocate_buffer (20, ierr)
+  call adios_set_max_buffer_size (20)
   call adios_declare_group (m_adios_group, "writer", "iter", 1, ierr)
   call adios_select_method (m_adios_group, "MPI", "", "", ierr)
 
