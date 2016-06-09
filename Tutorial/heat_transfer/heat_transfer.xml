@@ -25,7 +25,7 @@
     <global-bounds dimensions="gndx,gndy" 
                    offsets="offx,offy">
         <var name="T"      gwrite="T(1:ndx,1:ndy,curr)" 
-             type="real*8" dimensions="ndx,ndy" transform="none"/>
+             type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
              <!--
              Options here: use alacrity transform to generate index with alacrity
              type="real*8" dimensions="ndx,ndy" transform="none"/>

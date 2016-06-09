@@ -14,10 +14,10 @@ OBJS = utils.o decompose_block.o
 	${CC} ${CFLAGS} -c ${ADIOS_INC} $<
 
 test_range: ${OBJS} test_range.o
-	${CC} ${LDFLAGS} -o test_range ${OBJS} test_range.o ${ADIOS_CLIB}
+	OMPI_CXX=${OMPI_CXX} ${LINKER} ${LDFLAGS} -o test_range ${OBJS} test_range.o ${ADIOS_CLIB}
 
 #test_query: ${OBJS} test_query.o
-#	${CC} ${LDFLAGS} -o test_query ${OBJS} test_query.o ${ADIOS_CLIB}
+#	${LINKER} ${LDFLAGS} -o test_query ${OBJS} test_query.o ${ADIOS_CLIB}
 
 clean:
 	rm -f *.o *.mod *.fh core.*

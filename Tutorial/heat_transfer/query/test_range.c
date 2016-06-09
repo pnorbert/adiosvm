@@ -214,7 +214,7 @@ int main (int argc, char ** argv)
     
 
     adios_init ("test_range.xml", comm);
-    err = adios_read_init_method(read_method, comm, "verbose=4");
+    err = adios_read_init_method(read_method, comm, "verbose=3");
 
     if (!err) {
         print0 ("%s\n", adios_errmsg());
