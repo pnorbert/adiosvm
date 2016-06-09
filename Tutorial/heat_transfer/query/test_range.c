@@ -125,7 +125,7 @@ int processArgs(int argc, char ** argv)
         if (!strcmp (argv[6], "minmax")) {
             query_method = ADIOS_QUERY_METHOD_MINMAX;
         }
-        if (!strcmp (argv[6], "alacrity")) {
+        else if (!strcmp (argv[6], "alacrity")) {
             query_method = ADIOS_QUERY_METHOD_ALACRITY;
         }
         else if (!strcmp (argv[6], "fastbit")) {
@@ -523,11 +523,13 @@ int read_vars(int step)
         }
     }
     
-
-    if (query_result->npoints != manualhits) {
-        print ("rank %d: Validation Error: Manual query evaluation found %lld "
-                "hits in contrast to query engine which found %lld hits\n", 
-                rank, manualhits, query_result->npoints);
+    if (q->method != ADIOS_QUERY_METHOD_MINMAX)
+    {
+        if (query_result->npoints != manualhits) {
+            print ("rank %d: Validation Error: Manual query evaluation found %lld "
+                    "hits in contrast to query engine which found %lld hits\n",
+                    rank, manualhits, query_result->npoints);
+        }
     }
 
     return 0;
