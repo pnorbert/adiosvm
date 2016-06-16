@@ -1,4 +1,4 @@
-adiosvm
+diosvm
 =======
 
 Packages and howtos for creating a linux system for ADIOS tutorials
@@ -185,7 +185,9 @@ II. Preparations to install ADIOS
       ~/adiosvm/adiospackages/test_dataspaces.txt
 
 
-3. Install MXML
+3. OBSOLETE: Install MXML
+   adios-1.10 includes mxml-2.9 and will build it with adios. 
+   Only, if you want the mxml library as standalone package:
    $ cd ~/Software
    $ tar zxf ~/adiosvm/adiospackages/mxml-2.9.tar.gz 
    $ cd mxml-2.9/
@@ -661,6 +663,7 @@ e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
     
     $ export R_LIBS_USER=/opt/R/library
     $ R
+    install.packages("ggplot2", repos="https://cran.cnr.berkeley.edu/", lib="/opt/R/library")
     install.packages("rlecuyer", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
     install.packages("raster", repos="http://mirrors.nics.utk.edu/cran/", lib="/opt/R/library")
     install.packages("devtools", repos="http://mirrors.nics.utk.edu/cran/")
