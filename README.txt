@@ -337,6 +337,23 @@ II. Preparations to install ADIOS
 
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/fastbit/lib"
 
+
+11. Alacrity indexing and query support
+   $ cd ~/Software
+   either
+   $ tar zxf ~/adiosvm/adiospackages/alacrity-1.0.0.tar.gz
+   $ cd alacrity-1.0.0
+     or
+   $ git clone https://github.com/ornladios/ALACRITY-ADIOS.git
+   $ cd ALACRITY-ADIOS
+
+   $ . ./runconf
+     or
+   $ ./configure CFLAGS="-g -fPIC -fno-common -Wall" CXXFLAGS="-g -fPIC -fno-exceptions -fno-rtti" --prefix=/opt/alacrity
+   $ make
+   $ sudo make install
+
+
 III. ADIOS Installation
 =======================
 
@@ -356,8 +373,9 @@ III. ADIOS Installation
 
 2. Build ADIOS
    Then:
-   $ cp ~/adiosvm/adiospackages/runconf.adiosvm .
-   $ . ./runconf.adiosvm
+   $ . ./runconf
+    Configure on ADIOS VirtualBox.
+    ...
    $ make -j 4
 
 3. Test ADIOS a bit
@@ -366,8 +384,8 @@ III. ADIOS Installation
    $ cd tests/suite
    $ ./test.sh 01
      and so on up to 16 tests
-     Some test fail because multiple processes write a text file which is 
-     compared to a reference file, but some lines can get mixed up. Try 
+     Some test may fail because multiple processes write a text file which is 
+     compared to a reference file, but some lines may get mixed up. Try 
      running the same test a couple of times. One 'OK' means the particular
      test is okay.
 
