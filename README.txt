@@ -169,13 +169,13 @@ II. Preparations to install ADIOS
 2. Install DataSpaces
    Only if you want staging demos.
 
-   Download dataspaces from www.dataspaces.org, or use 1.6 from adiosvm
+   Download dataspaces from www.dataspaces.org, or use 1.6.1 from adiosvm
 
    $ cd
    $ mkdir -p Software
    $ cd Software
-   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.0.tar.gz 
-   $ cd dataspaces-1.6.0
+   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.1.tar.gz 
+   $ cd dataspaces-1.6.1
    $ ./autogen.sh
    $ ./configure --prefix=/opt/dataspaces --enable-dart-tcp CC=mpicc FC=mpif90 CFLAGS="-g -std=gnu99" LIBS="-lm"
    $ make
@@ -185,20 +185,7 @@ II. Preparations to install ADIOS
       ~/adiosvm/adiospackages/test_dataspaces.txt
 
 
-3. OBSOLETE: Install MXML
-   adios-1.10 includes mxml-2.9 and will build it with adios. 
-   Only, if you want the mxml library as standalone package:
-   $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/mxml-2.9.tar.gz 
-   $ cd mxml-2.9/
-   $ ./configure --prefix=/opt/mxml
-   $ make
-   $ sudo make install
-
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/mxml/lib"
-
-
-4. Compression libraries
+3. Compression libraries
    Only if you want to demo the transform library.
 
    zlib and bzip2 are installed as linux packages:
@@ -235,7 +222,7 @@ II. Preparations to install ADIOS
    $ sudo ln -s $HOME/Software/isobar.0.3.0/lib 
 
 
-5. Flexpath support
+4. Flexpath support
    Only if you want staging demos.
    We need to get CHAOS from Georgia Tech and build it. This will take a while...
    
@@ -264,7 +251,7 @@ II. Preparations to install ADIOS
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/chaos/lib"
 
 
-6. Sequential HDF5 support
+5. Sequential HDF5 support
    Only if you want bp2h5 conversion code.
 
    $ cd ~/Software
@@ -278,7 +265,7 @@ II. Preparations to install ADIOS
    In ~/.bashrc, add to PATH "/opt/hdf5-1.8.17/bin"
 
 
-7. Parallel HDF5 support
+6. Parallel HDF5 support
    Only if you want PHDF5 transport method in ADIOS.
 
    $ cd ~/Software
@@ -296,7 +283,7 @@ II. Preparations to install ADIOS
    $ sudo make install
 
 
-8. Sequential NetCDF support
+7. Sequential NetCDF support
    Only if you want bp2ncd conversion code.
 
    $ cd ~/Software
@@ -310,7 +297,7 @@ II. Preparations to install ADIOS
    $ sudo make install
 
 
-9. Parallel NetCDF4 support (not PNetCDF!)
+8. Parallel NetCDF4 support (not PNetCDF!)
   ###   Just forget about this. It breaks the adios build  ###
    Only if you want NC4PAR transport method in ADIOS.
 
@@ -323,7 +310,7 @@ II. Preparations to install ADIOS
    $ sudo make install
    
 
-10. Fastbit indexing support (needed for queries)
+9. Fastbit indexing support (needed for queries)
    $ cd ~/Software
    $ svn co https://code.lbl.gov/svn/fastbit/trunk fastbit
      username and password: anonsvn
@@ -338,7 +325,7 @@ II. Preparations to install ADIOS
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/fastbit/lib"
 
 
-11. Alacrity indexing and query support
+10. Alacrity indexing and query support
    $ cd ~/Software
    either
    $ tar zxf ~/adiosvm/adiospackages/alacrity-1.0.0.tar.gz
