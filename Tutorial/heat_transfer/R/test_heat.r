@@ -14,14 +14,17 @@ raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
     names(x) <- c("x", "y", basename)
     png(paste(basename, "_", formatC(sequence, width=swidth, flag=0), "_",
               comm.rank(), ".png", sep=""))
-    print(ggplot(x, aes_string(x="x", y="y", fill=basename)) + geom_raster() +
-          theme_minimal() + theme(axis.text.x=element_blank(),
-                                  axis.ticks.x=element_blank(),
-                                  axis.title.x=element_blank(),
-                                  legend.position="none",
-                                  plot.margin=unit(c(0,0,0,0),"cm")
-                                  )
-          )
+    plot <- ggplot(x, aes_string(x="x", y="y", fill=basename)) +
+            geom_raster() +
+            scale_fill_distiller(palette = "Spectral", trans = "reverse") +
+            theme_minimal() +
+            theme(axis.text.x=element_blank(),
+                  axis.ticks.x=element_blank(),
+                  axis.title.x=element_blank(),
+                  legend.position="none",
+                  plot.margin=unit(c(0,0,0,0),"cm")
+                 )
+    print (plot)
     dev.off()
 }
 ## end function definitions
@@ -33,10 +36,9 @@ init.grid() ## MPI/DMAT intializer
 adios.init.noxml() ## Write without using XML ## WR
 adios.read.init.method("ADIOS_READ_METHOD_BP", params="verbose=3") ## Initialize reading method
 
-adios.allocate.buffer(300) ## allocating size for ADIOS application in MB ## WR
-
+adios.set.max.buffersize(300) ## set max allocation size for ADIOS application in MB
 groupname <- "restart" ## WR
-adios_group_ptr <-  adios.declare.group(groupname,"") ## WR
+adios_group_ptr <-  adios.declare.group(groupname,"", "adios_flag_yes") ## WR
 
 adios.select.method(adios_group_ptr, "MPI", "", "") ## WR
 filename <- "heat_R.bp" ## WR
@@ -75,7 +77,7 @@ my.dim <- my.count <- my.data.partition$my.dim # local.dim on write
 my.start <- my.data.partition$my.start # local.offset on write
 my.grid <- my.data.partition$my.grid
 
-adios.define.var(adios_group_ptr, "T", "", toString(my.dim), toString(g.dim), toString(my.start))  ## WR
+adios.define.var(adios_group_ptr, "T", "", "adios_double", toString(my.dim), toString(g.dim), toString(my.start))  ## WR
 
 errno <- 0 # Default value 0
 steps <- 0
