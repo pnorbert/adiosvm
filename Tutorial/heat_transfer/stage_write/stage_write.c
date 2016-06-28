@@ -27,6 +27,7 @@
 #include "adios.h"
 #include "adios_read.h"
 #include "adios_error.h"
+#include "decompose.h"
 
 // Input arguments
 char   infilename[256];    // File/stream to read 
@@ -307,7 +308,7 @@ int process_metadata(int step)
 
     varinfo = (VarInfo *) malloc (sizeof(VarInfo) * f->nvars);
     if (!varinfo) {
-        print("ERROR: rank %d cannot allocate %llu bytes\n", 
+        print("ERROR: rank %d cannot allocate %" PRIu64 " bytes\n", 
                 rank, (uint64_t)(sizeof(VarInfo)*f->nvars));
         return 1;
     }
@@ -330,9 +331,9 @@ int process_metadata(int step)
         // print variable type and dimensions
         print0("    %-9s  %s", adios_type_to_string(v->type), f->var_namelist[i]);
         if (v->ndim > 0) {
-            print0("[%llu", v->dims[0]);
+            print0("[%" PRIu64, v->dims[0]);
             for (j = 1; j < v->ndim; j++)
-                print0(", %llu", v->dims[j]);
+                print0(", %" PRIu64, v->dims[j]);
             print0("] :\n");
         } else {
             print0("\tscalar\n");
@@ -354,24 +355,24 @@ int process_metadata(int step)
     // determine output buffer size and allocate it
     uint64_t bufsize = write_total + f->nvars*128 + f->nattrs*32 + 1024; 
     if (bufsize > max_write_buffer_size) {
-        print ("ERROR: rank %d: write buffer size needs to hold about %llu bytes, "
+        print ("ERROR: rank %d: write buffer size needs to hold about %" PRIu64 " bytes, "
                 "but max is set to %d\n", rank, bufsize, max_write_buffer_size);
         return 1;
     }
-    print0 ("Rank %d: allocate %llu MB for output buffer\n", rank, bufsize/1048576+1);
-    adios_allocate_buffer (ADIOS_BUFFER_ALLOC_NOW, bufsize/1048576+1); 
+    print0 ("Rank %d: allocate %" PRIu64 " MB for output buffer\n", rank, bufsize/1048576+1);
+    adios_set_max_buffer_size (bufsize/1048576+1); 
 
     // allocate read buffer
     bufsize = largest_block + 128;
     if (bufsize > max_read_buffer_size) {
-        print ("ERROR: rank %d: read buffer size needs to hold at least %llu bytes, "
+        print ("ERROR: rank %d: read buffer size needs to hold at least %" PRIu64 " bytes, "
                 "but max is set to %d\n", rank, bufsize, max_read_buffer_size);
         return 1;
     }
     print0 ("Rank %d: allocate %g MB for input buffer\n", rank, (double)bufsize/1048576.0);
     readbuf = (char *) malloc ((size_t)bufsize);
     if (!readbuf) {
-        print ("ERROR: rank %d: cannot allocate %llu bytes for read buffer\n",
+        print ("ERROR: rank %d: cannot allocate %" PRIu64 " bytes for read buffer\n",
                rank, bufsize);
         return 1;
     }
