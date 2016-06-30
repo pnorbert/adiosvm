@@ -177,7 +177,7 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.1.tar.gz 
    $ cd dataspaces-1.6.1
    $ ./autogen.sh
-   $ ./configure --prefix=/opt/dataspaces --enable-dart-tcp CC=mpicc FC=mpif90 CFLAGS="-g -std=gnu99" LIBS="-lm"
+   $ ./configure --prefix=/opt/dataspaces --enable-dart-tcp CC=mpicc FC=mpif90 CFLAGS="-g -std=gnu99 -fPIC" LIBS="-lm"
    $ make
    $ sudo make install
 
