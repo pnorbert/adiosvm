@@ -1,4 +1,4 @@
-diosvm
+adiosvm
 =======
 
 Packages and howtos for creating a linux system for ADIOS tutorials
@@ -561,16 +561,33 @@ V. Build Plotter
 
 If you still want to use the our own plotter instead of / besides visit.
 
+  1. Install grace or build it
+  ----------------------------
   $ sudo apt-get install grace
+  -- use XMGRACE=/usr in Makefile.adiosVM of the plotter package below
+
+  or
+
+  $ sudo apt-get install libmotif-common libmotif-dev
+  $ tar zxf ~/adiosvm/plotterpackages/grace-5.1.25.tar.gz
+  $ cd grace-5.1.25
+  $ ./configure --prefix=/opt/plotter
+  $ make -j 4
+  $ sudo make install
+  -- use XMGRACE=/opt/plotter/grace in Makefile.adiosVM of the plotter package below
+
+
+
 
   If not installed Visit yet:
+  ---------------------------
   $ sudo apt-get install libglu1-mesa-dev libxt-dev
 
   $ mkdir ~/Software/plotter
   $ cd ~/Software/plotter
 
 
-  1. Build Mesa library
+  1. Build Mesa library (libosmesa6-dev package does not seem to let vtk build)
   $ cd ~/Software/plotter
   $ tar zxf ~/adiosvm/plotterpackages/Mesa-7.8.2.tar.gz
   $ cd Mesa-7.8.2
@@ -578,14 +595,13 @@ If you still want to use the our own plotter instead of / besides visit.
   $ make -j 4
   $ sudo make install
 
-
-  2. Build vtk-5.8 (saved from old Visit config)
   
+  2. Build an old VTK library 
   $ tar zxf  ~/adiosvm/plotterpackages/visit-vtk-5.8.tar.gz
   $ mkdir vtk-5.8-build
   $ cd vtk-5.8-build
   $ export LD_LIBRARY_PATH=/opt/plotter/lib:$LD_LIBRARY_PATH
-  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/plotter ../visit-vtk-5.8
+  $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/plotter -DCMAKE_C_FLAGS=-DGLX_GLXEXT_LEGACY -DCMAKE_CXX_FLAGS=-DGLX_GLXEXT_LEGACY -Wno-dev  ../visit-vtk-5.8
 
   Check if CMakeCache.txt has VTK_OPENGL_HAS_OSMESA:BOOL=ON, if not, turn on and rerun cmake. 
   It has to find the Mesa options and have this in CMakeCache.txt
