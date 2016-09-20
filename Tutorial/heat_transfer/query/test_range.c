@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -361,9 +363,9 @@ void print_type_and_dimensions (ADIOS_VARINFO *v)
     int j;
     print0("    %-9s  %s", adios_type_to_string(v->type), f->var_namelist[v->varid]);
     if (v->ndim > 0) {
-        print0("[%llu", v->dims[0]);
+        print0("[%"PRIu64, v->dims[0]);
         for (j = 1; j < v->ndim; j++)
-            print0(", %llu", v->dims[j]);
+            print0(", %"PRIu64, v->dims[j]);
         print0("] :\n");
     } else {
         print0("\tscalar\n");
@@ -436,7 +438,7 @@ int do_queries(int step)
     // retrieve the whole query result at once
     //int64_t batchSize = vinfo->sum_nblocks;
     int64_t batchSize = adios_query_estimate(q, 0);
-    print ("rank %d: set upper limit to batch size. Number of total elements in array  = %lld\n", rank, batchSize); 
+    print ("rank %d: set upper limit to batch size. Number of total elements in array  = %"PRId64"\n", rank, batchSize); 
     query_result =  adios_query_evaluate(q, boxsel, 0, batchSize);
 
 
@@ -450,7 +452,7 @@ int do_queries(int step)
                "tried to get all at once\n", rank);
     }
 
-    print ("rank %d: Query returned %lld points in %d blocks as result\n",
+    print ("rank %d: Query returned %"PRId64" points in %d blocks as result\n",
            rank, query_result->npoints, query_result->nselections);
 
     // FIXME: Gather all nblocks npoints to rank 0
@@ -458,7 +460,7 @@ int do_queries(int step)
     MPI_Allreduce (&query_result->nselections, &nblocks_total, 1, MPI_INT, MPI_SUM, comm);
     npoints_total = 0;
     MPI_Allreduce (&query_result->npoints, &npoints_total, 1, MPI_LONG_LONG, MPI_SUM, comm);
-    print0 ("Total number of points %lld: in %d blocks\n", npoints_total, nblocks_total);
+    print0 ("Total number of points %"PRIu64": in %d blocks\n", npoints_total, nblocks_total);
 
     /* Test alacrity point result */
     /*
@@ -526,8 +528,8 @@ int read_vars(int step)
     if (q->method != ADIOS_QUERY_METHOD_MINMAX)
     {
         if (query_result->npoints != manualhits) {
-            print ("rank %d: Validation Error: Manual query evaluation found %lld "
-                    "hits in contrast to query engine which found %lld hits\n",
+            print ("rank %d: Validation Error: Manual query evaluation found %"PRIu64
+                    "hits in contrast to query engine which found %"PRIu64" hits\n",
                     rank, manualhits, query_result->npoints);
         }
     }
