@@ -38,15 +38,29 @@ $ ./plot_heat.sh heat.bp
 $ eog . 
 
 
---------------------------------------------
+---------------
+Staging demos
+---------------
 A 100 output step on less processes, with more computation between steps. 
-For staging demos.
-$ mpirun -np 4 ./heat_transfer_adios2 heat 2 2 300 300 100 600
 
 If output method in heat_transfer.xml is FLEXPATH, 
-run the staging reader-writer in another terminal
+you need two terminals. Run the staging reader-writer in one terminal and
+the simulation in another terminal. The order of startup does not matter.
 
 $ mpirun -np 2 stage_write/stage_write heat.bp staged.bp FLEXPATH "" MPI "" 2
+$ mpirun -np 4 ./heat_transfer_adios2 heat 2 2 300 300 100 600
+
+If output method in heat_transfer.xml is DATASPACES, 
+you need three terminals. 
+Run the DataSpaces server first in one terminal and tell the app 
+the number of servers and clients.
+Run the staging reader-writer in another terminal. 
+Run the simulaton in yet another terminal.
+Server must start first, the order of reader and writer does not matter.
+
+$ /opt/dataspaces/bin/dataspaces_server -s 1 -c 6
+$ mpirun -np 4 ./heat_transfer_adios2 heat 2 2 300 300 100 600
+$ mpirun -np 2 stage_write/stage_write heat.bp staged.bp DATASPACES "" MPI "" 2
 
 
 
