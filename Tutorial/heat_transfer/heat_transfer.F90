@@ -101,6 +101,9 @@ program heat_transfer
     T = 0.0
     dT = 0.0
 
+    ! can we set up T to be a sin wave
+    call init_T()
+
     curr = 1;
     call heatEdges(curr)
 
@@ -140,7 +143,7 @@ subroutine heatEdges(curr)
     use heat_vars
     implicit none
     integer, intent(in) :: curr
-    real*8, parameter :: edgetemp = 1000.0
+    real*8, parameter :: edgetemp = 3.0
 
     !! Heat the whole edges
     if (posx==0)     T(0,:,curr)     = edgetemp
@@ -149,6 +152,32 @@ subroutine heatEdges(curr)
     if (posy==npy-1) T(:,ndy+1,curr) = edgetemp
 
 end subroutine heatEdges
+
+
+!!*********************
+subroutine init_T()
+    use heat_vars
+    implicit none
+    include 'mpif.h'
+    integer :: i,j,k
+    real*8  :: x,y,hx,hy
+
+
+    hx = 2.0 * 4.0*atan(1.0d0)/ndx
+    hy= 2.0 * 4.0*atan(1.0d0)/ndx
+
+    do j=1,ndy
+        y = 0.0 + hy*(j-1)
+        do i=1,ndx
+            x = 0.0 + hx*(i-1)
+!            T(i,j,1) = cos(x) - cos(2*x) +cos(3*x) - sin(y) + sin(2*y) -&
+!                       sin(3*y) -cos(4*x) + sin(4*y)
+            T(i,j,1) = cos(8*x) + cos(6*x) - cos(4*x) + cos(2*x) - cos(x) + &
+                       sin(8*y) - sin(6*y) + sin(4*y) - sin(2*y) + sin(y) 
+        end do
+    end do
+
+end subroutine init_T
 
 
 !!***************************

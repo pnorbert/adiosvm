@@ -10,11 +10,11 @@ fi
 
 rm -f minmax
 
-plotter2d -f ${FN} -v T -s "t0,0,0" -c "-1,-1,-1" -o T -min 0 -max 1000  -zonal 
+plotter2d -f ${FN} -v T -s "t0,0,0" -c "-1,-1,-1" -o T -min -3 -max 3 -zonal -imgsize 1024 1024 -colormap XGCLog
 
 #plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -min 0 -max 1 -zonal -colormap XGCLog 
 
-plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -zonal -colormap XGCLog --minmaxfile minmax -p
-plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -zonal -colormap XGCLog --minmaxfile minmax --use-global-minmax
+#plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -zonal -colormap XGCLog --minmaxfile minmax -p
+#plotter2d -f ${FN} -v dT -s "t0,0,0" -c "-1,-1,-1" -o dT -zonal -colormap XGCLog --minmaxfile minmax --use-global-minmax
 rm -f dT.[0-9][0-9][0-9][0-9].txt
 
