@@ -30,6 +30,7 @@
              Options here: use alacrity transform to generate index with alacrity
              type="real*8" dimensions="ndx,ndy" transform="none"/>
              type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
+             type="real*8" dimensions="ndx,ndy" transform="zfp:accuracy=.001"/>
              -->
 
         <var name="dT"     gwrite="dT(:,:)" 
