@@ -1,6 +1,6 @@
 
 ## Set ADIOS_DIR here or before doing make
-override ADIOS_DIR=/opt/adios/1.10
+override ADIOS_DIR=/opt/adios/1.11
 #override ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/sith.pgi
 
 #Location of the (sequential) HDF5 libraries
