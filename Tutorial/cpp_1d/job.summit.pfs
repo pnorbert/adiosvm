@@ -1,0 +1,43 @@
+#!/bin/bash
+#BSUB -P CSC143SUMMITDEV
+#BSUB -J cpp_1d
+#BSUB -n 60
+#BSUB -W 10
+
+#
+# Summitdev + global parallel file system
+# Every process can access any portion of the data due to the file system
+#
+
+#
+# Configurable parameters
+#
+
+NNODES=$(((LSB_DJOB_NUMPROC-1)/20+1))
+echo "Number of cores:" $LSB_DJOB_NUMPROC
+echo "Number of nodes:" $NNODES
+
+WRITEPROC=$LSB_DJOB_NUMPROC
+READPROC=$(($NNODES*2))
+
+
+#
+# End of configurable parameters
+#
+
+echo "Output dir: $LSB_OUTDIR"
+cd $LSB_OUTDIR
+
+# clean-up previous run
+rm -rf writer.bp writer.bp.dir reader*.txt
+
+
+# Run Writer
+echo "-- Start writer on $WRITEPROC PEs"
+mpirun -np $WRITEPROC ./writer >& log.writer
+
+# Run Reader
+echo "-- Start reader on $READPROC PEs"
+mpirun -np $READPROC --map-by ppr:2:node ./reader writer.bp >& log.reader
+
+
