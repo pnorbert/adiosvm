@@ -20,6 +20,13 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &nproc);
 
+    if (argc < 2)
+    {
+        std::cout << "Not enough arguments: need an input file\n";
+        return 1;
+    }
+    const char *outputfile = argv[1];
+
     const int NSTEPS = 5;
     const unsigned int NX = 10;
     const unsigned int gnx = 10*nproc;
@@ -38,7 +45,7 @@ int main(int argc, char *argv[])
         }
 
         int64_t f;
-        adios_open(&f, "writer", "writer.bp", mode.c_str(), comm);
+        adios_open(&f, "writer", outputfile, mode.c_str(), comm);
         adios_write(f, "gnx", &gnx);
         adios_write(f, "nx", &NX);
         adios_write(f, "offs", &offs);
