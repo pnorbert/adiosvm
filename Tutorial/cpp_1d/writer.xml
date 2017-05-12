@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<adios-config host-language="C">
+  <adios-group name="writer" >
+    <var name="gnx"  type="unsigned integer"/>
+
+    <var name="offs" type="unsigned integer"/>
+    <var name="nx"  type="unsigned integer"/>
+
+    <global-bounds dimensions="gnx" offsets="offs">
+        <var name="x" type="integer" dimensions="nx"/>
+    </global-bounds>
+
+  </adios-group>
+
+  <!-- Choose an output method for the above group. 
+       MPI: write 1 file, each process writes its own piece into the file
+       VAR_MERGE: aggregate and merge blocks (up to two levels of aggregation)
+                  default aggregation buffer size is 2 MB
+       VAR_MERGE: limit the aggregation level by decreasing the aggregation buffer
+                  size to 300k
+  -->
+  <transport group="writer" method="POSIX">local-fs=1</transport>
+  <!--
+  <transport group="writer" method="MPI"/>
+  <transport group="writer" method="MPI_AGGREGATE">num_aggregators=4;num_ost=4</transport>
+  -->
+
+  <buffer max-size-MB="30"/>
+
+</adios-config>

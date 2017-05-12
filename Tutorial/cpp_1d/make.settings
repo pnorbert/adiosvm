@@ -1,0 +1,15 @@
+
+## Set ADIOS_DIR here
+ADIOS_DIR:=/opt/adios/lean/1.11
+
+## mpic++ SETTINGS
+CXX=mpic++
+#OMPI_CXX=g++-5 
+CXXFLAGS=-g -std=c++11
+LDFLAGS=-g
+
+## Cray CC SETTINGS
+#CXX=CC
+#CXXFLAGS = -O3
+#LDFLAGS =
+
