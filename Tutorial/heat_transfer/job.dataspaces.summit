@@ -1,0 +1,81 @@
+#!/bin/bash
+#BSUB -P CSC143SUMMITDEV
+#BSUB -J staging
+#BSUB -n 60
+#BSUB -W 10
+
+#
+# Configurable parameters
+#
+
+SERVER=/ccs/proj/e2e/dataspaces/summitdev/1.6.1/xl/bin/dataspaces_server
+SRCDIR=/ccs/proj/e2e/pnorbert/ADIOS/adiosvm/Tutorial/heat_transfer
+RUNCMD="mpirun -np"
+
+WRITEPROC=12
+WX=4
+WY=3
+NDX=400
+NDY=500
+
+STAGINGPROC=1
+READPROC=3
+#
+# End of configurable parameters
+#
+
+echo "Output dir: $LSB_OUTDIR"
+cd $LSB_OUTDIR
+
+let "WSIZE=WX*WY"
+if [ $WSIZE != $WRITEPROC ]; then
+    echo "WX*WY must equal to WRITEPROC"
+    return 1
+fi
+let "PROCALL=WRITEPROC+READPROC"
+
+# clean-up previous run
+rm -f log.* core* conf dataspaces.conf staging.[oe]* 
+rm -rf staged.bp* heat.bp*
+
+# Prepare config file for DataSpaces
+# dimensions are the same as in Fortran (first dimension is for the contiguous dimension)
+let GDX="WX*NDX"
+let GDY="WY*NDY"
+echo "## Config file for DataSpaces
+ndim = 2
+dims = "${GDX}","${GDY}"
+max_versions = 4
+#lock_type = 2
+" > dataspaces.conf
+
+# Run DataSpaces
+echo "-- Start DataSpaces server "$SERVER" on $STAGINGPROC PEs, -s$STAGINGPROC -c$PROCALL"
+$RUNCMD $STAGINGPROC $SERVER -s$STAGINGPROC -c$PROCALL &> log.server &
+
+## Give some time for the servers to load and startup
+sleep 1s
+while [ ! -f conf ]; do
+    echo "-- File conf is not yet available from server. Sleep more"
+    sleep 1s
+done
+sleep 3s  # wait server to fill up the conf file
+
+## Export the main server config to the environment
+while read line; do
+    export set "${line}"
+done < conf
+
+echo "-- DataSpaces IDs: P2TNID = $P2TNID   P2TPID = $P2TPID"
+
+# Start STAGE_WRITE
+echo "-- Start STAGE_WRITE on $READPROC PEs"
+$RUNCMD $READPROC ./stage_write heat.bp staged.bp DATASPACES "" MPI "" $READPROC 1 1 >& log.stage_write &
+
+# Start Application
+echo "-- Start Application on $WRITEPROC PEs"
+$RUNCMD $WRITEPROC ./heat_transfer_adios2 heat $WX $WY $NDX $NDY 10 500 >& log.heat_transfer
+
+wait
+rm -f conf
+
