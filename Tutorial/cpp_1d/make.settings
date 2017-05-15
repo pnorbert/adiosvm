@@ -1,6 +1,6 @@
 
 ## Set ADIOS_DIR here
-ADIOS_DIR:=/opt/adios/lean/1.11
+ADIOS_DIR=/ccs/proj/e2e/${USER}/ADIOS/summitdev.gcc
 
 ## mpic++ SETTINGS
 CXX=mpic++

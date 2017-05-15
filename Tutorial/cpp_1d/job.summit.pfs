@@ -3,6 +3,8 @@
 #BSUB -J cpp_1d
 #BSUB -n 60
 #BSUB -W 10
+#BSUB -o pfs.out
+#BSUB -e pfs.err
 
 #
 # Summitdev + global parallel file system
@@ -34,7 +36,7 @@ rm -rf writer.bp writer.bp.dir reader*.txt
 
 # Run Writer
 echo "-- Start writer on $WRITEPROC PEs"
-mpirun -np $WRITEPROC ./writer >& log.writer
+mpirun -np $WRITEPROC ./writer writer.bp >& log.writer
 
 # Run Reader
 echo "-- Start reader on $READPROC PEs"
