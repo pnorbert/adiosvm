@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 //#include <math.h>
 //#include <memory>
 //#include <stdexcept>
@@ -86,7 +87,12 @@ void printData(std::vector<int> x, int steps, uint64_t nelems,
         uint64_t offset, int rank)
 {
     std::ofstream myfile;
-    std::string filename = "reader." + std::to_string(rank)+".txt";
+    // The next line does not work with PGI compiled code
+    //std::string filename = "reader." + std::to_string(rank)+".txt";
+    std::stringstream ss;
+    ss << "reader." << rank << ".txt";
+    std::string filename = ss.str();
+
     myfile.open(filename);
     myfile << "rank=" << rank << " columns=" << nelems
            << " offset=" << offset
