@@ -22,7 +22,7 @@
   <transport group="writer" method="POSIX">local-fs=1</transport>
   <!--
   <transport group="writer" method="MPI"/>
-  <transport group="writer" method="MPI_AGGREGATE">num_aggregators=4;num_ost=4</transport>
+  <transport group="writer" method="MPI_AGGREGATE">num_aggregators=3;num_ost=3;local-fs=1</transport>
   -->
 
   <buffer max-size-MB="30"/>
