@@ -14,10 +14,10 @@
 
   <!-- Choose an output method for the above group. 
        MPI: write 1 file, each process writes its own piece into the file
-       VAR_MERGE: aggregate and merge blocks (up to two levels of aggregation)
-                  default aggregation buffer size is 2 MB
-       VAR_MERGE: limit the aggregation level by decreasing the aggregation buffer
-                  size to 300k
+       POSIX: write 1 file per process plus one metadata file
+       MPI_AGGREGATE: control the number of files
+       For distributed file systems (e.g. Summit NVRAM) use POSIX or MPI_AGGREGATE
+       with the "local-fs=1" option. 
   -->
   <transport group="writer" method="POSIX">local-fs=1</transport>
   <!--
