@@ -53,10 +53,6 @@ mpirun -np $WRITEPROC ./writer $NVRAMDIR/writer.bp >& log.writer
 echo "-- This is what we have in the local nvrams"
 mpirun -np $NNODES --map-by ppr:1:node ls -lR $NVRAMDIR
 
-# Copy adios metadata from one nvram to all
-mpirun -np 1 cp $NVRAMDIR/writer.bp $LSB_OUTDIR/writer-from-nvram.bp
-mpirun -np $NNODES --map-by ppr:1:node cp $LSB_OUTDIR/writer-from-nvram.bp $NVRAMDIR/writer.bp
-
 
 # Run Reader
 echo ""
