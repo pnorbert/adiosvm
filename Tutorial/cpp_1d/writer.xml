@@ -2,9 +2,8 @@
 <adios-config host-language="C">
   <adios-group name="writer" >
     <var name="gnx"  type="unsigned integer"/>
-
     <var name="offs" type="unsigned integer"/>
-    <var name="nx"  type="unsigned integer"/>
+    <var name="nx"   type="unsigned integer"/>
 
     <global-bounds dimensions="gnx" offsets="offs">
         <var name="x" type="integer" dimensions="nx"/>
@@ -24,7 +23,5 @@
   <transport group="writer" method="MPI"/>
   <transport group="writer" method="MPI_AGGREGATE">num_aggregators=3;num_ost=3;local-fs=1</transport>
   -->
-
-  <buffer max-size-MB="30"/>
 
 </adios-config>
