@@ -7,7 +7,7 @@ CFLAGS=-g
 #CFLAGS = -g -O0
 
 ## Set ADIOS_DIR here or before doing make
-override ADIOS_DIR=/opt/adios/1.10
+override ADIOS_DIR=/opt/adios/1.12
 override ADIOS_INC=`${ADIOS_DIR}/bin/adios_config -c`
 override ADIOS_LIB=`${ADIOS_DIR}/bin/adios_config -l`
 override GPP = ${ADIOS_DIR}/bin/gpp.py

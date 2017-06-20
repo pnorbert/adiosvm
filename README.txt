@@ -345,10 +345,10 @@ III. ADIOS Installation
 =======================
 
 1. Download ADIOS
-   1. ADIOS 1.10 is in this repo: 
+   1. ADIOS 1.12 is in this repo: 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/adios-1.10.0.tar.gz
-   $ cd adios-1.10.0
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.12.0.tar.gz
+   $ cd adios-1.12.0
 
    2. Download ADIOS master from repository
    $ cd ~/Software
@@ -378,8 +378,8 @@ III. ADIOS Installation
 
 4. Install 
    $ sudo make install
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.10/lib" and 
-     add to PATH "/opt/adios/1.10/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.12/lib" and 
+     add to PATH "/opt/adios/1.12/bin"
 
 5. Build and install python wrapper
 
@@ -431,7 +431,7 @@ III. ADIOS Installation
 IV. ADIOS Tutorial code
 =======================
 
-   For ADIOS 1.10, the tutorial is included in this repository
+   For ADIOS 1.12, the tutorial is included in this repository
    ~/adiosvm/Tutorial
 
 1. Linux Packages
@@ -527,9 +527,9 @@ Complicated way:
 
          VISIT_OPTION_DEFAULT(CMAKE_INSTALL_PREFIX /opt/visit)
 
-     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.10):
+     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.12):
 
-         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.10)
+         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.12)
 
 
    Configure visit with cmake that was built by visit release
@@ -702,7 +702,7 @@ e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
     
     $ cd ~/Software
     $ git clone https://github.com/sgn11/pbdADIOS.git
-    $ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
+    $ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.12" --no-test-load
     
     Add to ~/.bashrc
         export R_LIBS_USER=/opt/R/library
@@ -749,7 +749,7 @@ e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
     ----------------
     $ cd ~/Software
     $ git clone https://github.com/sgn11/pbdADIOS.git
-    $ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
+    $ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.12" --no-test-load
     -- quick test
     $ R
     > library(pbdADIOS)

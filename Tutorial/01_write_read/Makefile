@@ -1,6 +1,6 @@
 FC=mpif90
 LINKER=${FC}
-ADIOS_DIR = /opt/adios/1.10
+ADIOS_DIR = /opt/adios/1.12
 ADIOS_INC = $(shell ${ADIOS_DIR}/bin/adios_config -c -f)
 ADIOS_FLIB = $(shell ${ADIOS_DIR}/bin/adios_config -l -f)
 ADIOSREAD_FLIB := $(shell ${ADIOS_DIR}/bin/adios_config -l -f -r)
