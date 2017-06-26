@@ -378,8 +378,8 @@ III. ADIOS Installation
 
 4. Install 
    $ sudo make install
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/1.12/lib" and 
-     add to PATH "/opt/adios/1.12/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/lib" and 
+     add to PATH "/opt/adios/bin"
 
 5. Build and install python wrapper
 
@@ -527,9 +527,9 @@ Complicated way:
 
          VISIT_OPTION_DEFAULT(CMAKE_INSTALL_PREFIX /opt/visit)
 
-     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/1.12):
+     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios/):
 
-         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/1.12)
+         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios/)
 
 
    Configure visit with cmake that was built by visit release
@@ -702,7 +702,7 @@ e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
     
     $ cd ~/Software
     $ git clone https://github.com/sgn11/pbdADIOS.git
-    $ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.12" --no-test-load
+    $ R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/" --no-test-load
     
     Add to ~/.bashrc
         export R_LIBS_USER=/opt/R/library
@@ -749,7 +749,7 @@ e.g. http://cran.r-project.org/src/base/R-3/R-3.1.2.tar.gz
     ----------------
     $ cd ~/Software
     $ git clone https://github.com/sgn11/pbdADIOS.git
-    $ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.12" --no-test-load
+    $ sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/" --no-test-load
     -- quick test
     $ R
     > library(pbdADIOS)

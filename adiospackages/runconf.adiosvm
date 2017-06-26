@@ -20,20 +20,22 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
     export FC=gfortran
 
     export CFLAGS="-g -O0 -fPIC -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast"
-    ${SRCDIR}/configure --prefix=/opt/adios/1.8 \
+    ${SRCDIR}/configure --prefix=/opt/adios \
         --disable-maintainer-mode \
         --enable-dependency-tracking \
-        --with-mxml=/opt/mxml \
+        --enable-timers \
+        --disable-timer-events \
         --with-zlib \
         --with-bzip2 \
         --with-szip=/opt/szip \
         --with-isobar=/opt/isobar \
         --with-flexpath=/opt/chaos \
-        --with-hdf5=/opt/hdf5-1.8.12 \
-        --with-phdf5=/opt/hdf5-1.8.12-parallel \
-        --with-netcdf=/opt/netcdf-4.3.0 
-#        --with-dataspaces=/opt/dataspaces/1.4.0 \
-#        --with-nc4par=/opt/netcdf-4.3.0-parallel 
+        --with-dataspaces=/opt/dataspaces --without-infiniband \
+        --with-fastbit=/opt/fastbit \
+        --with-alacrity=/opt/alacrity \
+        --with-hdf5=/opt/hdf5-1.8.17 \
+        --with-phdf5=/opt/hdf5-1.8.17-parallel \
+        --with-netcdf=/opt/netcdf-4.4.0 
 
 else
     echo "Could not determine what machine is this."

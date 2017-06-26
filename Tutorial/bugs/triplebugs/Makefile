@@ -4,7 +4,7 @@ FC=ftn
 #FC=mpif90
 
 LINKER=${FC}
-ADIOS_DIR := /opt/adios/1.8
+ADIOS_DIR := /opt/adios
 ADIOS_INC := -I ${ADIOS_DIR}/include
 ADIOS_FLIB := -L ${ADIOS_DIR}/lib -ladiosf -lrdmacm -libverbs -llustreapi -lz 
 
