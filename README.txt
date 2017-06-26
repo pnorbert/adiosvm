@@ -169,13 +169,13 @@ II. Preparations to install ADIOS
 2. Install DataSpaces
    Only if you want staging demos.
 
-   Download dataspaces from www.dataspaces.org, or use 1.6.1 from adiosvm
+   Download dataspaces from www.dataspaces.org, or use 1.6.2 from adiosvm
 
    $ cd
    $ mkdir -p Software
    $ cd Software
-   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.1.tar.gz 
-   $ cd dataspaces-1.6.1
+   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.2.tar.gz 
+   $ cd dataspaces-1.6.2
    $ ./autogen.sh
    $ ./configure --prefix=/opt/dataspaces --enable-dart-tcp CC=mpicc FC=mpif90 CFLAGS="-g -std=gnu99 -fPIC" LIBS="-lm"
    $ make
