@@ -345,10 +345,10 @@ III. ADIOS Installation
 =======================
 
 1. Download ADIOS
-   1. ADIOS 1.10 is in this repo: 
+   1. ADIOS 1.12 is in this repo: 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/adios-1.10.0.tar.gz
-   $ cd adios-1.10.0
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.12.0.tar.gz
+   $ cd adios-1.12.0
 
    2. Download ADIOS master from repository
    $ cd ~/Software
@@ -431,7 +431,7 @@ III. ADIOS Installation
 IV. ADIOS Tutorial code
 =======================
 
-   For ADIOS 1.10, the tutorial is included in this repository
+   The tutorial is included in this repository
    ~/adiosvm/Tutorial
 
 1. Linux Packages
