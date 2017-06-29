@@ -29,8 +29,9 @@
              <!--
              Options here: use alacrity transform to generate index with alacrity
              type="real*8" dimensions="ndx,ndy" transform="none"/>
-             type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
              type="real*8" dimensions="ndx,ndy" transform="zfp:accuracy=.001"/>
+             type="real*8" dimensions="ndx,ndy" transform="sz"/>
+             type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
              -->
 
         <var name="dT"     gwrite="dT(:,:)" 
