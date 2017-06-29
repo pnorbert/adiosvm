@@ -191,16 +191,16 @@ II. Preparations to install ADIOS
    zlib and bzip2 are installed as linux packages:
    $ sudo apt-get install bzip2 libbz2-dev zlib1g zlib1g-dev
 
-   SZIP and ISOBAR are provided in adiospackages/
+   SZ and ISOBAR are provided in adiospackages/
 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/szip-2.1.tar.gz 
-   $ cd szip-2.1/
-   $ ./configure --prefix=/opt/szip --with-pic
+   $ tar zxf ~/adiosvm/adiospackages/sz-1.4.9-beta.tar.gz
+   $ cd sz-1.4.9.3-beta/
+   $ ./configure --prefix=/opt/SZ --with-pic
    $ make
    $ sudo make install
 
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/szip/lib"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/SZ/lib"
 
    $ cd ~/Software
    $ tar zxf ~/adiosvm/adiospackages/isobar.0.3.0.tgz 
@@ -258,7 +258,7 @@ II. Preparations to install ADIOS
    $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.17.tar.bz2
    $ mv hdf5-1.8.17 hdf5-1.8.17-serial
    $ cd hdf5-1.8.17-serial
-   $ ./configure --with-zlib=/usr --with-szlib=/opt/szip --prefix=/opt/hdf5-1.8.17 --enable-fortran
+   $ ./configure --with-zlib=/usr --without-szlib --prefix=/opt/hdf5-1.8.17 --enable-fortran
    $ make -j 4
    $ sudo make install
 
@@ -272,7 +272,7 @@ II. Preparations to install ADIOS
    $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.17.tar.bz2
    $ mv hdf5-1.8.17 hdf5-1.8.17-parallel
    $ cd hdf5-1.8.17-parallel
-   $ ./configure --with-zlib=/usr --with-szlib=/opt/szip --prefix=/opt/hdf5-1.8.17-parallel --enable-parallel --enable-fortran --with-pic  CC=mpicc FC=mpif90
+   $ ./configure --with-zlib=/usr --without-szlib --prefix=/opt/hdf5-1.8.17-parallel --enable-parallel --enable-fortran --with-pic  CC=mpicc FC=mpif90
 
    Verify that in the Features list:
         Parallel HDF5: yes
@@ -305,7 +305,7 @@ II. Preparations to install ADIOS
    $ tar zxf ~/adiosvm/adiospackages/netcdf-4.4.0.tar.gz
    $ mv netcdf-4.4.0 netcdf-4.4.0-parallel
    $ cd netcdf-4.4.0-parallel
-   $ ./configure --prefix=/opt/netcdf-4.4.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.17-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.17-parallel/lib -L/opt/szip/lib" LIBS="-lsz" CC=mpicc FC=mpif90
+   $ ./configure --prefix=/opt/netcdf-4.4.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.17-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.17-parallel/lib" LIBS="-lsz" CC=mpicc FC=mpif90
    $ make -j 4
    $ sudo make install
    
@@ -484,8 +484,8 @@ Complicated way:
      https://wci.llnl.gov/codes/visit/source.html
 
    $ chmod +x build_visit2_7_2
-   $ ./build_visit2_7_2 --parallel --mesa --mxml --adios --hdf5 --xdmf --zlib --szip --silo
-   $ ./build_visit --system-qt --parallel --mesa --mxml --adios --hdf5 --xdmf --zlib --szip --silo --console
+   $ ./build_visit2_7_2 --parallel --mesa --mxml --adios --hdf5 --xdmf --zlib --silo
+   $ ./build_visit --system-qt --parallel --mesa --mxml --adios --hdf5 --xdmf --zlib --silo --console
 
     This script should be started again and again after fixing build problems.
     All log is founf in build_visit2_7_2_log, appended at each try.
