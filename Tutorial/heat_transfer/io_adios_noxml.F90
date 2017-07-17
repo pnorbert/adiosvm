@@ -42,7 +42,7 @@ subroutine io_write(tstep,curr)
     integer, intent(in) :: tstep
     integer, intent(in) :: curr
 
-    integer*8 :: adios_handle, adios_groupsize, adios_totalsize
+    integer*8 :: adios_handle, adios_totalsize
     integer :: adios_err
     character (len=200) :: filename
     character(2) :: mode = "w"
@@ -83,8 +83,6 @@ subroutine io_write(tstep,curr)
     call MPI_BARRIER(app_comm, adios_err)
     io_start_time = MPI_WTIME()
     call adios_open (adios_handle, "heat", filename, mode, app_comm, adios_err)
-    adios_groupsize = 2*4 + 2*8*ndx*ndy 
-    call adios_group_size (adios_handle, adios_groupsize, adios_totalsize, adios_err)
     call adios_write (adios_handle, "gndx", gndx, adios_err)
     call adios_write (adios_handle, "gndy", gndy, adios_err)
     call adios_write (adios_handle, "T", T(1:ndx,1:ndy,curr), adios_err)
