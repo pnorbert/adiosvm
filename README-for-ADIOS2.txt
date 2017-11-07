@@ -1,3 +1,5 @@
+First, build ADIOS 1.x as described in README.txt, except that install ADIOS 1.x into /opt/adios2/adios1
+
 
 Download
 ========

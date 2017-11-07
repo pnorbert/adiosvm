@@ -188,15 +188,17 @@ II. Preparations to install ADIOS
 3. Compression libraries
    Only if you want to demo the transform library.
 
+   ZFP is part of the adios package. 
+
    zlib and bzip2 are installed as linux packages:
    $ sudo apt-get install bzip2 libbz2-dev zlib1g zlib1g-dev
 
    SZ and ISOBAR are provided in adiospackages/
 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/sz-1.4.9-beta.tar.gz
-   $ cd sz-1.4.9.3-beta/
-   $ ./configure --prefix=/opt/SZ --with-pic
+   $ tar zxf ~/adiosvm/adiospackages/SZ-1.4.11.0.tar.gz
+   $ cd SZ-1.4.11.0
+   $ ./configure --prefix=/opt/SZ --with-pic --disable-shared --disable-fortran --disable-maintainer-mode
    $ make
    $ sudo make install
 
@@ -345,10 +347,10 @@ III. ADIOS Installation
 =======================
 
 1. Download ADIOS
-   1. ADIOS 1.12 is in this repo: 
+   1. ADIOS 1.13 is in this repo: 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/adios-1.12.0.tar.gz
-   $ cd adios-1.12.0
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.13.0.tar.gz
+   $ cd adios-1.13.0
 
    2. Download ADIOS master from repository
    $ cd ~/Software
