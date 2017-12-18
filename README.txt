@@ -233,12 +233,14 @@ II. Preparations to install ADIOS
    $ sudo chgrp adios /opt/chaos
    $ sudo chmod g+w /opt/chaos
    $ cd ~/Software
-   $ svn --username anon --password anon co https://anon@svn.research.cc.gatech.edu/kaos/chaos_base/trunk chaos
+   $ mkdir chaos
    $ cd chaos
-   $ cp build_config build_config.adiosVM
+   $ wget http://www.cc.gatech.edu/systems/projects/EVPath/chaos_bootstrap.pl
+   $ perl ./chaos_bootstrap.pl adios-1.13 /opt/chaos
+   $ cp chaos_build_config build_config.adiosVM
    Edit build_config.adiosVM
    - we only need to install: dill cercs_env atl ffs evpath
-   - comment out the rest of packages
+   - comment out the rest of packages: enet, nnti, echo2, comm_group, cmrpc, pds, gs, lgs, libbench
    - change the build area
      BUILD_AREA=/home/adios/Software/chaos
      RESULTS_FILES_DIR=$HOME/Software/chaos
