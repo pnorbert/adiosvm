@@ -1,6 +1,7 @@
 
 ## Set ADIOS_DIR here or before doing make
 override ADIOS_DIR=/opt/adios
+override ADIOS2_DIR=/opt/adios2/2.1.0
 
 #Location of the (sequential) HDF5 libraries
 HDF5_DIR=/opt/hdf5-1.8.17
