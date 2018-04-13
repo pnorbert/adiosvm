@@ -208,8 +208,6 @@ II. Preparations to install ADIOS
    $ make
    $ sudo make install
 
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/SZ/lib"
-
 
    BLOSC is available on GitHub:
    ----- 
@@ -314,6 +312,7 @@ III. ADIOS Installation
            -DADIOS2_USE_MPI=ON \
            -DADIOS2_USE_Fortran=ON \
            -DADIOS2_USE_Python=ON \
+           -DPYTHON_EXECUTABLE=/usr/bin/python2 \
            -DADIOS2_USE_DataMan=ON \
            -DADIOS2_USE_HDF5=ON  \
            -DHDF5_ROOT=/opt/hdf5-parallel \
@@ -328,7 +327,7 @@ III. ADIOS Installation
    $ make -j 4
 
 3. Test ADIOS a bit
-   $ ctest -V
+   $ ctest
 
 4. Install 
    $ sudo make install
@@ -353,12 +352,14 @@ IV. ADIOS 1.x for compression and queries
    $ git clone github:ornladios/ADIOS.git
      OR
    $ git clone https://github.com/ornladios/ADIOS.git
-   $ cd ADIOS2
+   $ cd ADIOS
    $ ./autogen.sh
 
 2. Build ADIOS
-   Then:
-   $ . ./runconf
+   Then: Edit runconf and change install path for the adiosVM target to /opt/adios1
+   $ mkdir build
+   $ cd build
+   $ ../runconf
     Configure on ADIOS VirtualBox.
     ...
    $ make -j 4
@@ -437,6 +438,19 @@ V. ADIOS Tutorial code
    $ sudo apt-get install gnuplot
    
 
+VI. Build VTK-M from source
+===========================
+
+  $ cd ~/Software
+  $ git clone https://gitlab.kitware.com/vtk/vtk-m.git
+  $ cd vtk-m
+  $ mkdir build
+  $ cd build
+  $ cmake -DCMAKE_INSTALL_PREFIX=/opt/vtk-m ..
+  $ make -j 4 
+  $ sudo make install
+
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/vtk-m/lib"
 
 VI. Build Visit from release
 ===========================
