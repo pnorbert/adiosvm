@@ -76,7 +76,7 @@ I. Set up a Linux VM
 6. Install some linux packages (sudo apt-get install or can use sudo synaptic)
    $ sudo apt-get install apt-file 
    $ sudo apt-file update
-   $ sudo apt-get install build-essential git-core libtool libtool-bin autoconf subversion cmake
+   $ sudo apt-get install build-essential git-core libtool libtool-bin autoconf subversion 
    $ sudo apt-get install gfortran 
    $ sudo apt-get install pkg-config 
    $ sudo apt-get autoremove 
@@ -128,7 +128,8 @@ I. Set up a Linux VM
    $ sudo rm ~/.viminfo
 
 10. Github access setup
-   This is only needed to get ADIOS master from github.
+   This step is only needed for ADIOS developers to get 
+   write access to the ADIOS repository from github.
 
    We need an account to github and a config for ssh.
    A minimum .ssh/config is found in this repository:  
@@ -157,6 +158,7 @@ I. Set up a Linux VM
 
    Of course, set an editor what you like.
 
+
 II. Preparations to install ADIOS
 =================================
 
@@ -166,111 +168,66 @@ II. Preparations to install ADIOS
    $ sudo apt-get install python-cheetah python-yaml
 
 
-2. Install DataSpaces
-   Only if you want staging demos.
+2. CMake
+   We need a newer CMake version than what's available in linux distros. 
+   Download from: https://cmake.org/download/
+   Choose the self-extracting archive package for the Linux x86_64 platform and install it. 
 
-   Download dataspaces from www.dataspaces.org, or use 1.6.2 from adiosvm
-
-   $ cd
-   $ mkdir -p Software
-   $ cd Software
-   $ tar zxf ~/adiosvm/adiospackages/dataspaces-1.6.2.tar.gz 
-   $ cd dataspaces-1.6.2
-   $ ./autogen.sh
-   $ ./configure --prefix=/opt/dataspaces --enable-dart-tcp CC=mpicc FC=mpif90 CFLAGS="-g -std=gnu99 -fPIC" LIBS="-lm"
+3. Staging support
+   a. libfabric is required by the SST staging engine
+   ------------
+   Download latest release from Github
+          https://github.com/ofiwg/libfabric/releases
+   and extract in ~/Software
+   $ cd libfabric-1.6.0
+   $ ./configure --disable-verbs --prefix=/opt/libfabric
    $ make
    $ sudo make install
 
-   Test DataSpaces: follow the instructions in 
-      ~/adiosvm/adiospackages/test_dataspaces.txt
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/libfabric/lib"
 
+   b. ZeroMQ is required by the DataMan staging engine
+   ---------
 
-3. Compression libraries
+   $ sudo apt-get install libzmq5 libzmq3-dev
+
+4. Compression libraries
    Only if you want to demo the transform library.
 
-   ZFP is part of the adios package. 
-
    zlib and bzip2 are installed as linux packages:
+   --------------
    $ sudo apt-get install bzip2 libbz2-dev zlib1g zlib1g-dev
 
-   SZ and ISOBAR are provided in adiospackages/
+   SZ is provided in adiospackages/
+   --
 
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/SZ-1.4.11.0.tar.gz
-   $ cd SZ-1.4.11.0
+   $ tar zxf ~/adiosvm/adiospackages/sz-1.4.13.0.tar.gz
+   $ cd sz-1.4.13.0
    $ ./configure --prefix=/opt/SZ --with-pic --disable-shared --disable-fortran --disable-maintainer-mode
    $ make
    $ sudo make install
 
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/SZ/lib"
 
-   $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/isobar.0.3.0.tgz 
-   $ cd isobar.0.3.0
 
-   Edit
-      projs/ISOBAR_library/nbproject/Makefile-gcc-release-x64-static.mk
-   and add -fPIC to CFLAGS
-   On 32bit systems, also remove -m64 from CFLAGS
-
-   $ make install
-
-     This creates ./lib/libisobar.a
-   
-   Manually install it to /opt/isobar
-   $ sudo mkdir /opt/isobar
-   $ cd /opt/isobar
-   $ sudo ln -s $HOME/Software/isobar.0.3.0/include 
-   $ sudo ln -s $HOME/Software/isobar.0.3.0/lib 
-
-
-4. Flexpath support
-   Only if you want staging demos.
-   We need to get CHAOS from Georgia Tech and build it. This will take a while...
-   
-   $ sudo apt-get install bison libbison-dev flex
-   $ sudo mkdir -p /opt/chaos
-   $ sudo chgrp adios /opt/chaos
-   $ sudo chmod g+w /opt/chaos
-   $ cd ~/Software
-   $ mkdir chaos
-   $ cd chaos
-   $ wget http://www.cc.gatech.edu/systems/projects/EVPath/chaos_bootstrap.pl
-   $ perl ./chaos_bootstrap.pl adios-1.13 /opt/chaos
-   $ cp chaos_build_config build_config.adiosVM
-   Edit build_config.adiosVM
-   - we only need to install: dill cercs_env atl ffs evpath
-   - comment out the rest of packages: enet, nnti, echo2, comm_group, cmrpc, pds, gs, lgs, libbench
-   - change the build area
-     BUILD_AREA=/home/adios/Software/chaos
-     RESULTS_FILES_DIR=$HOME/Software/chaos
-   - change the install target
-     INSTALL_DIRECTORY=/opt/chaos
-
-   $ perl chaos_build.pl -c build_config.adiosVM 
-
-   Enter 'anon' for both username and password if requested at svn checkout commands.
-   Enter 'adios' for a question like "Password for 'default' GNOME keyring:"
-
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/chaos/lib"
-
-
-5. Sequential HDF5 support
-   Only if you want bp2h5 conversion code.
+   BLOSC is available on GitHub:
+   ----- 
 
    $ cd ~/Software
-   $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.17.tar.bz2
-   $ mv hdf5-1.8.17 hdf5-1.8.17-serial
-   $ cd hdf5-1.8.17-serial
-   $ ./configure --with-zlib=/usr --without-szlib --prefix=/opt/hdf5-1.8.17 --enable-fortran
-   $ make -j 4
+   $ git clone https://github.com/Blosc/c-blosc.git
+   $ cd c-blosc
+   $ mkdir build
+   $ cd build
+   $ cmake -DCMAKE_INSTALL_PREFIX=/opt/blosc ..
+   $ make
    $ sudo make install
 
-   In ~/.bashrc, add to PATH "/opt/hdf5-1.8.17/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/blosc/lib"
 
 
-6. Parallel HDF5 support
-   Only if you want PHDF5 transport method in ADIOS.
+5. Parallel HDF5 support 
+   Only if you want HDF5 read/write in ADIOS.
 
    $ cd ~/Software
    $ tar jxf ~/adiosvm/adiospackages/hdf5-1.8.17.tar.bz2
@@ -287,34 +244,27 @@ II. Preparations to install ADIOS
    $ sudo make install
 
 
-7. Sequential NetCDF support
-   Only if you want bp2ncd conversion code.
+6. Python/Numpy support
 
-   $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/netcdf-4.4.0.tar.gz
-   $ mv netcdf-4.4.0 netcdf-4.4.0-serial
-   $ cd netcdf-4.4.0-serial
-   $ ./configure --prefix=/opt/netcdf-4.4.0 --enable-netcdf4 CPPFLAGS="-I/opt/hdf5-1.8.17/include" LDFLAGS="-L/opt/hdf5-1.8.17/lib"
-   $ make -j 4
-   $ make check         
-     This testing is optional
-   $ sudo make install
+   To build Adios python wrapper, install following packages by:
+   $ sudo apt-get install python python-dev
+   $ sudo apt-get install python-numpy
 
+   Note: To use a parallel version, we need mpi4py. 
 
-8. Parallel NetCDF4 support (not PNetCDF!)
-  ###   Just forget about this. It breaks the adios build  ###
-   Only if you want NC4PAR transport method in ADIOS.
-
-   $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/netcdf-4.4.0.tar.gz
-   $ mv netcdf-4.4.0 netcdf-4.4.0-parallel
-   $ cd netcdf-4.4.0-parallel
-   $ ./configure --prefix=/opt/netcdf-4.4.0-parallel --enable-netcdf4 --with-pic CPPFLAGS="-I/opt/hdf5-1.8.17-parallel/include" LDFLAGS="-L/opt/hdf5-1.8.17-parallel/lib" LIBS="-lsz" CC=mpicc FC=mpif90
-   $ make -j 4
-   $ sudo make install
+   $ sudo apt-get install python-pip
+   $ sudo -H pip install mpi4py
    
+   Alternatively, we can install from a source code too:
 
-9. Fastbit indexing support (needed for queries)
+   $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-2.0.0.tar.gz
+   $ tar xvf mpi4py-2.0.0.tar.gz
+   $ cd mpi4py-2.0.0
+   $ python setup.py build
+   $ sudo python setup.py install
+
+
+9. Fastbit indexing support (needed for queries) for ADIOS 1.x
    $ cd ~/Software
    $ svn co https://code.lbl.gov/svn/fastbit/trunk fastbit
      username and password: anonsvn
@@ -329,7 +279,7 @@ II. Preparations to install ADIOS
    In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/fastbit/lib"
 
 
-10. Alacrity indexing and query support
+10. Alacrity indexing and query support for ADIOS 1.x
    $ cd ~/Software
    either
    $ tar zxf ~/adiosvm/adiospackages/alacrity-1.0.0.tar.gz
@@ -349,17 +299,61 @@ III. ADIOS Installation
 =======================
 
 1. Download ADIOS
-   1. ADIOS 1.13 is in this repo: 
+   2. Download ADIOS master from repository
    $ cd ~/Software
-   $ tar zxf ~/adiosvm/adiospackages/adios-1.13.0.tar.gz
-   $ cd adios-1.13.0
+   $ git clone github:ornladios/ADIOS2.git
+     OR
+   $ git clone https://github.com/ornladios/ADIOS2.git
+   $ cd ADIOS2
+
+2. Build ADIOS
+   Then:
+   $ mkdir build
+   $ cd build
+   $ cmake -DCMAKE_INSTALL_PREFIX=/opt/adios \
+           -DADIOS2_USE_MPI=ON \
+           -DADIOS2_USE_Fortran=ON \
+           -DADIOS2_USE_Python=ON \
+           -DADIOS2_USE_DataMan=ON \
+           -DADIOS2_USE_HDF5=ON  \
+           -DHDF5_ROOT=/opt/hdf5-parallel \
+           -DSZ_ROOT=/opt/SZ \
+           -DLIBFABRIC_PREFIX=/opt/libfabric \
+           -DADIOS2_BUILD_TESTING=ON \
+           -DADIOS2_BUILD_EXAMPLES_EXPERIMENTAL=OFF \
+           -DCMAKE_BUILD_TYPE=Debug \
+           -DMPIEXEC_MAX_NUMPROCS:STRING=4 \
+           ..
+
+   $ make -j 4
+
+3. Test ADIOS a bit
+   $ ctest -V
+
+4. Install 
+   $ sudo make install
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/lib" and 
+     add to PATH "/opt/adios/bin"
+
+5. Python wrapper
+
+
+
+IV. ADIOS 1.x for compression and queries
+=========================================
+
+1. Download ADIOS
+   1. ADIOS 1.13.1 is in this repo: 
+   $ cd ~/Software
+   $ tar zxf ~/adiosvm/adiospackages/adios-1.13.1.tar.gz
+   $ cd adios-1.13.1
 
    2. Download ADIOS master from repository
    $ cd ~/Software
    $ git clone github:ornladios/ADIOS.git
      OR
    $ git clone https://github.com/ornladios/ADIOS.git
-   $ cd ADIOS
+   $ cd ADIOS2
    $ ./autogen.sh
 
 2. Build ADIOS
@@ -382,8 +376,8 @@ III. ADIOS Installation
 
 4. Install 
    $ sudo make install
-   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios/lib" and 
-     add to PATH "/opt/adios/bin"
+   In ~/.bashrc, add to LD_LIBRARY_PATH "/opt/adios1/lib" and 
+     add to PATH "/opt/adios1/bin"
 
 5. Build and install python wrapper
 
@@ -432,7 +426,7 @@ III. ADIOS Installation
    $ mpirun -n 4 python test_adios_mpi.py
 
 
-IV. ADIOS Tutorial code
+V. ADIOS Tutorial code
 =======================
 
    The tutorial is included in this repository
@@ -444,7 +438,7 @@ IV. ADIOS Tutorial code
    
 
 
-V. Build Visit from release
+VI. Build Visit from release
 ===========================
 
 Simple way: install binary release
@@ -560,7 +554,7 @@ Complicated way:
 
 
 
-V. Build Plotter
+VII. Build Plotter
 =================
 
 If you still want to use the our own plotter instead of / besides visit.
@@ -641,7 +635,7 @@ If you still want to use the our own plotter instead of / besides visit.
 
 
 
-VI. Clean-up a bit
+VIII. Clean-up a bit
 ==================
 Not much space left after building visit and plotter. You can remove this big offenders
 
@@ -653,7 +647,7 @@ Not much space left after building visit and plotter. You can remove this big of
 
 
 
-VII. Installing R and pbdR 
+IX. Installing R and pbdR 
 ===========================
 
 This is for the pbdR tutorial. Not required for an ADIOS-only tutorial. 
