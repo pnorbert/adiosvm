@@ -308,7 +308,12 @@ III. ADIOS Installation
    Then:
    $ mkdir build
    $ cd build
-   $ cmake -DCMAKE_INSTALL_PREFIX=/opt/adios2 \
+   $ ~/adiosvm/adiospackages/runconf.adios2
+    Configure ADIOS 2.x on VirtualBox.
+    ...
+
+   The configure command is running cmake like this:
+     cmake -DCMAKE_INSTALL_PREFIX=/opt/adios2 \
            -DADIOS2_USE_MPI=ON \
            -DADIOS2_USE_Fortran=ON \
            -DADIOS2_USE_Python=ON \
@@ -359,8 +364,8 @@ IV. ADIOS 1.x for compression and queries
    Then: Edit runconf and change install path for the adiosVM target to /opt/adios1
    $ mkdir build
    $ cd build
-   $ ../runconf
-    Configure on ADIOS VirtualBox.
+   $ ~/adiosvm/adiospackages/runconf.adios1 
+    Configure ADIOS 1.x on VirtualBox.
     ...
    $ make -j 4
 

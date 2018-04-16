@@ -4,14 +4,20 @@
 # You can study it to figure out how to configure adios on your system
 #
 
-SRCDIR=`dirname ${BASH_SOURCE[0]}`
+SRCDIR=${1:-..}
+if [ ! -x ${SRCDIR}/configure ]; then
+    echo "Cannot find the configure script in ${SRCDIR}"
+    echo "Run this script with the first argument pointing to "
+    echo "  the ADIOS 1.x source directory"
+    exit 1
+fi
 
 if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
 
     #####################
     # ADIOS Virtual Box #
     #####################
-    echo "Configure on ADIOS VirtualBox."
+    echo "Configure ADIOS 1.x on VirtualBox."
     export MPICC=mpicc
     export MPICXX=mpicxx
     export MPIFC=mpif90
@@ -20,16 +26,19 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
     export FC=gfortran
 
     export CFLAGS="-g -O0 -fPIC -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast"
-    ${SRCDIR}/configure --prefix=/opt/adios \
+    ${SRCDIR}/configure --prefix=/opt/adios1 \
         --disable-maintainer-mode \
         --enable-dependency-tracking \
         --enable-timers \
         --disable-timer-events \
         --with-zlib \
         --with-bzip2 \
-        --with-szip=/opt/szip \
+        --with-lz4 \
+        --with-sz=/opt/SZ  \
+        --with-blosc=/opt/blosc \
+        --without-szip \
         --with-isobar=/opt/isobar \
-        --with-flexpath=/opt/chaos \
+        --with-mgard=/home/adios/Software/MGARD \
         --with-dataspaces=/opt/dataspaces --without-infiniband \
         --with-fastbit=/opt/fastbit \
         --with-alacrity=/opt/alacrity \
@@ -39,7 +48,7 @@ if [ `hostname | cut -c 1-7` == "adiosVM" ]; then
 
 else
     echo "Could not determine what machine is this."
-    echo "This script is for configuring adios on the authors' machines."
+    echo "This script is for configuring adios on the adiosVM tutorial machine."
     echo "You can study it to figure out how to configure adios on your system."
 fi
     
