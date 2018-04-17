@@ -5,18 +5,14 @@ program reader
     include 'mpif.h'
 
     character(len=256) :: filename, errmsg
-    integer :: timesteps      ! number of times to read data    
-    integer :: nproc          ! number of processors
-    
-    real*8, dimension(:,:),   allocatable :: T, dT 
+    real*8, dimension(:,:),   allocatable :: T 
 
     ! MPI variables
-    integer :: group_comm
+    integer :: group_comm, nproc
     integer :: rank
     integer :: ierr
 
     integer :: ts=0   ! actual timestep
-    integer :: i,j
 
     ! ADIOS related variables
     integer*8                :: adios2obj   ! ADIOS2 object
@@ -25,12 +21,11 @@ program reader
     integer*8                :: sel  ! ADIOS selection object
     integer*8                :: var_T ! variable objects
     ! Variable information
-    integer                  :: vartype, nsteps, ndim
+    integer                  :: ndim
     integer*8, dimension(:), allocatable  :: dims
+    integer*8                :: steps_start, steps_count
     ! Offsets and sizes
     integer*8, dimension(2)  :: offset=0, readsize=1
-
-
 
     call MPI_Init (ierr)
     call MPI_Comm_dup (MPI_COMM_WORLD, group_comm, ierr)
@@ -43,11 +38,9 @@ program reader
     call adios2_declare_io(io, adios2obj, "heat_in", ierr)
     call adios2_open(fh, io, filename, adios2_mode_read, group_comm, ierr)
 
+    ! This is how to read in scalars (from metadata directly)
     !call adios2_get_sync(fh, "gndx", gndx, ierr)
     !call adios2_get_sync(fh, "gndy", gndy, ierr)
-    !if (rank == 0) then
-    !    print '(" Global array size: ",i0, "x", i0)', gndx, gndy
-    !endif
 
     ! We can inquire the dimensions, type and number of steps 
     ! of a variable directly
@@ -70,8 +63,14 @@ program reader
     allocate( T(readsize(1), readsize(2)) )
 
     !TODO:  Get the number of available steps
-
-    ts = nsteps-1 ! Let's read the last timestep
+    call adios2_variable_available_steps_start(var_T, steps_start, ierr)
+    call adios2_variable_available_steps_count(var_T, steps_count, ierr)
+    ts = steps_start+steps_count-1 ! Let's read the last timestep
+    if (rank == 0) then
+        print '(" First available step = ", i0)', steps_start
+        print '(" Available steps      = ", i0)', steps_count
+        print '(" Read step            = ", i0)', ts
+    endif
     call adios2_set_step_selection(var_T, ts*1_8, 1_8, ierr)
     call adios2_set_selection(var_T, 2, offset, readsize, ierr)
     call adios2_get_sync(fh, var_T, T, ierr)
