@@ -96,8 +96,8 @@ subroutine io_write(tstep,curr)
 
     call adios2_begin_step( bp_writer, adios2_step_mode_next_available, 0., &
                             adios2_err)
-    call adios2_put_deferred( bp_writer, var_T, T(1:ndx,1:ndy,curr), adios2_err )
-    call adios2_put_deferred( bp_writer, var_dT, dT, adios2_err )
+    call adios2_put_sync( bp_writer, var_T, T(1:ndx,1:ndy,curr), adios2_err )
+    call adios2_put_sync( bp_writer, var_dT, dT, adios2_err )
 
     call adios2_end_step( bp_writer, adios2_err)
 
