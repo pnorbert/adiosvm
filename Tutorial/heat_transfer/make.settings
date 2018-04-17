@@ -1,6 +1,7 @@
 
-## Set ADIOS_DIR here or before doing make
-override ADIOS_DIR=/opt/adios
+## Set ADIOS1_DIR here or before doing make
+override ADIOS1_DIR=/opt/adios1
+override ADIOS2_DIR=/opt/adios2
 
 #Location of the (sequential) HDF5 libraries
 HDF5_DIR=/opt/hdf5-1.8.17
@@ -15,9 +16,9 @@ CC=mpicc
 LINKER=mpic++ 
 LINKER=mpicc
 FC=mpif90
-#CFLAGS=-g
-#LDFLAGS=-g
-#FFLAGS=-g -fcheck=bounds #-fcheck=array-temps
+CFLAGS=-g
+LDFLAGS=-g
+FFLAGS=-g -fcheck=bounds #-fcheck=array-temps
 
 ## cc/ftn SETTINGS
 #CC=cc
