@@ -60,14 +60,14 @@ subroutine io_write(tstep,curr)
 
         call adios2_open (bp_writer, io, filename, adios2_mode_write, adios2_err)
 
-        if( rank == 0 ) then
+        !if( rank == 0 ) then ! HDF5 under ADIOS needs Collective I/O
             ! global variables
             call adios2_define_variable (var_gndx, io, "gndx", gndx, adios2_err)
             call adios2_define_variable (var_gndy, io, "gndy", gndy, adios2_err)
 
             call adios2_put_sync (bp_writer, var_gndx, gndx, adios2_err)
             call adios2_put_sync (bp_writer, var_gndy, gndy, adios2_err)
-        end if
+        !end if
 
         ! Define T and dT array dimensions
         shape_dims(1) = gndx
