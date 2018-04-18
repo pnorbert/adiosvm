@@ -2,7 +2,7 @@
 <adios-config>
 
     <io name="heat">
-        <engine type="BPFile"/>
+        <engine type="HDF5"/>
     </io>
 
     <!-- example engines 
