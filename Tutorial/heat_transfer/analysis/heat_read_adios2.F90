@@ -48,12 +48,8 @@ program reader
     call adios2_declare_io(io, adios2obj, "heat", ierr)
     call adios2_open(fh, io, filename, adios2_mode_read, app_comm, ierr)
 
-    ! This is how to read in scalars (from metadata directly)
-    !call adios2_get_sync(fh, "gndx", gndx, ierr)
-    !call adios2_get_sync(fh, "gndy", gndy, ierr)
-
     ! We can inquire the dimensions, type and number of steps 
-    ! of a variable directly
+    ! of a variable directly from the metadata
     call adios2_inquire_variable(var_T, io, "T", ierr)
     call adios2_variable_shape(var_T, ndim, dims, ierr)
     if (rank == 0) then
@@ -83,7 +79,7 @@ program reader
     endif
     call adios2_set_step_selection(var_T, ts*1_8, 1_8, ierr)
     call adios2_set_selection(var_T, 2, offset, readsize, ierr)
-    call adios2_get_sync(fh, var_T, T, ierr)
+    call adios2_get_deferred(fh, var_T, T, ierr)
     call adios2_close(fh, ierr)
     call print_array (T, offset, rank, ts)
 

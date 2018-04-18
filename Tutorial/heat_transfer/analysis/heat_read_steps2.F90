@@ -23,9 +23,8 @@ program reader
     integer*8                :: var_T ! variable objects
     ! Variable information
     integer                  :: vartype, nsteps, ndim
-    integer*8, dimension(2)  :: dims
+    integer*8, dimension(:), allocatable  :: dims
     ! Offsets and sizes
-    integer :: gndx, gndy
     integer*8, dimension(2) :: offset=0, readsize=1
 
     call MPI_Init (ierr)
@@ -64,21 +63,22 @@ program reader
 
         print '(" Process step: ",i0)', ts
         if (ts==0) then
-            ! adios_get_scalar() gets the value from metadata in memory
-            call adios2_get_sync(fh, "gndx", gndx, ierr)
-            call adios2_get_sync(fh, "gndy", gndy, ierr)
+            ! We can inquire the dimensions, type and number of steps 
+            ! of a variable directly from the metadata
+            call adios2_inquire_variable(var_T, io, "T", ierr)
+            call adios2_variable_shape(var_T, ndim, dims, ierr)
             if (rank == 0) then
-                print '(" Global array size: ",i0, "x", i0)', gndx, gndy
+                print '(" Global array size: ",i0, "x", i0)', dims(1), dims(2)
             endif
 
-            readsize(1) = gndx 
-            readsize(2) = gndy / nproc
+            readsize(1) = dims(1) 
+            readsize(2) = dims(2) / nproc
 
             offset(1)   = 0
             offset(2)   = rank * readsize(2)
     
             if (rank == nproc-1) then  ! last process should read all the rest of columns
-                readsize(2) = gndy - readsize(2)*(nproc-1)
+                readsize(2) = dims(2) - readsize(2)*(nproc-1)
             endif
           
             allocate( T(readsize(1), readsize(2)) )
@@ -110,6 +110,7 @@ program reader
     call adios2_close(fh, ierr)
 
     ! Terminate
+    deallocate(dims)
     deallocate(T)
     call adios2_finalize (adios2obj, ierr)
     call MPI_Finalize (ierr)
