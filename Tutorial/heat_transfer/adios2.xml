@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<adios-config>
+
+    <io name="heat">
+        <engine type="HDF5"/>
+    </io>
+
+    <!-- example engines 
+
+        <engine type="BPFile"/>
+        <engine type="HDF5"/>
+        <engine type="SST"/>
+
+        DataMan is more elaborate with a transport and IP address required
+        <io name="heat">
+            <engine type="DataMan">
+                <parameter key="Blocking" value="no"/>
+            </engine>
+
+            <transport type="WAN">
+                <parameter key="Library" value="ZMQ"/>
+                <parameter key="IPAddress" value="127.0.0.1"/>
+            </transport>
+        </io>
+
+     -->
+
+</adios-config>

@@ -20,7 +20,7 @@ subroutine io_init()
     use adios2
     implicit none
 
-    call adios2_init (adios, app_comm, adios2_debug_mode_on, ierr)
+    call adios2_init_config (adios, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
     call adios2_declare_io (io, adios, 'heat', ierr )
 end subroutine io_init
 
@@ -44,7 +44,6 @@ subroutine io_write(tstep,curr)
     integer*8 :: adios_handle, adios_totalsize
     integer :: adios2_err
     character (len=200) :: filename
-    character(2) :: mode = "w"
     ! variables for definition
     integer*8 :: varid
     ! character(len=100) :: gdims, ldims, offs
@@ -55,8 +54,6 @@ subroutine io_write(tstep,curr)
     if (rank==0.and.tstep==1) then
         print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
     endif
-
-    ! if (tstep > 1) mode = "a"
 
     ! Define variables at the first time
     if (tstep.eq.1) then
