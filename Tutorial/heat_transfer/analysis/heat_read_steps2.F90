@@ -4,18 +4,15 @@ program reader
     implicit none
     include 'mpif.h'
 
-    character(len=256) :: filename, errmsg
-    integer :: timesteps      ! number of times to read data    
-    integer :: nproc          ! number of processors
-    
+    character(len=256) :: streamname, errmsg
     real*8, dimension(:,:),   allocatable :: T, dT 
 
     ! MPI variables
-    integer :: group_comm
-    integer :: rank
+    integer :: wnproc, wrank, color
+    integer :: app_comm, nproc, rank
     integer :: ierr
 
-    integer :: ts=0   ! actual timestep
+    integer :: ts=0   ! actual step in stream
     integer :: i,j
 
     ! ADIOS2 related variables
@@ -32,18 +29,28 @@ program reader
     integer*8, dimension(2) :: offset=0, readsize=1
 
     call MPI_Init (ierr)
-    call MPI_Comm_dup (MPI_COMM_WORLD, group_comm, ierr)
-    call MPI_Comm_rank (MPI_COMM_WORLD, rank, ierr)
-    call MPI_Comm_size (group_comm, nproc , ierr)
+    ! World comm spans all applications started with the same mpirun command 
+    call MPI_Comm_rank (MPI_COMM_WORLD, wrank, ierr)
+    call MPI_Comm_size (MPI_COMM_WORLD, wnproc , ierr)
+    ! Have to split and create a 'world' communicator for heat reader only
+    color = 2
+    call MPI_Barrier(MPI_COMM_WORLD, ierr);
+    call MPI_Comm_split (MPI_COMM_WORLD, color, wrank, app_comm, ierr)
+    call MPI_Comm_rank (app_comm, rank, ierr)
+    call MPI_Comm_size (app_comm, nproc , ierr)
 
-    write(filename,'("../heat.bp")')
+    call processArgs()
 
-    call adios2_init(adios2obj, group_comm, .true., ierr)
-    call adios2_declare_io(io, adios2obj, "heat_in", ierr)
-    call adios2_open(fh, io, filename, adios2_mode_read, group_comm, ierr)
+    if (rank == 0) then
+        print '(" Input file: ",a)', streamname
+    endif
+
+    call adios2_init_config(adios2obj, "adios2.xml", app_comm, .true., ierr)
+    call adios2_declare_io(io, adios2obj, "heat", ierr)
+    call adios2_open(fh, io, streamname, adios2_mode_read, app_comm, ierr)
 
     if (ierr .ne. 0) then
-        print '(" Failed to open stream: ",a)', filename
+        print '(" Failed to open stream: ",a)', streamname
         print '(" open stream ierr=: ",i0)', ierr
         call exit(1)
     endif
@@ -90,7 +97,7 @@ program reader
         call adios2_end_step(fh, ierr)
 
         call print_array (T, offset, rank, ts)
-        call MPI_Barrier (group_comm, ierr)
+        call MPI_Barrier (app_comm, ierr)
         ts = ts+1
     enddo
 
@@ -106,4 +113,41 @@ program reader
     deallocate(T)
     call adios2_finalize (adios2obj, ierr)
     call MPI_Finalize (ierr)
+
+
+contains
+
+    !!***************************
+  subroutine usage()
+    print *, "Usage: heat_read_steps2  input"
+    print *, "input:  name of input file/stream"
+  end subroutine usage
+
+!!***************************
+  subroutine processArgs()
+
+#ifndef __GFORTRAN__
+#ifndef __GNUC__
+    interface
+         integer function iargc()
+         end function iargc
+    end interface
+#endif
+#endif
+
+    integer :: numargs
+
+    !! process arguments
+    numargs = iargc()
+    !print *,"Number of arguments:",numargs
+    if ( numargs < 1 ) then
+        call usage()
+        call exit(1)
+    endif
+    call getarg(1, streamname)
+
+  end subroutine processArgs
+
+
+
   end program reader  

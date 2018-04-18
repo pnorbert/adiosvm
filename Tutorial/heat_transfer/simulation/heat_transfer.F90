@@ -31,17 +31,13 @@ program heat_transfer
     real*8  :: tstart, tend
 
     call MPI_Init (ierr)
-    ! World comm spans all applications started with the same aprun command 
-    ! on a Cray XK6
+    ! World comm spans all applications started with the same mpirun command 
     call MPI_Comm_rank (MPI_COMM_WORLD, wrank, ierr)
     call MPI_Comm_size (MPI_COMM_WORLD, wnproc , ierr)
     ! Have to split and create a 'world' communicator for heat_transfer only
     color = 1
-
     call MPI_Barrier(MPI_COMM_WORLD, ierr);
     call MPI_Comm_split (MPI_COMM_WORLD, color, wrank, app_comm, ierr)
-    !call MPI_Comm_dup (MPI_COMM_WORLD, app_comm, ierr)
-
     call MPI_Comm_rank (app_comm, rank, ierr)
     call MPI_Comm_size (app_comm, nproc , ierr)
 

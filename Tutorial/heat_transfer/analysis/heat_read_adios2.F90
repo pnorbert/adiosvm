@@ -8,11 +8,11 @@ program reader
     real*8, dimension(:,:),   allocatable :: T 
 
     ! MPI variables
-    integer :: group_comm, nproc
-    integer :: rank
+    integer :: wnproc, wrank, color
+    integer :: app_comm, nproc, rank
     integer :: ierr
 
-    integer :: ts=0   ! actual timestep
+    integer :: ts=0   ! actual step in file that we read
 
     ! ADIOS related variables
     integer*8                :: adios2obj   ! ADIOS2 object
@@ -28,15 +28,25 @@ program reader
     integer*8, dimension(2)  :: offset=0, readsize=1
 
     call MPI_Init (ierr)
-    call MPI_Comm_dup (MPI_COMM_WORLD, group_comm, ierr)
-    call MPI_Comm_rank (MPI_COMM_WORLD, rank, ierr)
-    call MPI_Comm_size (group_comm, nproc , ierr)
+    ! World comm spans all applications started with the same mpirun command 
+    call MPI_Comm_rank (MPI_COMM_WORLD, wrank, ierr)
+    call MPI_Comm_size (MPI_COMM_WORLD, wnproc , ierr)
+    ! Have to split and create a 'world' communicator for heat reader only
+    color = 2
+    call MPI_Barrier(MPI_COMM_WORLD, ierr);
+    call MPI_Comm_split (MPI_COMM_WORLD, color, wrank, app_comm, ierr)
+    call MPI_Comm_rank (app_comm, rank, ierr)
+    call MPI_Comm_size (app_comm, nproc , ierr)
 
-    write(filename,'("../heat.bp")')
+    call processArgs()
 
-    call adios2_init(adios2obj, group_comm, .true., ierr)
-    call adios2_declare_io(io, adios2obj, "heat_in", ierr)
-    call adios2_open(fh, io, filename, adios2_mode_read, group_comm, ierr)
+    if (rank == 0) then
+        print '(" Input file: ",a)', filename
+    endif
+
+    call adios2_init_config(adios2obj, "adios2.xml", app_comm, .true., ierr)
+    call adios2_declare_io(io, adios2obj, "heat", ierr)
+    call adios2_open(fh, io, filename, adios2_mode_read, app_comm, ierr)
 
     ! This is how to read in scalars (from metadata directly)
     !call adios2_get_sync(fh, "gndx", gndx, ierr)
@@ -82,4 +92,41 @@ program reader
     deallocate(T)
     call adios2_finalize (adios2obj, ierr)
     call MPI_Finalize (ierr)
-  end program reader  
+
+
+contains
+
+    !!***************************
+  subroutine usage()
+    print *, "Usage: heat_read  input"
+    print *, "input:  name of input file"
+  end subroutine usage
+
+!!***************************
+  subroutine processArgs()
+
+#ifndef __GFORTRAN__
+#ifndef __GNUC__
+    interface
+         integer function iargc()
+         end function iargc
+    end interface
+#endif
+#endif
+
+    integer :: numargs
+
+    !! process arguments
+    numargs = iargc()
+    !print *,"Number of arguments:",numargs
+    if ( numargs < 1 ) then
+        call usage()
+        call exit(1)
+    endif
+    call getarg(1, filename)
+
+  end subroutine processArgs
+
+end program reader  
+
+

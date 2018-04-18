@@ -49,9 +49,13 @@ steps1: print.o heat_read_steps1.F90
 	${FC} ${FFLAGS} -o heat_read_steps1 ${ADIOS1_FINC} $^ ${ADIOS1_FLIB} 
 
 
-clean:
+clean-code:
 	rm -f *.o *.mod *.fh core.* fort.*
 	rm -f heat_read_adios1 heat_read_adios2 heat_read_hdf5 heat_read_steps1 heat_read_steps2
 
-distclean: clean
+clean-data: 
 	rm -rf *.png *.bp *.bp.dir
+
+distclean: clean-code clean-data
+clean: clean-code clean-data
+
