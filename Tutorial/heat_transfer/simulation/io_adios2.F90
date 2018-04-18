@@ -49,25 +49,17 @@ subroutine io_write(tstep,curr)
     ! character(len=100) :: gdims, ldims, offs
     ! in this case shape = gdims, start = offs, count = ldims
     integer*8, dimension(2) :: shape_dims, start_dims, count_dims
+    real*8, dimension(:,:), allocatable :: T_temp
 
     write(filename,'(a,".bp")') trim(outputfile)
-    if (rank==0.and.tstep==1) then
+    if (rank==0.and.tstep==0) then
         print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
     endif
 
     ! Define variables at the first time
-    if (tstep.eq.1) then
+    if (tstep.eq.0) then
 
         call adios2_open (bp_writer, io, filename, adios2_mode_write, adios2_err)
-
-        !if( rank == 0 ) then ! HDF5 under ADIOS needs Collective I/O
-            ! global variables
-            call adios2_define_variable (var_gndx, io, "gndx", gndx, adios2_err)
-            call adios2_define_variable (var_gndy, io, "gndy", gndy, adios2_err)
-
-            call adios2_put_sync (bp_writer, var_gndx, gndx, adios2_err)
-            call adios2_put_sync (bp_writer, var_gndy, gndy, adios2_err)
-        !end if
 
         ! Define T and dT array dimensions
         shape_dims(1) = gndx
@@ -91,12 +83,19 @@ subroutine io_write(tstep,curr)
     call MPI_BARRIER(app_comm, adios2_err)
     io_start_time = MPI_WTIME()
 
-    call adios2_begin_step( bp_writer, adios2_step_mode_next_available, 0., &
+    call adios2_begin_step( bp_writer, adios2_step_mode_append, 0., &
                             adios2_err)
-    call adios2_put_sync( bp_writer, var_T, T(1:ndx,1:ndy,curr), adios2_err )
-    call adios2_put_sync( bp_writer, var_dT, dT, adios2_err )
+
+    ! We need the temporary survive until EndStep, so we cannot just pass
+    ! here the T(1:ndx,1:ndy,curr)
+    allocate(T_temp(1:ndx,1:ndy))
+    T_temp = T(1:ndx,1:ndy,curr)
+    call adios2_put_deferred( bp_writer, var_T, T_temp, adios2_err )
+    call adios2_put_deferred( bp_writer, var_dT, dT, adios2_err )
 
     call adios2_end_step( bp_writer, adios2_err)
+
+    deallocate(T_temp)
 
     call MPI_BARRIER(app_comm ,adios2_err)
     io_end_time = MPI_WTIME()
