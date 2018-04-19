@@ -43,18 +43,22 @@ program heat_transfer
     tstart = MPI_Wtime()
 
     call io_init()
-    call MPI_Barrier (app_comm, ierr)
 
     call processArgs()
+    if (nproc .ne. npx*npy) then
+        if (rank == 0) then
+            print '("Error: Number of processors ",i0,"does not match ndx*ndy=",i0)', nproc, npx*npy
+        endif
+        call MPI_Barrier (app_comm, ierr)
+        call exit(1)
+    endif
     
     if (rank == 0) then
-        print '(" Process number        : ",i0," x ",i0)', npx,npy
-        print '(" Array size per process at first step: ",i0," x ",i0)', ndx,ndy
+        print '("Process decomposition  : ",i0," x ",i0)', npx,npy
+        print '("Array size per process : ",i0," x ",i0)', ndx,ndy
+        print '("Number of output steps : ",i0)', steps
+        print '("Iterations per step    : ",i0)', iters
 
-        if (nproc .ne. npx*npy) then
-            print '(" Error: Number of processors ",i0,"does not match ndx*ndy=",i0)', nproc, npx*npy
-            call exit(1)
-        endif
     endif
 
     ! determine global size
@@ -97,6 +101,7 @@ program heat_transfer
     dT = 0.0
 
     ! can we set up T to be a sin wave
+    if (rank==0) print '("Simulation step ",i4,": initialization")', 0
     call init_T()
 
     curr = 1;
@@ -104,7 +109,7 @@ program heat_transfer
     call io_write(0,curr) 
 
     do tstep=1,steps
-        if (rank==0) print '("Step ",i4,":")', tstep
+        if (rank==0) print '("Simulation step ",i4)', tstep
 
         do it=1,iters
             call iterate(curr)

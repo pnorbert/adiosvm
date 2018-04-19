@@ -41,7 +41,6 @@ subroutine io_write(tstep,curr)
     integer, intent(in) :: tstep
     integer, intent(in) :: curr
 
-    integer*8 :: adios_handle, adios_totalsize
     integer :: adios2_err
     character (len=200) :: filename
     ! variables for definition
@@ -52,9 +51,6 @@ subroutine io_write(tstep,curr)
     real*8, dimension(:,:), allocatable :: T_temp
 
     write(filename,'(a,".bp")') trim(outputfile)
-    if (rank==0.and.tstep==0) then
-        print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
-    endif
 
     ! Define variables at the first time
     if (tstep.eq.0) then
@@ -98,12 +94,6 @@ subroutine io_write(tstep,curr)
     deallocate(T_temp)
 
     call MPI_BARRIER(app_comm ,adios2_err)
-    io_end_time = MPI_WTIME()
-    io_total_time = io_end_time - io_start_time
-    sz = adios_totalsize * nproc/1024.d0/1024.d0/1024.d0 !size in GB
-    gbs = sz/io_total_time
-    if (rank==0) print '("Step ",i3,": ",a20,f12.4,2x,f12.3,2x,f12.3)', &
-        tstep,filename,sz,io_total_time,gbs
 end subroutine io_write
 
 
