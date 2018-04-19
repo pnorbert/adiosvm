@@ -108,7 +108,7 @@ program heat_transfer
     call heatEdges(curr)
     call io_write(0,curr) 
 
-    do tstep=1,steps
+    do tstep=1,steps-1
         if (rank==0) print '("Simulation step ",i4)', tstep
 
         do it=1,iters

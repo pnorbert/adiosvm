@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 
         io.write(0, ht, settings, mpiHeatTransferComm);
 
-        for (unsigned int t = 1; t <= settings.steps; ++t)
+        for (unsigned int t = 1; t < settings.steps; ++t)
         {
             if (rank == 0)
                 std::cout << "Simulation step " << t << "\n";
