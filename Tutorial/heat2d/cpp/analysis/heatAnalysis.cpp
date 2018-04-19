@@ -88,6 +88,12 @@ int main(int argc, char *argv[])
         // Define IO method for engine creation
         adios2::IO &inIO = ad.DeclareIO("SimulationOutput");
         adios2::IO &outIO = ad.DeclareIO("AnalysisOutput");
+        if (!rank)
+        {
+            std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
+            std::cout << "Using " << outIO.m_EngineType << " engine for output" << std::endl;
+        }
+
 
         adios2::Engine &reader =
             inIO.Open(settings.inputfile, adios2::Mode::Read, mpiReaderComm);

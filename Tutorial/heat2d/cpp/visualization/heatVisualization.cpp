@@ -65,6 +65,11 @@ int main(int argc, char *argv[])
 
             adios2::IO &inIO = ad.DeclareIO("VizInput");
 
+            if (!rank)
+            {
+                std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
+            }
+
             adios2::Engine &reader = inIO.Open(
                 settings.inputfile, adios2::Mode::Read, MPI_COMM_SELF);
 

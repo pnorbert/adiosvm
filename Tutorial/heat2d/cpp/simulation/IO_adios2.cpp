@@ -10,6 +10,7 @@
 
 #include "IO.h"
 
+#include <iostream>
 #include <string>
 
 #include <adios2.h>
@@ -34,6 +35,11 @@ IO::IO(const Settings &s, MPI_Comm comm)
         // ISO-POSIX file output is the default transport (called "File")
         // Passing parameters to the transport
         io.AddTransport("File", {{"Library", "POSIX"}});
+    }
+
+    if (!s.rank)
+    {
+        std::cout << "Using " << io.m_EngineType << " engine for output" << std::endl;
     }
 
     // define T as 2D global array
