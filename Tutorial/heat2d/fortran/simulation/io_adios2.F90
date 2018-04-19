@@ -19,9 +19,17 @@ subroutine io_init()
     use heat_vars
     use adios2
     implicit none
+    character(:), allocatable :: engine_type
 
     call adios2_init (adios, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
     call adios2_declare_io (io, adios, 'SimulationOutput', ierr )
+
+    ! For information purposes only:
+    call adios2_io_engine_type(io, engine_type, ierr)
+    if (rank == 0) then
+        print '("Using ",a, " engine for output")', engine_type
+    endif
+
 end subroutine io_init
 
 subroutine io_finalize()

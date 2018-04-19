@@ -20,6 +20,7 @@ program reader
     integer*8                :: fh   ! File handle
     integer*8                :: sel  ! ADIOS selection object
     integer*8                :: var_T ! variable objects
+    character(:), allocatable :: engine_type ! some infoe
     ! Variable information
     integer                  :: ndim
     integer*8, dimension(:), allocatable  :: dims
@@ -43,8 +44,14 @@ program reader
         print '(" Input file: ",a)', trim(filename)
     endif
 
-    call adios2_init(adios2obj, "adios2.xml", app_comm, .true., ierr)
-    call adios2_declare_io(io, adios2obj, "SimulationOutput", ierr)
+    call adios2_init (adios2obj, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
+    call adios2_declare_io (io, adios2obj, 'SimulationOutput', ierr )
+    ! For information purposes only:
+    call adios2_io_engine_type(io, engine_type, ierr)
+    if (rank == 0) then
+        print '(" Using ",a, " engine for input")', engine_type
+    endif
+
     call adios2_open(fh, io, filename, adios2_mode_read, app_comm, ierr)
 
     ! We can inquire the dimensions, type and number of steps 
