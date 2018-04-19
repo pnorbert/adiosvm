@@ -80,6 +80,7 @@ clean-code:
 	rm -f heat_transfer_adios1 heat_transfer_adios1_gpp heat_transfer_adios1_noxml
 	rm -f heat_transfer_adios2  heat_transfer_noxml
 	rm -f heat_transfer_hdf5_a heat_transfer_hdf5_b heat_transfer_phdf5
+	rm -rf .libs
 
 clean-data: 
 	rm -f fort.* 
