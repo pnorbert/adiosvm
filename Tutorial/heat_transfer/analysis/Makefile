@@ -8,18 +8,18 @@ override ADIOS2_FINC=-I${ADIOS2_DIR}/include/fortran
 override ADIOS2_FLIB=`${ADIOS2_DIR}/bin/adios2-config --libs` -ladios2_f
 
 default: 
-	@echo "Make targets: adios2  hdf5  steps2  adios1  steps1"
-	@echo "  hdf5:   build example with HDF5   (heat_read_hdf5.F90)"
-	@echo "  adios2: build example with ADIOS 2.x (heat_read_adios2.F90)"
-	@echo "  steps2: build example with ADIOS 2.x step-by-step reading  (heat_read_steps.F90)"
-	@echo "  adios1: build example with ADIOS 1.x (heat_read_adios1.F90)"
-	@echo "  steps1: build example with ADIOS 1.x step-by-step reading (heat_read_adios1.F90)"
+	@echo "Make targets: adios2_stream  hdf5  adios2_file  adios1_stream  adios1_file"
+	@echo "  adios2_stream: build example with ADIOS 2.x step-by-step reading  (heat_read_adios2_stream.F90)"
+	@echo "  adios2_file:   build example with ADIOS 2.x for file-only read (heat_read_adios2_file.F90)"
+	@echo "  hdf5_file:     build example with HDF5 for file-only read  (heat_read_hdf5_file.F90)"
+	@echo "  adios1_stream: build example with ADIOS 1.x step-by-step reading  (heat_read_adios1_stream.F90)"
+	@echo "  adios1_file:   build example with ADIOS 1.x for file-only read (heat_read_adios1_file.F90)"
 
 
 all: default
 help: default
 
-heat_read_hdf5.o : heat_read_hdf5.F90
+heat_read_hdf5_file.o : heat_read_hdf5_file.F90
 	${FC} ${FFLAGS} -c ${HDF5_FINC} $< 
 
 print.o : print.F90
@@ -31,27 +31,30 @@ print.o : print.F90
 %1.o : %.F90 
 	${FC} ${FFLAGS} -c ${ADIOS1_FINC} $<
 
-hdf5: print.o heat_read_hdf5.F90
-	libtool --mode=link --tag=FC ${FC} ${FFLAGS} ${HDF5_FINC} -o heat_read_hdf5 $^ ${HDF5_FLIB} 
-#	${FC} ${FFLAGS} -o heat_read_hdf5 $^ ${HDF5_FLIB} 
+hdf5_file: print.o heat_read_hdf5_file.F90
+	libtool --mode=link --tag=FC ${FC} ${FFLAGS} ${HDF5_FINC} -o heat_read_hdf5_file $^ ${HDF5_FLIB} 
+#	${FC} ${FFLAGS} -o heat_read_hdf5_file $^ ${HDF5_FLIB} 
 
-adios2: print.o heat_read_adios2.F90
-	${FC} ${FFLAGS} -o heat_read_adios2 ${ADIOS2_FINC} $^ ${ADIOS2_FLIB} 
+adios2_file: print.o heat_read_adios2_file.F90
+	${FC} ${FFLAGS} -o heat_read_adios2_file ${ADIOS2_FINC} $^ ${ADIOS2_FLIB} 
 
-steps2: print.o heat_read_steps2.F90
-	${FC} ${FFLAGS} -o heat_read_steps2 ${ADIOS2_FINC} $^ ${ADIOS2_FLIB} 
+adios2_stream: print.o heat_read_adios2_stream.F90
+	${FC} ${FFLAGS} -o heat_read_adios2_stream ${ADIOS2_FINC} $^ ${ADIOS2_FLIB} 
 
 
-adios1: print.o heat_read_adios1.F90
-	${FC} ${FFLAGS} -o heat_read_adios1 ${ADIOS1_FINC} $^ ${ADIOS1_FLIB} 
+adios1_file: print.o heat_read_adios1_file.F90
+	${FC} ${FFLAGS} -o heat_read_adios1_file ${ADIOS1_FINC} $^ ${ADIOS1_FLIB} 
 
-steps1: print.o heat_read_steps1.F90
-	${FC} ${FFLAGS} -o heat_read_steps1 ${ADIOS1_FINC} $^ ${ADIOS1_FLIB} 
+adios1_stream: print.o heat_read_adios1_stream.F90
+	${FC} ${FFLAGS} -o heat_read_adios1_stream ${ADIOS1_FINC} $^ ${ADIOS1_FLIB} 
+
 
 
 clean-code:
-	rm -f *.o *.mod *.fh core.* fort.*
-	rm -f heat_read_adios1 heat_read_adios2 heat_read_hdf5 heat_read_steps1 heat_read_steps2
+	rm -f *.o *.mod *.fh core.* fort.* 
+	rm -f heat_read_adios2_file heat_read_adios2_stream
+	rm -f heat_read_adios1_file heat_read_adios1_stream heat_read_hdf5_file
+	rm -rf .libs
 
 clean-data: 
 	rm -rf *.png *.bp *.bp.dir
