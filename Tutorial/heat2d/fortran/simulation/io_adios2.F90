@@ -20,7 +20,7 @@ subroutine io_init()
     use adios2
     implicit none
 
-    call adios2_init_config (adios, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
+    call adios2_init (adios, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
     call adios2_declare_io (io, adios, 'SimulationOutput', ierr )
 end subroutine io_init
 

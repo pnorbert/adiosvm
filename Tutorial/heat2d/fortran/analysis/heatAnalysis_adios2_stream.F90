@@ -43,7 +43,7 @@ program reader
         print '(" Input file: ",a)', trim(streamname)
     endif
 
-    call adios2_init_config(adios2obj, "adios2.xml", app_comm, .true., ierr)
+    call adios2_init(adios2obj, "adios2.xml", app_comm, .true., ierr)
     call adios2_declare_io(io, adios2obj, "SimulationOutput", ierr)
     call adios2_open(fh, io, streamname, adios2_mode_read, app_comm, ierr)
 
