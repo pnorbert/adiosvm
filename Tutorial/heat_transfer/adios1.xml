@@ -31,6 +31,7 @@
              type="real*8" dimensions="ndx,ndy" transform="none"/>
              type="real*8" dimensions="ndx,ndy" transform="zfp:accuracy=.001"/>
              type="real*8" dimensions="ndx,ndy" transform="sz"/>
+             type="real*8" dimensions="ndx,ndy" transform="mgard:accuracy=0.0001"/>
              type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
              type="real*8" dimensions="ndx,ndy" transform="blosc:threshold=4096,shuffle=bit,lvl=1,threads=4,compressor=zstd"/>
              -->
