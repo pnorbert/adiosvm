@@ -33,7 +33,6 @@ program reader
     call MPI_Comm_size (MPI_COMM_WORLD, wnproc , ierr)
     ! Have to split and create a 'world' communicator for heat reader only
     color = 2
-    call MPI_Barrier(MPI_COMM_WORLD, ierr);
     call MPI_Comm_split (MPI_COMM_WORLD, color, wrank, app_comm, ierr)
     call MPI_Comm_rank (app_comm, rank, ierr)
     call MPI_Comm_size (app_comm, nproc , ierr)
