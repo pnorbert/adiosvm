@@ -1,0 +1,47 @@
+#
+# Set compiler options and library locations here 
+# before doing make
+#
+
+## Location of the ADIOS 2.x libraries
+override ADIOS2_DIR=/opt/adios2
+
+## Location of the ADIOS 1.x libraries
+override ADIOS1_DIR=/opt/adios1
+
+#Location of the (sequential) HDF5 libraries
+HDF5_DIR=/opt/hdf5-1.8.17
+
+#Location of the Parallel HDF5 libraries
+PHDF5_DIR=/opt/hdf5-1.8.17-parallel
+ 
+## mpicc and mpif90 SETTINGS
+CC=mpicc
+# if ADIOS 1.x has C++ dependencies (FastBit, Alacrity) then we need C++ to link
+#OMPI_CXX=g++-5 
+#LINKER=mpic++ 
+LINKER=mpicc
+FC=mpif90
+CFLAGS=-g
+LDFLAGS=-g
+FFLAGS=-g -fcheck=bounds #-fcheck=array-temps
+
+## cc/ftn SETTINGS
+#CC=cc
+#FC=ftn
+#CFLAGS = -O3
+#LDFLAGS =
+
+#
+# settings that may need modification
+#
+# HDF5
+HDF5_CINC=-I$(HDF5_DIR)/include 
+HDF5_FINC=-I$(HDF5_DIR)/include 
+HDF5_CLIB=$(HDF5_DIR)/lib/libhdf5.la 
+HDF5_FLIB=$(HDF5_DIR)/lib/libhdf5_fortran.la 
+# Parallel HDF5
+PHDF5_CINC=-I$(PHDF5_DIR)/include 
+PHDF5_FINC=-I$(PHDF5_DIR)/include 
+PHDF5_CLIB=$(PHDF5_DIR)/lib/libhdf5.la 
+PHDF5_FLIB=$(PHDF5_DIR)/lib/libhdf5_fortran.la 

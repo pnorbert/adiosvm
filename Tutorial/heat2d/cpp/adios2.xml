@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<adios-config>
+
+    <!--===========================================
+           Configuration for the Simulation Output 
+        ==========================================-->
+
+    <io name="SimulationOutput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+    <!-- example engines 
+
+        <engine type="BPFile"/>
+        <engine type="HDF5"/>
+        <engine type="SST"/>
+        <engine type="InSituMPI"/>
+
+        DataMan is more elaborate with a transport and IP address required
+        <io name="heat">
+            <engine type="DataMan">
+                <parameter key="Blocking" value="no"/>
+            </engine>
+
+            <transport type="WAN">
+                <parameter key="Library" value="ZMQ"/>
+                <parameter key="IPAddress" value="127.0.0.1"/>
+            </transport>
+        </io>
+
+     -->
+
+
+    <!--=========================================
+           Configuration for the Analysis Output
+        =========================================-->
+    
+    <io name="AnalysisOutput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+
+    <!--=============================================
+           Configuration for the Visualization Input
+           Should match the Simulation Output or the 
+           Analysis Output depending on what code you
+           attach to (simulation or analysis)
+        =============================================-->
+    
+    <io name="VizInput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+</adios-config>

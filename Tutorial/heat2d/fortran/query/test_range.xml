@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<adios-config host-language="C">
+  <adios-group name="range">
+
+    <var name="nproc" path="info" type="integer"/>
+    <attribute name="description" path="info/nproc" value="Number of writers in query app"/>
+    <var name="np1" path="info" type="integer"/>
+    <attribute name="description" path="info/np1" value="Number of processors in 1st(C) dimension"/>
+    <var name="np2" path="info" type="integer"/>
+    <attribute name="description" path="info/np2" value="Number of processors in 2nd dimension"/>
+
+
+    <!-- Auxiliary variables for global array indexing -->
+    <var name="gdim1" type="integer*8"/>
+    <var name="gdim2" type="integer*8"/>
+    <var name="off1"  type="integer*8"/>
+    <var name="off2"  type="integer*8"/>
+    <var name="ldim1" type="integer*8"/>
+    <var name="ldim2" type="integer*8"/>
+    <var name="nblocks_total" type="integer*4"/>
+    <var name="npoints_total" type="integer*8"/>
+    <var name="rank"  type="integer"/>
+
+
+    <global-bounds dimensions="gdim1,gdim2" offsets="off1,off2">
+        <var name="T"  type="double" dimensions="ldim1,ldim2"/>
+        <var name="dT" type="double" dimensions="ldim1,ldim2"/>
+        <var name="T_manual" type="double" dimensions="ldim1,ldim2"/>
+    </global-bounds>
+    
+
+  </adios-group>
+
+  <method group="range" method="MPI">verbose=3</method>
+
+</adios-config>
