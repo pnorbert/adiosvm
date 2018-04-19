@@ -62,10 +62,11 @@ program reader
         endif
 
         print '(" Process step: ",i0)', ts
+        call adios2_inquire_variable(var_T, io, "T", ierr)
+
         if (ts==0) then
             ! We can inquire the dimensions, type and number of steps 
             ! of a variable directly from the metadata
-            call adios2_inquire_variable(var_T, io, "T", ierr)
             call adios2_variable_shape(var_T, ndim, dims, ierr)
             if (rank == 0) then
                 print '(" Global array size: ",i0, "x", i0)', dims(1), dims(2)
@@ -83,11 +84,11 @@ program reader
           
             allocate( T(readsize(1), readsize(2)) )
 
-            ! Create a 2D selection for the subset 
-            call adios2_inquire_variable(var_T, io, 'T', ierr)
-            call adios2_set_selection(var_T, 2, offset, readsize, ierr)
         endif
        
+        ! Create a 2D selection for the subset 
+        call adios2_set_selection(var_T, 2, offset, readsize, ierr)
+
         ! Arrays are read by scheduling one or more of them
         ! and performing the reads at once
         ! In streaming mode, always step 0 is the one available for read
