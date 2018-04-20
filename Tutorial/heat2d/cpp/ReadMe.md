@@ -22,7 +22,7 @@ Example
 
 1. Simulation: produce an output
 
-Simulation usage:  heatSimulation  config output  N  M   nx  ny   steps iterations
+Simulation usage:  heatSimulation  output  N  M   nx  ny   steps iterations
   output: name of output data file/stream
   N:      number of processes in X dimension
   M:      number of processes in Y dimension
@@ -42,7 +42,7 @@ $  mpirun -n 12 ./heatSimulation  sim.bp  4 3  5 10 10 10
 
 2. Analysis: read the output step-by-step, calculate new data, and produce another output 
 
-Analysis Usage:   heatAnalysis  config  input output  N  M 
+Analysis Usage:   heatAnalysis  input output  N  M 
   input:  name of input data file/stream
   output: name of output data file/stream
   N:      number of processes in X dimension
