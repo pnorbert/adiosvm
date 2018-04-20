@@ -17,13 +17,6 @@
         <engine type="SST"/>
         <engine type="InSituMPI"/>
 
-        SST allows for reader disconnect and reconnect. To make it useful, limit
-        the number of steps SST caches in memory with a parameter.
-            <engine type="SST">
-                <parameter key="QueueLimit" value="2"/>
-            </engine>
-
-
         DataMan is more elaborate with a transport and IP address required
         <io name="heat">
             <engine type="DataMan">
