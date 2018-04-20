@@ -39,8 +39,6 @@ module heat_vars
     real*8 :: start_time, end_time, total_time,gbs,sz
     real*8 :: io_start_time, io_end_time, io_total_time
 
-    ! heat parameter
-    real*8, parameter :: edgetemp = 100.0
 
 end module heat_vars
 

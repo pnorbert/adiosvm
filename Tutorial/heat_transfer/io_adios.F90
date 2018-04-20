@@ -17,7 +17,7 @@ contains
 subroutine io_init()
     use heat_vars
     use adios_write_mod
-    call adios_init ("adios1.xml", app_comm, ierr)
+    call adios_init ("heat_transfer.xml", app_comm, ierr)
 end subroutine io_init
 
 subroutine io_finalize()

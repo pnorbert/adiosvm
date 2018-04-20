@@ -31,34 +31,35 @@ program heat_transfer
     real*8  :: tstart, tend
 
     call MPI_Init (ierr)
-    ! World comm spans all applications started with the same mpirun command 
+    ! World comm spans all applications started with the same aprun command 
+    ! on a Cray XK6
     call MPI_Comm_rank (MPI_COMM_WORLD, wrank, ierr)
     call MPI_Comm_size (MPI_COMM_WORLD, wnproc , ierr)
     ! Have to split and create a 'world' communicator for heat_transfer only
     color = 1
+
+    call MPI_Barrier(MPI_COMM_WORLD, ierr);
     call MPI_Comm_split (MPI_COMM_WORLD, color, wrank, app_comm, ierr)
+    !call MPI_Comm_dup (MPI_COMM_WORLD, app_comm, ierr)
+
     call MPI_Comm_rank (app_comm, rank, ierr)
     call MPI_Comm_size (app_comm, nproc , ierr)
 
     tstart = MPI_Wtime()
 
     call io_init()
+    call MPI_Barrier (app_comm, ierr)
 
     call processArgs()
-    if (nproc .ne. npx*npy) then
-        if (rank == 0) then
-            print '("Error: Number of processors ",i0,"does not match ndx*ndy=",i0)', nproc, npx*npy
-        endif
-        call MPI_Barrier (app_comm, ierr)
-        call exit(1)
-    endif
     
     if (rank == 0) then
-        print '("Process decomposition  : ",i0," x ",i0)', npx,npy
-        print '("Array size per process : ",i0," x ",i0)', ndx,ndy
-        print '("Number of output steps : ",i0)', steps
-        print '("Iterations per step    : ",i0)', iters
+        print '(" Process number        : ",i0," x ",i0)', npx,npy
+        print '(" Array size per process at first step: ",i0," x ",i0)', ndx,ndy
 
+        if (nproc .ne. npx*npy) then
+            print '(" Error: Number of processors ",i0,"does not match ndx*ndy=",i0)', nproc, npx*npy
+            call exit(1)
+        endif
     endif
 
     ! determine global size
@@ -101,15 +102,13 @@ program heat_transfer
     dT = 0.0
 
     ! can we set up T to be a sin wave
-    if (rank==0) print '("Simulation step ",i4,": initialization")', 0
     call init_T()
 
     curr = 1;
     call heatEdges(curr)
-    call io_write(0,curr) 
 
     do tstep=1,steps
-        if (rank==0) print '("Simulation step ",i4)', tstep
+        if (rank==0) print '("Step ",i4,":")', tstep
 
         do it=1,iters
             call iterate(curr)
@@ -144,6 +143,7 @@ subroutine heatEdges(curr)
     use heat_vars
     implicit none
     integer, intent(in) :: curr
+    real*8, parameter :: edgetemp = 3.0
 
     !! Heat the whole edges
     if (posx==0)     T(0,:,curr)     = edgetemp
@@ -160,37 +160,20 @@ subroutine init_T()
     implicit none
     include 'mpif.h'
     integer :: i,j,k
-    real*8  :: v, x,y,hx,hy
-    real*8  :: minv, maxv, mingv, maxgv, skew, ratio
+    real*8  :: x,y,hx,hy
 
 
-    hx = 2.0 * 4.0*atan(1.0d0)/gndx
-    hy = 2.0 * 4.0*atan(1.0d0)/gndy
+    hx = 2.0 * 4.0*atan(1.0d0)/ndx
+    hy= 2.0 * 4.0*atan(1.0d0)/ndx
 
-    minv = 1.0e30
-    maxv = -1.0e30
-
-    do j=0,ndy+1
-        y = 0.0 + hy*(j - 1 + posy*ndy)
-        do i=0,ndx+1
-            x = 0.0 + hx*(i - 1 + posx*ndx)
-            v = cos(8*x) + cos(6*x) - cos(4*x) + cos(2*x) - cos(x) + &
-                sin(8*y) - sin(6*y) + sin(4*y) - sin(2*y) + sin(y) 
-            if (v < minv) minv = v
-            if (v > maxv) maxv = v
-            T(i,j,1) = v
-        end do
-    end do
-
-    call MPI_Allreduce(minv, mingv, 1, MPI_DOUBLE, MPI_MIN, app_comm, ierr)
-    call MPI_Allreduce(maxv, maxgv, 1, MPI_DOUBLE, MPI_MAX, app_comm, ierr)
-
-    ! normalize to [0..2*edgetemp]
-    skew = 0.0 - mingv
-    ratio = 2 * edgetemp / (maxgv-mingv)
-    do j=0,ndy+1
-        do i=0,ndx+1
-            T(i,j,1) = (T(i,j,1) + skew) * ratio
+    do j=1,ndy
+        y = 0.0 + hy*(j-1)
+        do i=1,ndx
+            x = 0.0 + hx*(i-1)
+!            T(i,j,1) = cos(x) - cos(2*x) +cos(3*x) - sin(y) + sin(2*y) -&
+!                       sin(3*y) -cos(4*x) + sin(4*y)
+            T(i,j,1) = cos(8*x) + cos(6*x) - cos(4*x) + cos(2*x) - cos(x) + &
+                       sin(8*y) - sin(6*y) + sin(4*y) - sin(2*y) + sin(y) 
         end do
     end do
 

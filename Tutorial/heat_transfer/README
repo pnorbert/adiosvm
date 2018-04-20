@@ -1,27 +1,18 @@
-2D Heat Transfer example 
+2D Heat Transfer example
 Fortran 90 code, 2D array with 2D decomposition
 
 1. Build
 --------
 Edit make.settings 
 - compiler and compiler options
-- ADIOS 2.x installation directory
-- optionally 
-   ADIOS 1.x installation directory
-   Parallel HDF5 installation directory
+- ADIOS installation directory
 
-$ cd simulation
-$ make adios2
-$ cd ..
-
-$ cd analysis
-$ make adios2 steps2
-$ cd ..
+$ make adios
 
 2. Run
 -------
 
-$ ./simulation heat_transfer_adios2
+$ ./heat_transfer 
  Usage: heat_transfer  output  N  M   nx  ny   steps iterations
  output: name of output file
  N:      number of processes in X dimension
@@ -31,7 +22,7 @@ $ ./simulation heat_transfer_adios2
  steps:  the total number of steps to output
  iterations: one step consist of this many iterations
 
-$ mpirun -np 12 simulation/heat_transfer_adios2 heat  4 3    40 50   6 500
+$ mpirun -np 12 ./heat_transfer_adios1 heat  4 3    40 50   6 500
 
 will perform the calculation 
 - on 12 processes 
@@ -40,10 +31,8 @@ will perform the calculation
 - producing an output of 6 steps stored in heat.bp 
 
 $ bpls -l heat.bp T
-  integer  gndx  scalar = 160
-  double   T     6*{150, 160} = -0.263389 / 2.9984 / null  / null 
-  integer  gndy  scalar = 150
-  double   dT    6*{150, 160} = -0.000847309 / 0.00227756 / null  / null
+  double   T            6*{150, 160} = 0.000212009 / 999.47 / 442.536 / 318.995 
+  double   dT           6*{150, 160} = 6.27403e-06 / 0.720097 / 0.135503 / 0.115625
 
 $ ./plot_heat.sh heat.bp
 $ eog . 
@@ -52,31 +41,16 @@ $ eog .
 ---------------
 Staging demos
 ---------------
-
 A 100 output step on less processes, with more computation between steps. 
-In adios2.xml, use "SST" for engine of the io group "heat"
 
-In two terminal windows:
-
-$ mpirun -n 4 simulation/heat_transfer_adios2 heat 2 2 300 300 100 600
-$ mpirun -n 2 analysis/heat_read_steps2 heat.bp
-
-or 
-
-$ mpirun -n 4 simulation/heat_transfer_adios2 heat 2 2 300 300 100 600
-$ mpirun -n 2 /opt/adios2/bin/adios2_reorganize heat.bp staged.bp SST "" BPFile "" 2 1
-
-
---- With ADIOS 1.x using heat_transfer_adios1 binary ---
-
-If output method in adios1.xml is FLEXPATH, 
+If output method in heat_transfer.xml is FLEXPATH, 
 you need two terminals. Run the staging reader-writer in one terminal and
 the simulation in another terminal. The order of startup does not matter.
 
 $ mpirun -np 2 stage_write/stage_write heat.bp staged.bp FLEXPATH "" MPI "" 2
 $ mpirun -np 4 ./heat_transfer_adios2 heat 2 2 300 300 100 600
 
-If output method in adios1.xml is DATASPACES, 
+If output method in heat_transfer.xml is DATASPACES, 
 you need three terminals. 
 Run the DataSpaces server first in one terminal and tell the app 
 the number of servers and clients.

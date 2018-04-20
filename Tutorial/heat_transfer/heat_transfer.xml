@@ -31,7 +31,6 @@
              type="real*8" dimensions="ndx,ndy" transform="none"/>
              type="real*8" dimensions="ndx,ndy" transform="zfp:accuracy=.001"/>
              type="real*8" dimensions="ndx,ndy" transform="sz"/>
-             type="real*8" dimensions="ndx,ndy" transform="mgard:accuracy=0.0001"/>
              type="real*8" dimensions="ndx,ndy" transform="alacrity"/>
              type="real*8" dimensions="ndx,ndy" transform="blosc:threshold=4096,shuffle=bit,lvl=1,threads=4,compressor=zstd"/>
              -->
@@ -46,11 +45,9 @@
 
   </adios-group>
 
-  <method group="heat" method="POSIX"/>
+  <method group="heat" method="MPI"/>
 <!--
   <method group="heat" method="MPI_AGGREGATE">num_aggregators=4;num_ost=2;have_metadata_file=1;verbose=3</method>
-  <method group="heat" method="MPI"/>
-  <method group="heat" method="POSIX"/>
   <method group="heat" method="FLEXPATH">QUEUE_SIZE=4;verbose=3</method>
   <method group="heat" method="DATASPACES"/>
 -->
