@@ -22,9 +22,9 @@ CC=mpicc
 #LINKER=mpic++ 
 LINKER=mpicc
 FC=mpif90
-CFLAGS=-g
-LDFLAGS=-g
-FFLAGS=-g -fcheck=bounds #-fcheck=array-temps
+CFLAGS=-g -O2
+LDFLAGS=-g -O2
+FFLAGS=-g -O2
 
 ## cc/ftn SETTINGS
 #CC=cc

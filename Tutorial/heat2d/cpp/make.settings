@@ -19,8 +19,8 @@ override ADIOS_DIR=/opt/adios2
 # C++ settings
 #
 CXX=mpic++
-CXXFLAGS=-g -std=gnu++11 
-LDFLAGS=-g 
+CXXFLAGS=-g -std=gnu++11 -O2
+LDFLAGS=-g  -O2
 
 #
 # VTK-m settings (need separate include and libraries)
