@@ -250,8 +250,8 @@ II. Preparations to install ADIOS
 
    Note: To use a parallel version, we need mpi4py. 
 
-   $ sudo apt-get install python-pip
-   $ sudo -H pip install mpi4py
+   $ sudo apt-get install python-pip python-tk
+   $ sudo -H pip install mpi4py matplotlib
    
    Alternatively, we can install from a source code too:
 
