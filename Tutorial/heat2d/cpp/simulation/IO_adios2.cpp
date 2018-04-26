@@ -53,6 +53,11 @@ IO::IO(const Settings &s, MPI_Comm comm)
         {s.ndx, s.ndy});
 
     writer = &io.Open(s.outputfile, adios2::Mode::Write, comm);
+
+    // Some optimization:
+    // we promise here that we don't change the variables over steps
+    // (the list of variables, their dimensions, and their selections)
+    writer->FixedSchedule(); 
 }
 
 IO::~IO()

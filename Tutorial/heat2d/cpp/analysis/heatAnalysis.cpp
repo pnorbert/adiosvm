@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
         adios2::Engine &reader =
             inIO.Open(settings.inputfile, adios2::Mode::Read, mpiReaderComm);
 
+        reader.FixedSchedule(); // a promise here that we don't change the read pattern over steps
+
         std::vector<double> Tin;
         std::vector<double> Tout;
         std::vector<double> dT;
@@ -150,6 +152,7 @@ int main(int argc, char *argv[])
                     "dT", {gndx, gndy}, settings.offset, settings.readsize);
                 writer = &outIO.Open(settings.outputfile, adios2::Mode::Write,
                                      mpiReaderComm);
+                writer->FixedSchedule(); 
 
                 MPI_Barrier(mpiReaderComm); // sync processes just for stdout
             }

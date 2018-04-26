@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
 
             adios2::Engine &reader = inIO.Open(
                 settings.inputfile, adios2::Mode::Read, MPI_COMM_SELF);
+            reader.FixedSchedule(); // a promise here that we don't change the read pattern over steps
 
             std::vector<double> Tin;
             adios2::Variable<double> *vTin = nullptr;
