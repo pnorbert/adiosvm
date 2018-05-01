@@ -14,6 +14,7 @@ default:
 	@echo "  hdf5_b:       build example with HDF5, combined timesteps (io_hdf5_b.F90)"
 	@echo "  phdf5:        build example with Parallel HDF5  (io_phdf5.F90)"
 	@echo "  adios2:       build example with ADIOS 2.x (io_adios2.F90)"
+	@echo "  adios2_simple: build example with ADIOS 2.x using simple API (io_adios2_simple.F90)"
 	@echo "  adios1:       build example with ADIOS 1.x (io_adios1.F90)"
 	@echo "  adios1-noxml: build example with ADIOS 1.x (io_adios1_noxml.F90)"
 	@echo "  adios1-gpp:   build example with ADIOS 1.x (io_adios1_gpp.F90)"
@@ -44,6 +45,9 @@ io_adios1.o : io_adios1.F90
 io_adios2.o : io_adios2.F90 
 	${FC} ${FFLAGS} -c ${ADIOS2_FINC} $<  
 
+io_adios2_simple.o : io_adios2_simple.F90 
+	${FC} ${FFLAGS} -c ${ADIOS2_FINC} $<
+
 io_adios1_noxml.o : io_adios1_noxml.F90 
 	${FC} ${FFLAGS} -c ${ADIOS1_FINC} $< 
 
@@ -64,6 +68,9 @@ phdf5: heat_vars.o io_phdf5.o heatSimulation.o
 
 adios2: heat_vars.o io_adios2.o heatSimulation.o
 	${FC} ${FFLAGS} -o heatSimulation_adios2 $^ ${ADIOS2_FLIB} 
+	
+adios2_simple: heat_vars.o io_adios2_simple.o heatSimulation.o
+	${FC} ${FFLAGS} -o heatSimulation_adios2_simple $^ ${ADIOS2_FLIB} 
 
 adios1: heat_vars.o io_adios1.o heatSimulation.o
 	${FC} ${FFLAGS} -o heatSimulation_adios1 $^ ${ADIOS1_FLIB} 
@@ -78,7 +85,7 @@ clean-code:
 	rm -f *.o *.mod *.fh core.*
 	rm -f heatSimulation_fort 
 	rm -f heatSimulation_adios1 heatSimulation_adios1_gpp heatSimulation_adios1_noxml
-	rm -f heatSimulation_adios2  heatSimulation_noxml
+	rm -f heatSimulation_adios2 heatSimulation_adios2_simple heatSimulation_noxml
 	rm -f heatSimulation_hdf5_a heatSimulation_hdf5_b heatSimulation_phdf5
 	rm -rf .libs
 
