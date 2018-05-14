@@ -54,7 +54,7 @@ def Plot2D(args, fr, data, fullshape, step, fontsize, displaysec):
         plt.show()
         plt.pause(displaysec)
     else:
-        imgfile = args.outfile+str(step)+".png"
+        imgfile = args.outfile+"{0:0>3}".format(step)+".png"
         fig.savefig(imgfile)
 
     plt.clf()
@@ -87,7 +87,8 @@ if __name__ == "__main__":
         # Print a couple simple diagnostics
         avg = np.average(data)
         std = np.std(data)
-        print("step:{0}, rank: {1}, avg: {2:.3f}, std: {3:.3f}".format(step, mpi.rank['world'], avg, std))
+        inpstep = fr.currentstep()
+        print("step:{0}, rank: {1}, avg: {2:.3f}, std: {3:.3f}".format(inpstep, mpi.rank['world'], avg, std))
         Plot2D(args, fr, data, fullshape, step, fontsize, displaysec)
 
         step += 1
