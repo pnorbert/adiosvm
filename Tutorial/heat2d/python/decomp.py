@@ -29,7 +29,8 @@ class MPISetup(object):
 
             from mpi4py import MPI
 
-            self.comm_world = MPI.COMM_WORLD
+            color = 3
+            self.comm_world = MPI.COMM_WORLD.Split(color, MPI.COMM_WORLD.Get_rank()) 
             self.size = self.comm_world.Get_size()
             self.rank['world'] = self.comm_world.Get_rank()
             if self.size != (self.nx * self.ny):

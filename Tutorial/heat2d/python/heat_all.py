@@ -36,13 +36,15 @@ def SetupArgs():
 
 
 
-def Plot2D(args, fullshape, step, fontsize, displaysec):
+def Plot2D(args, fr, fullshape, step, fontsize, displaysec):
     data = fr.read(args.varname, [0, 0], fullshape, step, 1)
     gs = gridspec.GridSpec(1, 1)
     fig = plt.figure(1, figsize=(8,10))
     ax = fig.add_subplot(gs[0, 0])
 
-    ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]] )
+    print ("data size:", fullshape[0],"x",fullshape[1])
+    print (data.shape)
+    ax.imshow(data[0, :, :], origin='lower', extent=[0, fullshape[1], 0, fullshape[0]] )
 
     for i in range(args.ny):
         y = fullshape[0] / args.ny * i
@@ -69,7 +71,7 @@ if __name__ == "__main__":
 
     # fontsize on plot
     fontsize = 22
-    displaysec = 3
+    displaysec = 0.5
 
     # Parse command line arguments
     args = SetupArgs()
@@ -79,10 +81,10 @@ if __name__ == "__main__":
 
 
     # Read the data from this object
-    fr = adios2.open(args.infile, "r", *mpi.readargs)
+    fr = adios2.open(args.infile, "r", mpi.comm_world, "adios2.xml", "VizInput")
 
     # Calculate difference between steps, and write to this object
-    fw = adios2.open(args.outfile, "w", *mpi.readargs)
+    fw = adios2.open(args.outfile, "w", mpi.comm_world)
 
 
     # Get the ADIOS selections -- equally partition the data if parallelization is requested
@@ -106,7 +108,7 @@ if __name__ == "__main__":
 
 
         if (mpi.rank['world'] == 0) and (args.plot):
-            Plot2D(args, fullshape, step, fontsize, displaysec)
+            Plot2D(args, fr, fullshape, step, fontsize, displaysec)
 
 
         if (step > 0):
