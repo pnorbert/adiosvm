@@ -16,7 +16,7 @@ clean-data:
 	rm -f *.png minmax 
 	rm -rf *.bp *.bp.dir *.idx
 	rm -f *.h5
-	rm -f conf *.sst *.insitumpi
+	rm -f conf *.sst *_insitumpi_*
 	for dir in $(subdirs); do echo "Clean $${dir}"; (cd $${dir}; make clean-data); done
 
 clean-code:
