@@ -35,7 +35,8 @@ def Plot2D(args, fr, data, fullshape, step, fontsize, displaysec):
     gs = gridspec.GridSpec(1, 1)
     fig = plt.figure(1, figsize=(8,10))
     ax = fig.add_subplot(gs[0, 0])
-    ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]] )
+#ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]], cmap=plt.get_cmap('inferno'), vmin=0, vmax=200)
+    ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]], cmap=plt.get_cmap('rainbow'))
 
     for i in range(args.ny):
         y = fullshape[0] / args.ny * i
