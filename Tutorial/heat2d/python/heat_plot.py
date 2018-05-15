@@ -82,14 +82,14 @@ if __name__ == "__main__":
     # Read through the steps, one at a time
     step = 0
     while (not fr.eof()):
+        inpstep = fr.currentstep()
         data = fr.read(args.varname, start, size, endl=True)
 
         # Print a couple simple diagnostics
         avg = np.average(data)
         std = np.std(data)
-        inpstep = fr.currentstep()
         print("step:{0}, rank: {1}, avg: {2:.3f}, std: {3:.3f}".format(inpstep, mpi.rank['world'], avg, std))
-        Plot2D(args, fr, data, fullshape, step, fontsize, displaysec)
+        Plot2D(args, fr, data, fullshape, inpstep, fontsize, displaysec)
 
         step += 1
 
