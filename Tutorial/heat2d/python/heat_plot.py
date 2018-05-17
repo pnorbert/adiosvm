@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 """
@@ -36,7 +36,8 @@ def Plot2D(args, fr, data, fullshape, step, fontsize, displaysec):
     fig = plt.figure(1, figsize=(8,10))
     ax = fig.add_subplot(gs[0, 0])
 #ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]], cmap=plt.get_cmap('inferno'), vmin=0, vmax=200)
-    ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]], cmap=plt.get_cmap('rainbow'))
+    colorax = ax.imshow(data, origin='lower', extent=[0, fullshape[1], 0, fullshape[0]], cmap=plt.get_cmap('rainbow'))
+    fig.colorbar(colorax, orientation='horizontal')
 
     for i in range(args.ny):
         y = fullshape[0] / args.ny * i
