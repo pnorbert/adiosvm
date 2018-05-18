@@ -102,7 +102,7 @@ program heat_transfer
 
     ! can we set up T to be a sin wave
     if (rank==0) print '("Simulation step ",i4,": initialization")', 0
-    call init_T()
+    call init_T(.false.)
 
     curr = 1;
     call heatEdges(curr)
@@ -155,44 +155,62 @@ end subroutine heatEdges
 
 
 !!*********************
-subroutine init_T()
+subroutine init_T(debug)
     use heat_vars
     implicit none
     include 'mpif.h'
+    logical, intent(in) :: debug
     integer :: i,j,k
     real*8  :: v, x,y,hx,hy
     real*8  :: minv, maxv, mingv, maxgv, skew, ratio
 
 
-    hx = 2.0 * 4.0*atan(1.0d0)/gndx
-    hy = 2.0 * 4.0*atan(1.0d0)/gndy
-
-    minv = 1.0e30
-    maxv = -1.0e30
-
-    do j=0,ndy+1
-        y = 0.0 + hy*(j - 1 + posy*ndy)
-        do i=0,ndx+1
-            x = 0.0 + hx*(i - 1 + posx*ndx)
-            v = cos(8*x) + cos(6*x) - cos(4*x) + cos(2*x) - cos(x) + &
-                sin(8*y) - sin(6*y) + sin(4*y) - sin(2*y) + sin(y) 
-            if (v < minv) minv = v
-            if (v > maxv) maxv = v
-            T(i,j,1) = v
+    if (debug) then
+        hx = 10.0
+        do while (ndx / hx > 1.0)
+            hx = hx * 10.0
         end do
-    end do
-
-    call MPI_Allreduce(minv, mingv, 1, MPI_DOUBLE, MPI_MIN, app_comm, ierr)
-    call MPI_Allreduce(maxv, maxgv, 1, MPI_DOUBLE, MPI_MAX, app_comm, ierr)
-
-    ! normalize to [0..2*edgetemp]
-    skew = 0.0 - mingv
-    ratio = 2 * edgetemp / (maxgv-mingv)
-    do j=0,ndy+1
-        do i=0,ndx+1
-            T(i,j,1) = (T(i,j,1) + skew) * ratio
+        hy = 10.0
+        do while (ndy / hy > 1.0)
+            hy = hy * 10.0
         end do
-    end do
+        hx = hx * hy
+        do j=0,ndy+1
+            do i=0,ndx+1
+                T(i,j,1) = rank + (j-1)/hy + (i-1)/hx
+            end do
+        end do
+    else
+        hx = 2.0 * 4.0*atan(1.0d0)/gndx
+        hy = 2.0 * 4.0*atan(1.0d0)/gndy
+    
+        minv = 1.0e30
+        maxv = -1.0e30
+    
+        do j=0,ndy+1
+            y = 0.0 + hy*(j - 1 + posy*ndy)
+            do i=0,ndx+1
+                x = 0.0 + hx*(i - 1 + posx*ndx)
+                v = cos(8*x) + cos(6*x) - cos(4*x) + cos(2*x) - cos(x) + &
+                    sin(8*y) - sin(6*y) + sin(4*y) - sin(2*y) + sin(y) 
+                if (v < minv) minv = v
+                if (v > maxv) maxv = v
+                T(i,j,1) = v
+            end do
+        end do
+    
+        call MPI_Allreduce(minv, mingv, 1, MPI_DOUBLE, MPI_MIN, app_comm, ierr)
+        call MPI_Allreduce(maxv, maxgv, 1, MPI_DOUBLE, MPI_MAX, app_comm, ierr)
+    
+        ! normalize to [0..2*edgetemp]
+        skew = 0.0 - mingv
+        ratio = 2 * edgetemp / (maxgv-mingv)
+        do j=0,ndy+1
+            do i=0,ndx+1
+                T(i,j,1) = (T(i,j,1) + skew) * ratio
+            end do
+        end do
+    endif
 
 end subroutine init_T
 

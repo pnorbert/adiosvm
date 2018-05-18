@@ -19,3 +19,14 @@ $ mpirun -n 12 simulation/heatSimulation_adios2 heat 4 3 40 50 100 100 : \
          -n  1 ../python/heat_all.py --infile analysis.bp --outfile p.bp
 
 
+
+The demo also works with SST for all IO. i
+Make sure to use BP marshalling for the simulation output. 
+In adios2.xml, set the engines for 
+  SimulationOutput: 
+        <engine type="SST">
+            <parameter key="MarshalMethod" value="BP" />
+        </engine>
+  AnalysisOutput:   SST
+  VizInput:         SST
+
