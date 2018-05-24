@@ -70,11 +70,11 @@ void IO::write(int step, const HeatTransfer &ht, const Settings &s,
                MPI_Comm comm)
 {
     writer->BeginStep();
-    // using PutDeferred() you promise the pointer to the data will be intact
+    // using Put() you promise the pointer to the data will be intact
     // until the end of the output step.
     // We need to have the vector object here not to destruct here until the end
     // of function.
     std::vector<double> v = ht.data_noghost();
-    writer->PutDeferred<double>(*varT, v.data());
+    writer->Put<double>(*varT, v.data());
     writer->EndStep();
 }

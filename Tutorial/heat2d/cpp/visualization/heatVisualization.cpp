@@ -14,6 +14,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "VizOutput.h"
 #include "VizSettings.h"
@@ -115,7 +117,7 @@ int main(int argc, char *argv[])
                 // Create a 2D selection for the subset
                 vTin->SetSelection(
                     adios2::Box<adios2::Dims>({0, 0}, vTin->m_Shape));
-                reader.GetDeferred<double>(*vTin, Tin.data());
+                reader.Get<double>(*vTin, Tin.data());
                 reader.EndStep();
 
                 std::cout << "Visualization step " << step

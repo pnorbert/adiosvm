@@ -15,11 +15,10 @@ program reader
     integer :: ts=0   ! actual step in file that we read
 
     ! ADIOS related variables
-    integer*8                :: adios2obj   ! ADIOS2 object
-    integer*8                :: io   ! IO group handle
-    integer*8                :: fh   ! File handle
-    integer*8                :: sel  ! ADIOS selection object
-    integer*8                :: var_T ! variable objects
+    type (adios2_adios)      :: adios2obj   ! ADIOS2 object
+    type (adios2_io)         :: io   ! IO group handle
+    type (adios2_engine)     :: fh   ! File handle
+    type (adios2_variable)   :: var_T ! variable objects
     character(:), allocatable :: engine_type ! some infoe
     ! Variable information
     integer                  :: ndim
@@ -85,7 +84,7 @@ program reader
     endif
     call adios2_set_step_selection(var_T, ts*1_8, 1_8, ierr)
     call adios2_set_selection(var_T, 2, offset, readsize, ierr)
-    call adios2_get_deferred(fh, var_T, T, ierr)
+    call adios2_get(fh, var_T, T, ierr)
     call adios2_close(fh, ierr)
     call print_array (T, offset, rank, ts)
 

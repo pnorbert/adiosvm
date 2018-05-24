@@ -8,10 +8,13 @@
 ! Author: William F Godoy
 !
 module heat_io
-
+    use adios2
     implicit none
     ! adios handlers
-    integer*8 :: adios, io, bp_writer, var_gndx, var_gndy, var_T, var_dT
+    type(adios2_adios)    :: adios
+    type(adios2_io)       :: io
+    type(adios2_engine)   :: bp_writer
+    type(adios2_variable) :: var_gndx, var_gndy, var_t, var_dT
 
 contains
 
@@ -74,14 +77,16 @@ subroutine io_write(tstep,curr)
         start_dims(2) = offy
         count_dims(2) = ndy
 
-        call adios2_define_variable (var_T, io, "T", 2, shape_dims, &
+        call adios2_define_variable (var_T, io, "T", adios2_type_dp, &
+                                     2, shape_dims, &
                                      start_dims, count_dims, &
                                      adios2_constant_dims,  &
-                                     T(1:ndx,1:ndy,curr), adios2_err )
+                                     adios2_err )
 
-        call adios2_define_variable( var_dT, io, "dT", 2, shape_dims, &
+        call adios2_define_variable( var_dT, io, "dT", adios2_type_dp, &
+                                     2, shape_dims, &
                                      start_dims, count_dims, &
-                                     adios2_constant_dims, dT, adios2_err )
+                                     adios2_constant_dims, adios2_err )
     endif
 
     call MPI_BARRIER(app_comm, adios2_err)
@@ -94,8 +99,8 @@ subroutine io_write(tstep,curr)
     ! here the T(1:ndx,1:ndy,curr)
     allocate(T_temp(1:ndx,1:ndy))
     T_temp = T(1:ndx,1:ndy,curr)
-    call adios2_put_deferred( bp_writer, var_T, T_temp, adios2_err )
-    call adios2_put_deferred( bp_writer, var_dT, dT, adios2_err )
+    call adios2_put( bp_writer, var_T, T_temp, adios2_err )
+    call adios2_put( bp_writer, var_dT, dT, adios2_err )
 
     call adios2_end_step( bp_writer, adios2_err)
 

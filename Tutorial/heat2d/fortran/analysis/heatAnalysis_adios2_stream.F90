@@ -16,11 +16,10 @@ program reader
     integer :: i,j
 
     ! ADIOS2 related variables
-    integer*8                :: adios2obj   ! ADIOS2 object
-    integer*8                :: io   ! IO group handle
-    integer*8                :: fh   ! File handle
-    integer*8                :: sel  ! ADIOS selection object
-    integer*8                :: var_T ! variable objects
+    type (adios2_adios)      :: adios2obj   ! ADIOS2 object
+    type (adios2_io)         :: io   ! IO group handle
+    type (adios2_engine)     :: fh   ! File handle
+    type (adios2_variable)   :: var_T ! variable objects
     character(:), allocatable :: engine_type ! some info
     ! Variable information
     integer                  :: vartype, nsteps, ndim
@@ -100,7 +99,7 @@ program reader
         ! Arrays are read by scheduling one or more of them
         ! and performing the reads at once
         ! In streaming mode, always step 0 is the one available for read
-        call adios2_get_deferred(fh, "T", T, ierr)
+        call adios2_get(fh, "T", T, ierr)
 
         ! Read all deferred and then release resources to this step
         call adios2_end_step(fh, ierr)
