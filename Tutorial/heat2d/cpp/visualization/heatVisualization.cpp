@@ -16,6 +16,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <numeric>
 
 #include "VizOutput.h"
 #include "VizSettings.h"
@@ -65,19 +66,19 @@ int main(int argc, char *argv[])
             // Define method for engine creation
             // 1. Get method def from config file or define new one
 
-            adios2::IO &inIO = ad.DeclareIO("VizInput");
+            adios2::IO inIO = ad.DeclareIO("VizInput");
 
             if (!rank)
             {
-                std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
+//                std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
             }
 
-            adios2::Engine &reader = inIO.Open(
+            adios2::Engine reader = inIO.Open(
                 settings.inputfile, adios2::Mode::Read, MPI_COMM_SELF);
             reader.FixedSchedule(); // a promise here that we don't change the read pattern over steps
 
             std::vector<double> Tin;
-            adios2::Variable<double> *vTin = nullptr;
+            adios2::Variable<double> vTin;
             bool firstStep = true;
             int step = 0;
 
@@ -106,18 +107,18 @@ int main(int argc, char *argv[])
                 {
                     if (rank == 0)
                     {
-                        std::cout << "gndx       = " << vTin->m_Shape[0]
+                        std::cout << "gndx       = " << vTin.Shape()[0]
                                   << std::endl;
-                        std::cout << "gndy       = " << vTin->m_Shape[1]
+                        std::cout << "gndy       = " << vTin.Shape()[1]
                                   << std::endl;
                     }
-                    Tin.resize(vTin->TotalSize());
+                    Tin.resize(std::accumulate(vTin.Count().begin(), vTin.Count().end(), vTin.Sizeof(), std::multiplies<size_t>()));
                 }
 
                 // Create a 2D selection for the subset
-                vTin->SetSelection(
-                    adios2::Box<adios2::Dims>({0, 0}, vTin->m_Shape));
-                reader.Get<double>(*vTin, Tin.data());
+                vTin.SetSelection(
+                    adios2::Box<adios2::Dims>({0, 0}, vTin.Shape()));
+                reader.Get<double>(vTin, Tin.data());
                 reader.EndStep();
 
                 std::cout << "Visualization step " << step
