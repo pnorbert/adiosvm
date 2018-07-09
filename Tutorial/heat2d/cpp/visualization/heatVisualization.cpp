@@ -105,6 +105,9 @@ int main(int argc, char *argv[])
 
                 if (firstStep)
                 {
+                    size_t gndx = vTin.Shape()[0];
+                    size_t gndy = vTin.Shape()[1];
+
                     if (rank == 0)
                     {
                         std::cout << "gndx       = " << vTin.Shape()[0]
@@ -112,7 +115,9 @@ int main(int argc, char *argv[])
                         std::cout << "gndy       = " << vTin.Shape()[1]
                                   << std::endl;
                     }
-                    Tin.resize(std::accumulate(vTin.Count().begin(), vTin.Count().end(), vTin.Sizeof(), std::multiplies<size_t>()));
+                    //Tin.resize(std::accumulate(vTin.Count().begin(), vTin.Count().end(), vTin.Sizeof(), std::multiplies<size_t>()));
+                    Tin.resize(gndx*gndy);
+                    std::cout << "size       = " << Tin.size() << std::endl;
                 }
 
                 // Create a 2D selection for the subset
