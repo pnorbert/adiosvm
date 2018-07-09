@@ -57,7 +57,7 @@ clean-code:
 	rm -rf .libs
 
 clean-data: 
-	rm -rf *.png *.bp *.bp.dir
+	rm -rf *.png *.pnm *.bp *.bp.dir
 
 distclean: clean-code clean-data
 clean: clean-code clean-data

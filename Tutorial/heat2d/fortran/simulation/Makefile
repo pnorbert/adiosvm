@@ -84,7 +84,7 @@ clean-code:
 
 clean-data: 
 	rm -f fort.* 
-	rm -f *.png minmax 
+	rm -f *.png *.pnm minmax 
 	rm -rf *.bp *.bp.dir *.idx
 	rm -f *.h5
 	rm -f conf
