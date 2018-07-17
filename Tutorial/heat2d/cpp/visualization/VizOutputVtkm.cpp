@@ -106,7 +106,7 @@ bool RenderVariable2D(const adios2::Variable<double> &var, const void *buff,
     dsf.AddPointField(ds, var.Name(), varBuff, numPoints);
     //ds.PrintSummary(std::cout);
 
-    Render2D(ds, var->m_Name, vtkm::cont::ColorTable("inferno"),
+    Render2D(ds, var.Name(), vtkm::cont::ColorTable("inferno"),
              settings);
 
     return true;
