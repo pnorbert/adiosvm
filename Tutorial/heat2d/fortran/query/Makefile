@@ -25,7 +25,7 @@ clean-code:
 	rm -rf .libs
 
 clean-data: 
-	rm -f log.* *.bp *.png
+	rm -f log.* *.bp *.png *.pnm
 
 distclean: clean-code clean-data
 clean: clean-code clean-data

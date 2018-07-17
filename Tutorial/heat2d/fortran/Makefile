@@ -13,7 +13,7 @@ subdirs = simulation analysis query
 clean-data:
 	rm -f *.o *.mod *.fh core.*
 	rm -f fort.* 
-	rm -f *.png minmax 
+	rm -f *.png *.pnm minmax 
 	rm -rf *.bp *.bp.dir *.idx
 	rm -f *.h5
 	rm -f conf *.sst *_insitumpi_*

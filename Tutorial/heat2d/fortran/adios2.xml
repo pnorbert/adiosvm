@@ -1,15 +1,6 @@
 <?xml version="1.0"?>
 <adios-config>
 
-    <!--===========================================
-           Configuration for the Simulation Output 
-        ==========================================-->
-
-    <io name="SimulationOutput">
-        <engine type="BPFile">
-        </engine>
-    </io>
-
     <!-- example engines 
 
         <engine type="BPFile">
@@ -34,6 +25,15 @@
 
     -->
 
+    <!--===========================================
+           Configuration for the Simulation Output 
+        ==========================================-->
+
+    <io name="SimulationOutput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
     <!-- 
          The following groups are only used by the C++ examples
     -->
@@ -56,7 +56,7 @@
         =============================================-->
     
     <io name="VizInput">
-        <engine type="bpfile">
+        <engine type="BPFile">
         </engine>
     </io>
 

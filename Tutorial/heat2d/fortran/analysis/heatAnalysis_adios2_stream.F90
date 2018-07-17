@@ -20,7 +20,6 @@ program reader
     type (adios2_io)         :: io   ! IO group handle
     type (adios2_engine)     :: fh   ! File handle
     type (adios2_variable)   :: var_T ! variable objects
-    character(:), allocatable :: engine_type ! some info
     ! Variable information
     integer                  :: vartype, nsteps, ndim
     integer*8, dimension(:), allocatable  :: dims
@@ -45,13 +44,12 @@ program reader
 
     call adios2_init (adios2obj, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
     call adios2_declare_io (io, adios2obj, 'SimulationOutput', ierr )
-    ! For information purposes only:
-    call adios2_io_engine_type(io, engine_type, ierr)
-    if (rank == 0) then
-        print '(" Using ",a, " engine for input")', engine_type
-    endif
-
     call adios2_open(fh, io, streamname, adios2_mode_read, app_comm, ierr)
+
+    ! For information purposes only:
+    if (rank == 0) then
+        print '(" Using ",a, " engine for input")', trim(fh%type)
+    endif
 
     if (ierr .ne. 0) then
         print '(" Failed to open stream: ",a)', streamname

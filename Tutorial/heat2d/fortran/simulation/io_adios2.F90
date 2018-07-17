@@ -22,16 +22,9 @@ subroutine io_init()
     use heat_vars
     use adios2
     implicit none
-    character(:), allocatable :: engine_type
 
     call adios2_init (adios, "adios2.xml",  app_comm, adios2_debug_mode_on, ierr)
     call adios2_declare_io (io, adios, 'SimulationOutput', ierr )
-
-    ! For information purposes only:
-    call adios2_io_engine_type(io, engine_type, ierr)
-    if (rank == 0) then
-        print '("Using ",a, " engine for output")', engine_type
-    endif
 
 end subroutine io_init
 
@@ -67,6 +60,10 @@ subroutine io_write(tstep,curr)
     if (tstep.eq.0) then
 
         call adios2_open (bp_writer, io, filename, adios2_mode_write, adios2_err)
+        ! For information purposes only:
+        if (rank == 0) then
+            print '("Using ",a, " engine for output")', bp_writer%type
+        endif
 
         ! Define T and dT array dimensions
         shape_dims(1) = gndx
