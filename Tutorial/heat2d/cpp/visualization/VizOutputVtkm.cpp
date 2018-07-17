@@ -36,16 +36,19 @@
 #include <vtkm/rendering/Scene.h>
 #include <vtkm/rendering/TextAnnotationScreen.h>
 #include <vtkm/rendering/View2D.h>
+#include <vtkm/rendering/View1D.h>
+#include <vtkm/rendering/Color.h>
+#include <vtkm/rendering/MapperWireframer.h>
 
 #include "VizSettings.h"
 
 void Render2D(const vtkm::cont::DataSet &ds, const std::string &fieldNm,
-              const vtkm::rendering::ColorTable &colorTable,
+              const vtkm::cont::ColorTable &colorTable,
               const VizSettings &settings)
 {
-    vtkm::rendering::MapperRayTracer mapper;
+    vtkm::rendering::Color bg(1.0, 1.0, 1.0, 1.0), fg(0.0, 0.0, 0.0, 1.0);
     vtkm::rendering::CanvasRayTracer canvas(settings.width, settings.height);
-    canvas.SetBackgroundColor(vtkm::rendering::Color::white);
+    vtkm::rendering::MapperRayTracer mapper;
     vtkm::rendering::Scene scene;
 
     vtkm::rendering::Actor actor =
@@ -55,15 +58,14 @@ void Render2D(const vtkm::cont::DataSet &ds, const std::string &fieldNm,
     actor.SetScalarRange(colorValueRange);
     scene.AddActor(actor);
 
+
     vtkm::rendering::Camera camera;
     camera = vtkm::rendering::Camera(vtkm::rendering::Camera::MODE_2D);
     camera.ResetToBounds(ds.GetCoordinateSystem().GetBounds());
     camera.SetClippingRange(1.f, 100.f);
     camera.SetViewport(-0.75f, 0.8f, -0.8f, 0.75f);
 
-    vtkm::rendering::View2D view(scene, mapper, canvas, camera,
-                                 vtkm::rendering::Color(1.0f, 1.0f, 1.0f, 1.0f),
-                                 vtkm::rendering::Color::black);
+    vtkm::rendering::View2D view(scene, mapper, canvas, camera, bg, fg);
 
     view.Initialize();
     view.Paint();
@@ -73,6 +75,7 @@ void Render2D(const vtkm::cont::DataSet &ds, const std::string &fieldNm,
 bool RenderVariable2D(const adios2::VariableBase *var, const void *buff,
                       const VizSettings &settings)
 {
+
     /*
     std::cout << "BUFF Size: " << var->TotalSize() << " elements" << std::endl;
 
@@ -98,11 +101,12 @@ bool RenderVariable2D(const adios2::VariableBase *var, const void *buff,
     const double *varBuff = (const double *)buff;
     vtkm::Id numPoints = dims[0] * dims[1];
 
+
     vtkm::cont::DataSetFieldAdd dsf;
     dsf.AddPointField(ds, var->m_Name, varBuff, numPoints);
     //ds.PrintSummary(std::cout);
 
-    Render2D(ds, var->m_Name, vtkm::rendering::ColorTable("temperature"),
+    Render2D(ds, var->m_Name, vtkm::cont::ColorTable("inferno"),
              settings);
 
     return true;
