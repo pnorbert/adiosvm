@@ -1,0 +1,4 @@
+The Brusselator source code has been forked from https://github.com/openmichigan/PSNM.
+
+Its dependency - 2decomp_fft, has been downloaded from http://www.2decomp.org. Current version is 1.5.847.
+
