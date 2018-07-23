@@ -22,14 +22,14 @@ OPTIONS=-DDOUBLE_PREC
 #   fftw3_f03  - FFTW 3.3-beta1 or later (with Fortran 2003 interface)
 #   generic    - A general FFT algorithm (no 3rd-party library needed)
 #   mkl        - Intel Math Kernel Library
-FFT=generic
+FFT=fftw3
 
 # Platform-dependent information - compiler, external library etc
 #================================================================
 
 # Inlcude path if necessary (change to your actual paths)
 MKL_PATH=/opt/intel/mkl
-FFTW_PATH=/opt/fftw-3.3
+FFTW_PATH?=
 ifeq ($(FFT),mkl)
   INC=-I$(MKL_PATH)/include
   # Fortran compiler used to compile MKL mod files
