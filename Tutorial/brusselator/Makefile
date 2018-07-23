@@ -8,7 +8,6 @@ CPP=-cpp
 
 	COMPILER =  mpif90  
 	decompdir=./2decomp_fft
-	FFTW_LINK=./fftwinstall
 	FFTW_DIR?=
 	ADIOS2_DIR?=
 	# compilation settings, optimization, precision, parallelization
