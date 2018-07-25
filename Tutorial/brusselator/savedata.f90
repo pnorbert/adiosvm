@@ -181,7 +181,8 @@ MODULE BRUSSELATOR_IO
 #ifdef ADIOS2
         call mpi_comm_rank (mpi_comm_world, myrank, ierr)
         call adios2_begin_step (ad_engine, ierr)
-        if (myrank .eq. 0) call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
+        !if (myrank .eq. 0) call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
+        call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
         call adios2_put (ad_engine, var_u_r, field, adios2_mode_sync, ierr)
 #else
         ind = index(name_config,' ') - 1

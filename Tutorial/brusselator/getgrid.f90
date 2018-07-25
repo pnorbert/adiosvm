@@ -139,7 +139,8 @@ SUBROUTINE getgrid(myid,Nx,Ny,Nz,Lx,Ly,Lz,pi,name,x,y,z,kx,ky,kz,decomp)
 	 z(k)=(-1.0d0 + 2.0d0*REAL(k-1,kind(0d0))/REAL(Nz,kind(0d0)))*pi*Lz
 	END DO
 	
-	IF (myid.eq.0) THEN
+!	IF (myid.eq.0) THEN
+	IF (myid.ge.-1) THEN
 #ifdef ADIOS2
     allocate (xcoords(Nx), stat=ierr)
     if (ierr .ne. 0) then
