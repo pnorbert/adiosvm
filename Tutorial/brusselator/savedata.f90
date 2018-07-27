@@ -15,13 +15,14 @@ MODULE BRUSSELATOR_IO
     CONTAINS
 
     !----------------------------------------------------------------------------!
-    SUBROUTINE io_init (decomp, nx, ny, nz, ierr)
+    SUBROUTINE io_init (fname,decomp, nx, ny, nz, ierr)
     !----------------------------------------------------------------------------!
         implicit none
 
         type(decomp_info), intent(in)   :: decomp
         integer, intent(in)             :: nx, ny, nz
         integer, intent(out)            :: ierr
+        character*(*), intent(in)       :: fname
 
         ierr = 0
         ! Code for getting sizes, subsizes, and starts copied from 2decomp_fft
@@ -67,7 +68,7 @@ MODULE BRUSSELATOR_IO
             sizes, starts, subsizes, .true., ierr)
 
         ! Open file
-        call adios2_open (ad_engine, ad_io, "./data/brusselator", adios2_mode_write, &
+        call adios2_open (ad_engine, ad_io, fname, adios2_mode_write, &
             mpi_comm_world, ierr)
 #endif
     end subroutine io_init
