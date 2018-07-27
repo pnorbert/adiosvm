@@ -7,7 +7,6 @@
  *
  * @TODO:
  *      - Error checks. What is vector resizing returns an out-of-memory error? Must handle it
- *      - Turn ADIOS2 Debug to ON
  */
 #include <iostream>
 #include <stdexcept>
@@ -16,18 +15,19 @@
 #include "adios2.h"
 
 /*
- * Function to compute the norm of an array
+ * Function to compute the norm of a vector
  */
-std::vector<double> compute_norm (std::vector<double> real_part, std::vector<double> imag_part, int dims) {
-    int i;
-    std::vector<double> norm;
-    int comm_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
-
-    norm.resize(dims);
-    for (i=0; i<dims; i++)
-        norm[i] = sqrt( real_part[i]*real_part[i] + imag_part[i]*imag_part[i] );
-
+template <class T> 
+std::vector<T> compute_norm(const std::vector<T>& real, const std::vector<T>& imag)
+{
+    if(real.size() != imag.size()) 
+        throw std::invalid_argument("ERROR: real and imag parts have different sizes\n"); 
+    
+    std::vector<T> norm( real.size() );
+    
+    for (auto i = 0; i < real.size(); ++i )
+        norm[i] = std::sqrt( std::pow(real[i], 2.) + std::pow(imag[i], 2.) );
+    
     return norm;
 }
 
@@ -39,18 +39,18 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     int rank, comm_size;
     
-    int u_global_size, v_global_size;
-    int u_local_size, v_local_size;
+    std::size_t u_global_size, v_global_size;
+    std::size_t u_local_size, v_local_size;
     
     bool firstStep = true;
 
     MPI_Comm_rank (MPI_COMM_WORLD, &rank);
     MPI_Comm_size (MPI_COMM_WORLD, &comm_size);
 
-    std::vector<long unsigned int> shape_u_real;
-    std::vector<long unsigned int> shape_u_imag;
-    std::vector<long unsigned int> shape_v_real;
-    std::vector<long unsigned int> shape_v_imag;
+    std::vector<std::size_t> shape_u_real;
+    std::vector<std::size_t> shape_u_imag;
+    std::vector<std::size_t> shape_v_real;
+    std::vector<std::size_t> shape_v_imag;
     
     std::vector<double> u_real_data;
     std::vector<double> u_imag_data;
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     adios2::Variable<double> var_u_real_out, var_u_imag_out, var_v_real_out, var_v_imag_out;
 
     // adios2 io object and engine init
-    adios2::ADIOS ad ("analysis_adios2.xml", MPI_COMM_WORLD, adios2::DebugOFF);
+    adios2::ADIOS ad ("analysis_adios2.xml", MPI_COMM_WORLD, adios2::DebugON);
 
     // IO object and engine for reading
     adios2::IO reader_io = ad.DeclareIO("analysis_reader");
@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
         std::cout << u_real_data.size() << std::endl;
 
         // Compute norms
-        norm_u = compute_norm(u_real_data, u_imag_data, u_local_size);
-        norm_v = compute_norm(v_real_data, v_imag_data, v_local_size);
+        norm_u = compute_norm (u_real_data, u_imag_data);
+        norm_v = compute_norm (v_real_data, v_imag_data);
 
         std::cout << "Printing norm" << std::endl;
         std::cout << norm_u[1] << std::endl;
