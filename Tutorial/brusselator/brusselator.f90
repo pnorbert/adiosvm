@@ -85,41 +85,40 @@ PROGRAM main
     USE decomp_2d_io
     USE BRUSSELATOR_IO
     USE MPI
-    ! Declare variables
     IMPLICIT NONE	
-    !INCLUDE 'mpif.h'
-    INTEGER(kind=4), PARAMETER	 ::  Nx=64
-    INTEGER(kind=4), PARAMETER 	 ::  Ny=64
-    INTEGER(kind=4), PARAMETER 	 ::  Nz=64
-    INTEGER(kind=4), PARAMETER       ::  nmax=10000000
-    REAL(kind=8), PARAMETER		 ::  Tmax=60.0
-    REAL(kind=8), PARAMETER		 ::  plotgap=0.05
-    REAL(kind=8), PARAMETER	         ::&
-        pi=3.14159265358979323846264338327950288419716939937510d0
-    REAL(kind=8), PARAMETER		 ::  Lx=1.0,Ly=1.0,Lz=1.0
+    INTEGER(kind=4) 	                                ::  Nx=64
+    INTEGER(kind=4) 	                                ::  Ny=64
+    INTEGER(kind=4) 	                                ::  Nz=64
+    INTEGER(kind=4)                                     ::  nmax=10000000
+    REAL(kind=8)                                        ::  Tmax=60.0
+    REAL(kind=8), PARAMETER		                        ::  plotgap=0.05
+    REAL(kind=8), PARAMETER	                            ::  pi=3.14159265358979323846264338327950288419716939937510d0
+    REAL(kind=8), PARAMETER		                        ::  Lx=1.0,Ly=1.0,Lz=1.0
+    
     !equation specific
-    REAL(kind=8), PARAMETER		 ::  a=2.0d0
-    REAL(kind=8), PARAMETER          ::  b=18.20d0
-    REAL(kind=8), PARAMETER		 ::  Du=0.050d0
-    REAL(kind=8), PARAMETER		 ::  Dv=0.050d0
-    REAL(kind=8)		         ::  dt=0.1**3
-    REAL(kind=8)	                 ::  plottime=0.0
-    INTEGER(kind=4) 	         ::  plotnum=0
-    COMPLEX(kind=8)		         ::  utemp, vtemp, uhatemp
-    COMPLEX(kind=8), 	DIMENSION(:), ALLOCATABLE	::  kx,ky,kz
-    REAL(kind=8),  	        DIMENSION(:), ALLOCATABLE	::  x,y,z 
-    COMPLEX(kind=8), 	DIMENSION(:,:,:), ALLOCATABLE	::  uhigh,vhigh
-    REAL(kind=8),       DIMENSION(:,:,:), ALLOCATABLE	::  savefield
-    COMPLEX(kind=8), DIMENSION(:,:,:), ALLOCATABLE	        ::  uhat,vhat
-    REAL(kind=8), 	 DIMENSION(:), ALLOCATABLE	        ::  time
-    REAL(kind=8) 		::  modescalereal, myerr,allerr,mymaxv,mymaxu,maxu,maxv
-    INTEGER(kind=4)		::  i,j,k,l,n,m,mm,ll,AllocateStatus,stat
-    INTEGER(kind=4)		::  myid,numprocs,ierr
-    TYPE(DECOMP_INFO)	::  decomp
-    INTEGER(kind=4)		::  p_row=0, p_col=0
-    INTEGER(kind=4)		::  start, finish,  starttot, finishtot, count_rate, ind
-    CHARACTER*500		::  nameconfig
-    CHARACTER*200		::  numberfile
+    REAL(kind=8), PARAMETER		                        ::  a=2.0d0
+    REAL(kind=8), PARAMETER                             ::  b=18.20d0
+    REAL(kind=8), PARAMETER		                        ::  Du=0.050d0
+    REAL(kind=8), PARAMETER		                        ::  Dv=0.050d0
+    REAL(kind=8)		                                ::  dt=0.1**3
+    REAL(kind=8)	                                    ::  plottime=0.0
+    INTEGER(kind=4) 	                                ::  plotnum=0
+    COMPLEX(kind=8)		                                ::  utemp, vtemp, uhatemp
+    COMPLEX(kind=8),    DIMENSION(:),       ALLOCATABLE ::  kx,ky,kz
+    REAL(kind=8),  	    DIMENSION(:),       ALLOCATABLE	::  x,y,z 
+    COMPLEX(kind=8), 	DIMENSION(:,:,:),   ALLOCATABLE ::  uhigh,vhigh
+    REAL(kind=8),       DIMENSION(:,:,:),   ALLOCATABLE	::  savefield
+    COMPLEX(kind=8),    DIMENSION(:,:,:),   ALLOCATABLE ::  uhat,vhat
+    REAL(kind=8), 	    DIMENSION(:),       ALLOCATABLE ::  time
+    REAL(kind=8) 		                                ::  modescalereal, myerr,allerr,mymaxv,mymaxu,maxu,maxv
+    INTEGER(kind=4)		                                ::  i,j,k,l,n,m,mm,ll,AllocateStatus,stat
+    INTEGER(kind=4)		                                ::  myid,numprocs,ierr
+    TYPE(DECOMP_INFO)	                                ::  decomp
+    INTEGER(kind=4)		                                ::  p_row=0, p_col=0
+    INTEGER(kind=4)		                                ::  start, finish,  starttot, finishtot, count_rate, ind
+    CHARACTER*500		                                ::  nameconfig
+    CHARACTER*200		                                ::  numberfile
+    character*64                                        :: fname
 
     ! splitting coeffiecents
     COMPLEX(kind=8), DIMENSION(1:6), PARAMETER	::  aa=(/&
@@ -155,13 +154,16 @@ PROGRAM main
     CALL MPI_COMM_SIZE(MPI_COMM_WORLD, numprocs, ierr)
     CALL MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr) 
 
+    CALL processArgs(fname,Nx,Ny,Nz,nmax)
+    if(myid.eq.0) write(6,*) 'Information: ',fname,Nx,Ny,Nz
+
     CALL decomp_2d_init(Nx,Ny,Nz,p_row,p_col)
     ! get information about domain decomposition choosen
     CALL decomp_info_init(Nx,Ny,Nz,decomp) ! physical domain
     ! initialise FFT library
     CALL decomp_2d_fft_init
 
-    call io_init (decomp, nx, ny, nz, ierr)
+    CALL io_init (fname,decomp, nx, ny, nz, ierr)
 
     ALLOCATE(Uhigh(decomp%xst(1):decomp%xen(1),&
         decomp%xst(2):decomp%xen(2),&
@@ -274,3 +276,63 @@ PROGRAM main
             REAL(finishtot-starttot)/REAL(count_rate)*numprocs
     END IF	
 END PROGRAM main
+
+!!***************************
+subroutine usage()
+    use mpi
+    implicit none
+    integer :: rank, ierr
+    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
+
+    if (rank .eq. 0) then
+        print *, "Usage: brusselator  output  nx  ny nz  steps iterations"
+        print *, "output: name of output file"
+        print *, "nx:     global array size in X dimension per processor"
+        print *, "ny:     global array size in Y dimension per processor"
+        print *, "nz:     global array size in Z dimension per processor"
+        print *, "steps:  the total number of steps"
+    endif
+end subroutine usage
+
+!!***************************
+subroutine processArgs(fname,nx,ny,nz,nmax)
+#ifndef __GFORTRAN__
+#ifndef __GNUC__
+    interface
+         integer function iargc()
+         end function iargc
+    end interface
+#endif
+#endif
+    use mpi
+    implicit none
+    character(len=256) :: npx_str, npy_str, npz_str 
+    character(len=256) :: steps_str,iters_str,nmax_str
+    integer :: numargs
+    integer :: nx,ny,nz
+    integer :: nmax, ierr
+    character*(*) :: fname
+
+    !! process arguments
+    numargs = iargc()
+    !print *,"Number of arguments:",numargs
+    if ( numargs < 5 ) then
+        call usage()
+        !call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
+        call exit(1)
+    endif
+    call getarg(1, fname)
+    call getarg(2, npx_str)
+    call getarg(3, npy_str)
+    call getarg(4, npz_str)
+    call getarg(5, nmax_str)
+!    call getarg(6, iters_str)
+    read (npx_str,'(i5)') nx
+    read (npy_str,'(i5)') ny
+    read (npz_str,'(i6)') nz
+    read (nmax_str,'(i6)') nmax
+!    read (steps_str,'(i6)') steps
+!    read (iters_str,'(i6)') iters
+
+end subroutine processArgs
+
