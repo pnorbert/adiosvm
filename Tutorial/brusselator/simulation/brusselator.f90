@@ -285,7 +285,7 @@ subroutine usage()
     call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
 
     if (rank .eq. 0) then
-        print *, "Usage: brusselator  output  nx  ny nz  steps iterations"
+        print *, "Usage: brusselator  output  nx  ny nz  steps"
         print *, "output: name of output file"
         print *, "nx:     global array size in X dimension per processor"
         print *, "ny:     global array size in Y dimension per processor"
