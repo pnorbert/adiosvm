@@ -1,0 +1,9 @@
+The Brusselator equation solver is in simulation/ .
+The analysis code that computes the norm of variables U and V is in analysis/ .
+
+Installation
+------------
+Please see the README files in the simulation/ and analysis/ directories on instructions on how to build the code.
+
+A global Makefile that can build everything will be provided soon.
+
