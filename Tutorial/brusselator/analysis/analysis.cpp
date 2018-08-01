@@ -31,6 +31,14 @@ std::vector<T> compute_norm(const std::vector<T>& real, const std::vector<T>& im
     return norm;
 }
 
+void printUsage()
+{
+    std::cout
+        << "Usage: analysis input_filename output_filename\n"
+        << "  input_filename:  Name of the input file handle for reading data\n"
+        << "  output_filename: Name of the output file to which data must be written\n\n";
+}
+
 /*
  * MAIN
  */
@@ -39,13 +47,26 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     int rank, comm_size;
     
+    MPI_Comm_rank (MPI_COMM_WORLD, &rank);
+    MPI_Comm_size (MPI_COMM_WORLD, &comm_size);
+
+    if (argc < 3)
+    {
+        std::cout << "Not enough arguments\n";
+        printUsage();
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
+
+    std::string in_filename;
+    std::string out_filename;
+    in_filename = argv[1];
+    out_filename = argv[2];
+
+
     std::size_t u_global_size, v_global_size;
     std::size_t u_local_size, v_local_size;
     
     bool firstStep = true;
-
-    MPI_Comm_rank (MPI_COMM_WORLD, &rank);
-    MPI_Comm_size (MPI_COMM_WORLD, &comm_size);
 
     std::vector<std::size_t> shape_u_real;
     std::vector<std::size_t> shape_u_imag;
@@ -70,11 +91,11 @@ int main(int argc, char *argv[])
 
     // IO object and engine for reading
     adios2::IO reader_io = ad.DeclareIO("analysis_reader");
-    adios2::Engine reader_engine = reader_io.Open("./data/brusselator.bp", adios2::Mode::Read, MPI_COMM_WORLD);
+    adios2::Engine reader_engine = reader_io.Open(in_filename, adios2::Mode::Read, MPI_COMM_WORLD);
 
     // IO object and engine for writing
     adios2::IO writer_io = ad.DeclareIO("analysis_writer");
-    adios2::Engine writer_engine = writer_io.Open("./data/analysis.bp", adios2::Mode::Write, MPI_COMM_WORLD);
+    adios2::Engine writer_engine = writer_io.Open(out_filename, adios2::Mode::Write, MPI_COMM_WORLD);
 
     // read data per timestep
     while(true) {
