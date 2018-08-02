@@ -52,6 +52,6 @@ nonlinear2.o : nonlinear2.f90
 
 clean:
 	rm -f *.o *.mod
-clobber:	
+cleanall: clean	
 	rm -f Brusselator
 
