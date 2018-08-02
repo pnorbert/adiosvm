@@ -1,21 +1,9 @@
-The Brusselator source code has been forked from https://github.com/openmichigan/PSNM.
-Its dependency - 2decomp_fft, has been downloaded from http://www.2decomp.org. Current version of 2decomp_fft is 1.5.847.
+The Brusselator equation solver is in src/simulation/ .
+Analysis codes are in src/analysis/ .
 
 Installation
 ------------
+Please see the README files in the  src/simulation/ and src/analysis/ directories on instructions on how to build the code.
 
-1. First install the 2decomp_fft library ./2decomp_fft.
-See ./2decomp_fft/README.
-2. Edit Makefile to set the compiler, location of the fftw and adios libraries
-3. Run `make`.
-
-Run
----
-Compiling the code creates an executable called 'Brusselator'.
-You can run this with mpirun (or other methods such as aprun on Cray machines):
-
-Example:
-`mpirun -np 4 ./Brusselator`
-
-All output data is written to `./data/brusselator.bp`.
+A global Makefile that can build everything will be provided soon.
 
