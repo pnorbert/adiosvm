@@ -91,7 +91,7 @@ PROGRAM main
     INTEGER(kind=4) 	                                ::  Nz=64
     INTEGER(kind=4)                                     ::  nmax=10000000
     REAL(kind=8)                                        ::  Tmax=60.0
-    REAL(kind=8), PARAMETER		                        ::  plotgap=0.05
+    REAL(kind=4)		                                ::  plotgap
     REAL(kind=8), PARAMETER	                            ::  pi=3.14159265358979323846264338327950288419716939937510d0
     REAL(kind=8), PARAMETER		                        ::  Lx=1.0,Ly=1.0,Lz=1.0
     
@@ -154,8 +154,8 @@ PROGRAM main
     CALL MPI_COMM_SIZE(MPI_COMM_WORLD, numprocs, ierr)
     CALL MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr) 
 
-    CALL processArgs(fname,Nx,Ny,Nz,nmax)
-    if(myid.eq.0) write(6,*) 'Information: ',fname,Nx,Ny,Nz
+    CALL processArgs(fname,Nx,Ny,Nz,nmax,plotgap)
+    if(myid.eq.0) write(6,*) 'Information: ',fname,Nx,Ny,Nz,plotgap
 
     CALL decomp_2d_init(Nx,Ny,Nz,p_row,p_col)
     ! get information about domain decomposition choosen
@@ -285,17 +285,18 @@ subroutine usage()
     call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
 
     if (rank .eq. 0) then
-        print *, "Usage: brusselator  output  nx  ny nz  steps"
+        print *, "Usage: brusselator  output  nx  ny nz  steps plotgap"
         print *, "output: name of output file"
-        print *, "nx:     global array size in X dimension per processor"
-        print *, "ny:     global array size in Y dimension per processor"
-        print *, "nz:     global array size in Z dimension per processor"
-        print *, "steps:  the total number of steps"
+        print *, "nx:       global array size in X dimension per processor"
+        print *, "ny:       global array size in Y dimension per processor"
+        print *, "nz:       global array size in Z dimension per processor"
+        print *, "steps:    the total number of steps"
+        print *, "plotgap:  the gap between time outputs"
     endif
 end subroutine usage
 
 !!***************************
-subroutine processArgs(fname,nx,ny,nz,nmax)
+subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
 #ifndef __GFORTRAN__
 #ifndef __GNUC__
     interface
@@ -307,16 +308,17 @@ subroutine processArgs(fname,nx,ny,nz,nmax)
     use mpi
     implicit none
     character(len=256) :: npx_str, npy_str, npz_str 
-    character(len=256) :: steps_str,iters_str,nmax_str
+    character(len=256) :: steps_str,iters_str,nmax_str, plotgap_str
     integer :: numargs
     integer :: nx,ny,nz
     integer :: nmax, ierr
+    real(kind=4) :: plotgap
     character*(*) :: fname
 
     !! process arguments
     numargs = iargc()
     !print *,"Number of arguments:",numargs
-    if ( numargs < 5 ) then
+    if ( numargs < 6 ) then
         call usage()
         !call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
         call exit(1)
@@ -326,11 +328,13 @@ subroutine processArgs(fname,nx,ny,nz,nmax)
     call getarg(3, npy_str)
     call getarg(4, npz_str)
     call getarg(5, nmax_str)
+    call getarg(6, plotgap_str)
 !    call getarg(6, iters_str)
     read (npx_str,'(i5)') nx
     read (npy_str,'(i5)') ny
     read (npz_str,'(i6)') nz
     read (nmax_str,'(i6)') nmax
+    read (plotgap_str,'(f7.2)') plotgap
 !    read (steps_str,'(i6)') steps
 !    read (iters_str,'(i6)') iters
 
