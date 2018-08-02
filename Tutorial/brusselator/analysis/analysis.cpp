@@ -31,6 +31,9 @@ std::vector<T> compute_norm(const std::vector<T>& real, const std::vector<T>& im
     return norm;
 }
 
+/*
+ * Print info to the user on how to invoke the application
+ */
 void printUsage()
 {
     std::cout
@@ -45,7 +48,7 @@ void printUsage()
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
-    int rank, comm_size;
+    int rank, comm_size, step_num = 0;
     
     MPI_Comm_rank (MPI_COMM_WORLD, &rank);
     MPI_Comm_size (MPI_COMM_WORLD, &comm_size);
@@ -53,7 +56,8 @@ int main(int argc, char *argv[])
     if (argc < 3)
     {
         std::cout << "Not enough arguments\n";
-        printUsage();
+        if (rank == 0)
+            printUsage();
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
@@ -105,42 +109,46 @@ int main(int argc, char *argv[])
         if (read_status != adios2::StepStatus::OK)
             break;
 
+        step_num ++;
+        if (rank == 0)
+            std::cout << "Step: " << step_num << std::endl;
+
+        // Inquire variable and set the selection at the first step only
+        // This assumes that the variable dimensions do not change across timesteps
+
+        // Inquire variable
+        var_u_real_in = reader_io.InquireVariable<double>("u_real");
+        var_u_imag_in = reader_io.InquireVariable<double>("u_imag");
+        var_v_real_in = reader_io.InquireVariable<double>("v_real");
+        var_v_imag_in = reader_io.InquireVariable<double>("v_imag");
+
+        shape_u_real = var_u_real_in.Shape();
+        shape_u_imag = var_u_imag_in.Shape();
+        shape_v_real = var_v_real_in.Shape();
+        shape_v_imag = var_v_imag_in.Shape();
+
+        // Calculate global and local sizes of U and V
+        u_global_size = shape_u_real[0] * shape_u_real[1] * shape_u_real[2];
+        u_local_size  = u_global_size/comm_size;
+        v_global_size = shape_v_real[0] * shape_v_real[1] * shape_v_real[2];
+        v_local_size  = v_global_size/comm_size;
+
+        // Set selection
+        var_u_real_in.SetSelection(adios2::Box<adios2::Dims>(
+                    {shape_u_real[0]/comm_size*rank,0,0},
+                    {shape_u_real[0]/comm_size, shape_u_real[1], shape_u_real[2]}));
+        var_u_imag_in.SetSelection(adios2::Box<adios2::Dims>(
+                    {shape_u_imag[0]/comm_size*rank,0,0},
+                    {shape_u_imag[0]/comm_size, shape_u_imag[1], shape_u_imag[2]}));
+        var_v_real_in.SetSelection(adios2::Box<adios2::Dims>(
+                    {shape_v_real[0]/comm_size*rank,0,0},
+                    {shape_v_real[0]/comm_size, shape_v_real[1], shape_v_real[2]}));
+        var_v_imag_in.SetSelection(adios2::Box<adios2::Dims>(
+                    {shape_v_imag[0]/comm_size*rank,0,0},
+                    {shape_v_imag[0]/comm_size, shape_v_imag[1], shape_v_imag[2]}));
+
+        // Declare variables to output
         if (firstStep) {
-            // Inquire variable and set the selection at the first step only
-            // This assumes that the variable dimensions do not change across timesteps
-
-            // Inquire variable
-            var_u_real_in = reader_io.InquireVariable<double>("u_real");
-            var_u_imag_in = reader_io.InquireVariable<double>("u_imag");
-            var_v_real_in = reader_io.InquireVariable<double>("v_real");
-            var_v_imag_in = reader_io.InquireVariable<double>("v_imag");
-
-            shape_u_real = var_u_real_in.Shape();
-            shape_u_imag = var_u_imag_in.Shape();
-            shape_v_real = var_v_real_in.Shape();
-            shape_v_imag = var_v_imag_in.Shape();
-
-            // Calculate global and local sizes of U and V
-            u_global_size = shape_u_real[0] * shape_u_real[1] * shape_u_real[2];
-            u_local_size  = u_global_size/comm_size;
-            v_global_size = shape_v_real[0] * shape_v_real[1] * shape_v_real[2];
-            v_local_size  = v_global_size/comm_size;
-            
-            // Set selection
-            var_u_real_in.SetSelection(adios2::Box<adios2::Dims>(
-                        {shape_u_real[0]/comm_size*rank,0,0},
-                        {shape_u_real[0]/comm_size, shape_u_real[1], shape_u_real[2]}));
-            var_u_imag_in.SetSelection(adios2::Box<adios2::Dims>(
-                        {shape_u_imag[0]/comm_size*rank,0,0},
-                        {shape_u_imag[0]/comm_size, shape_u_imag[1], shape_u_imag[2]}));
-            var_v_real_in.SetSelection(adios2::Box<adios2::Dims>(
-                        {shape_v_real[0]/comm_size*rank,0,0},
-                        {shape_v_real[0]/comm_size, shape_v_real[1], shape_v_real[2]}));
-            var_v_imag_in.SetSelection(adios2::Box<adios2::Dims>(
-                        {shape_v_imag[0]/comm_size*rank,0,0},
-                        {shape_v_imag[0]/comm_size, shape_v_imag[1], shape_v_imag[2]}));
-
-            // Declare variables to output
             var_u_norm = writer_io.DefineVariable<double> ("u_norm",
                     { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
                     { shape_u_real[0]/comm_size * rank, 0, 0 },
@@ -170,6 +178,7 @@ int main(int argc, char *argv[])
             firstStep = false;
         }
 
+
         // Read adios2 data
         reader_engine.Get<double>(var_u_real_in, u_real_data);
         reader_engine.Get<double>(var_u_imag_in, u_imag_data);
@@ -179,17 +188,9 @@ int main(int argc, char *argv[])
         // End adios2 step
         reader_engine.EndStep();
 
-        std::cout << u_real_data[0] << std::endl;
-        std::cout << "size" << std::endl;
-        std::cout << u_real_data.size() << std::endl;
-
         // Compute norms
         norm_u = compute_norm (u_real_data, u_imag_data);
         norm_v = compute_norm (v_real_data, v_imag_data);
-
-        std::cout << "Printing norm" << std::endl;
-        std::cout << norm_u[1] << std::endl;
-        std::cout << norm_v[1] << std::endl;
 
         // write U, V, and their norms out
         writer_engine.BeginStep ();
