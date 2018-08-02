@@ -118,7 +118,7 @@ PROGRAM main
     INTEGER(kind=4)		                                ::  start, finish,  starttot, finishtot, count_rate, ind
     CHARACTER*500		                                ::  nameconfig
     CHARACTER*200		                                ::  numberfile
-    character*64                                        :: fname
+    character*64                                        ::  fname
 
     ! splitting coeffiecents
     COMPLEX(kind=8), DIMENSION(1:6), PARAMETER	::  aa=(/&
@@ -145,7 +145,6 @@ PROGRAM main
     INTEGER(kind=4)		::  pp=3
     INTEGER(kind=4)		::  ss=6
     CHARACTER*100		::  name
-    name='./data/brusselator'
 
     plottime=plotgap
     ! initialisation of MPI
@@ -155,7 +154,7 @@ PROGRAM main
     CALL MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr) 
 
     CALL processArgs(fname,Nx,Ny,Nz,nmax,plotgap)
-    if(myid.eq.0) write(6,*) 'Information: ',fname,Nx,Ny,Nz,plotgap
+    if(myid.eq.0) write(6,*) 'Information: ',fname,Nx,Ny,Nz,nmax,plotgap
 
     CALL decomp_2d_init(Nx,Ny,Nz,p_row,p_col)
     ! get information about domain decomposition choosen
@@ -219,13 +218,13 @@ PROGRAM main
     DO WHILE ((n<nmax))
         n=n+1
         DO l=1,ss
-        ! Solve first nonlinear part
-        CALL nonlinear1(dt,aa(l),uhigh,vhigh,decomp)
-        ! Solve second nonlinear part
-        CALL nonlinear2(dt,bb(l),uhigh,vhigh,decomp)
-        ! solve linear part exactly in Fourier space
-        CALL linear(a,b,Du,Dv,dt,modescalereal,cc(l),kx,ky,kz,uhigh,vhigh,uhat,vhat,decomp)
-        !end loop on stages for splitting method indexed by l
+          ! Solve first nonlinear part
+          CALL nonlinear1(dt,aa(l),uhigh,vhigh,decomp)
+          ! Solve second nonlinear part
+          CALL nonlinear2(dt,bb(l),uhigh,vhigh,decomp)
+          ! solve linear part exactly in Fourier space
+          CALL linear(a,b,Du,Dv,dt,modescalereal,cc(l),kx,ky,kz,uhigh,vhigh,uhat,vhat,decomp)
+          !end loop on stages for splitting method indexed by l
         END DO 		
         time(n)=time(n-1)+dt
 
