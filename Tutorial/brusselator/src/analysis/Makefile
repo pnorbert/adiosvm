@@ -1,14 +1,14 @@
-CXX=mpicxx
-ADIOS2_DIR?=
+include ../Makefile.inc
+
+all: norm_calc
+	@echo "\n------ DONE BUILDING ANALYSIS ------\n"
 
 norm_calc: norm_calc.cpp
-	${CXX} -O3 norm_calc.cpp -o norm_calc -I ${ADIOS2_DIR}/include/ -L ${ADIOS2_DIR}/lib/ -l adios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl
+	${CXX} ${CXXFLAGS} norm_calc.cpp -o norm_calc -I ${ADIOS2_DIR}/include/ ${ADIOS2_LIB}
 
-
-.PHONY:
-all: norm_calc
 clean:
-	rm -f *.o
+	rm -f *.o norm_calc
 cleanall: clean
-	rm -f norm_calc
+
+.PHONY: all clean cleanall
 

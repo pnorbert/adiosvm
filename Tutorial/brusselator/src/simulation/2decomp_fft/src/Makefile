@@ -5,7 +5,7 @@
 # Normally, do not change anything here. Modify the platform-dependent
 # Makefile.inc file instead
 
-include ../../Makefile.inc
+include ../../../Makefile.inc
 
 SRCS = decomp_2d.f90 io.f90 glassman.f90 fft_$(FFT).f90
 

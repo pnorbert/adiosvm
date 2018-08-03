@@ -3,7 +3,7 @@
 #
 #
 
-include Makefile.inc
+include ../Makefile.inc
 
 SOURCES = brusselator.f90 initialdata.f90 savedata.f90 getgrid.f90 \
 		 linear.f90 nonlinear1.f90 nonlinear2.f90 
@@ -12,13 +12,13 @@ OBJECTS = brusselator.o initialdata.o savedata.o getgrid.o \
 		 linear.o nonlinear1.o nonlinear2.o 
 
 all : 2decomp_fft Brusselator
+	@echo "\n------ DONE BUILDING SIMULATION ------\n"
 
 2decomp_fft:
 	cd 2decomp_fft; $(MAKE)
 
 Brusselator: $(OBJECTS)
 		${FC} -o Brusselator  $(OBJECTS) $(LIBS)
-		@echo "--DONE--"
 
 brusselator.o : brusselator.f90 savedata.o
 		${FC} -c $(FFLAGS) $(INCLUDES) brusselator.f90
