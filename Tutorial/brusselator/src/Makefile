@@ -1,7 +1,7 @@
 .PHONY: all simulation analysis clean cleanall
 
 all : simulation analysis
-	@echo "\n------ Simulation and analysis built in their respective directories ------\n"
+	@echo -e "\n------ Simulation and analysis built in their respective directories ------\n"
 
 simulation:
 	cd simulation; ${MAKE}
