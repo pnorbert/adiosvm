@@ -286,11 +286,11 @@ subroutine usage()
     if (rank .eq. 0) then
         print *, "Usage: brusselator  output  nx  ny nz  steps plotgap"
         print *, "output: name of output file"
-        print *, "nx:       global array size in X dimension per processor"
-        print *, "ny:       global array size in Y dimension per processor"
-        print *, "nz:       global array size in Z dimension per processor"
+        print *, "nx:       global array size in X dimension per processor (power of 2 for FFT)"
+        print *, "ny:       global array size in Y dimension per processor (power of 2 for FFT)"
+        print *, "nz:       global array size in Z dimension per processor (power of 2 for FFT)"
         print *, "steps:    the total number of steps"
-        print *, "plotgap:  the gap between time outputs"
+        print *, "plotgap:  the gap (seconds) between time outputs"
     endif
 end subroutine usage
 
