@@ -1,7 +1,7 @@
 include ../Makefile.inc
 
 all: norm_calc
-	@echo -e "\n------ DONE BUILDING ANALYSIS ------\n"
+	@echo -n "\n------ DONE BUILDING ANALYSIS analysis/norm_calc ------\n"
 
 norm_calc: norm_calc.cpp
 	${CXX} ${CXXFLAGS} norm_calc.cpp -o norm_calc -I ${ADIOS2_DIR}/include/ ${ADIOS2_LIB}

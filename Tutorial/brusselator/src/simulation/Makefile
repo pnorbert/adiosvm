@@ -12,7 +12,7 @@ OBJECTS = brusselator.o initialdata.o savedata.o getgrid.o \
 		 linear.o nonlinear1.o nonlinear2.o 
 
 all : 2decomp_fft Brusselator
-	@echo -e "\n------ DONE BUILDING SIMULATION ------\n"
+	@echo -n "\n------ DONE BUILDING SIMULATION simulation/Brusselator ------\n"
 
 2decomp_fft:
 	cd 2decomp_fft; $(MAKE)
