@@ -76,7 +76,7 @@ SUBROUTINE initialdata(Nx,Ny,Nz,x,y,z,u,v,decomp)
 	INTEGER(kind=4)										:: i,j,k
 	
     DO k=decomp%xst(3),decomp%xen(3); DO j=decomp%xst(2),decomp%xen(2); DO i=decomp%xst(1),decomp%xen(1)
-	 u(i,j,k)=15.0d0+8.0d0*sin(2.0*x(i))*cos(2.0*y(j)) !*exp(-4.0*(x(i)**2+y(j)**2+0.0d0*z(k)**2))
-     v(i,j,k)=0.10d0 +0.75d0*exp(-4.0d0*(x(i)**2+y(j)**2+0.0d0*z(k)**2))
+	 u(i,j,k)=15.0d0+8.0d0*sin(2.0*x(i))*cos(2.0*y(j))*cos(4.0*z(k)) !*exp(-4.0*(x(i)**2+y(j)**2+0.0d0*z(k)**2))
+     v(i,j,k)=0.10d0 +0.75d0*exp(-4.0d0*(x(i)**2+y(j)**2+1.0d0*z(k)**2))
     END DO; END DO; END DO	
 	END SUBROUTINE initialdata
