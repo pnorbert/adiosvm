@@ -1,9 +1,7 @@
 The Brusselator equation solver is in src/simulation/ .
 Analysis codes are in src/analysis/ .
 
-Installation
+Compilation:
 ------------
-Please see the README files in the  src/simulation/ and src/analysis/ directories on instructions on how to build the code.
-
-A global Makefile that can build everything will be provided soon.
+cd src/ and follow the README
 
