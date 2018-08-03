@@ -5,7 +5,7 @@
 # Normally, do not change anything here. Modify the platform-dependent
 # Makefile.inc file instead
 
-include Makefile.inc
+include ../../Makefile.inc
 
 SRCS = decomp_2d.f90 io.f90 glassman.f90 fft_$(FFT).f90
 
@@ -26,10 +26,10 @@ endif
 all: lib examples
 
 lib: includes lib2decomp_fft.a
-	mv lib2decomp_fft.a ../lib
+	cp lib2decomp_fft.a ../lib
 
 includes: lib2decomp_fft.a
-	-mv *.mod ../include
+	cp *.mod ../include
 
 lib2decomp_fft.a: $(MKL_MOD) $(OBJS)
 	ar qc $@ $(OBJS)

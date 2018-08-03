@@ -12,16 +12,3 @@ http://www.2decomp.org
 
 http://www.openpetascale.org/2decomp
 
-Installation
-------------
-Detailed installation instructions at http://www.2decomp.org/install.html .
-
-To install 2decomp_fft,
-
-1. cd src
-2. Copy an existing Makefile.inc.__ file to Makefile.inc .
-    For example, on a local Linux machine, copy Makefile.inc.x86_64 to Makefile.inc. 
-3. Verify you want to use FFTW3 as your FFT library. If not, change the variable `FFT` to something else, such as `mkl`.
-4. Verify compilers for building the library. Currently they are set to mpif90 and mpicc. On Cray machines, you may need to change them to ftn and cc respectively.
-4. Run `make` from the src/ directory.
-

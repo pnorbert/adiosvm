@@ -6,8 +6,8 @@ Installation
 
 1. First install the 2decomp_fft library ./2decomp_fft.
 See ./2decomp_fft/README.
-2. Edit Makefile to set the compiler, location of the fftw and adios libraries
-3. Run `make`.
+2. export FFTW_DIR and ADIOS2_DIR to point to the fftw and ADIOS2 locations respectively.
+3. Run `FC=mpif90 make`. Set FC to any other 
 
 Run
 ---
