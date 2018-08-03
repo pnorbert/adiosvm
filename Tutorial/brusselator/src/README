@@ -1,4 +1,4 @@
-Installation
+Compilation
 ------------
 
 Edit Makefile.inc to set compiler, flags, and the location of the FFTW and ADIOS2 libraries.
