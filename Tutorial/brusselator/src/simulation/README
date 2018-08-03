@@ -3,19 +3,12 @@ Its dependency - 2decomp_fft, has been downloaded from http://www.2decomp.org. C
 
 Installation
 ------------
-
-1. First install the 2decomp_fft library ./2decomp_fft.
-See ./2decomp_fft/README.
-2. export FFTW_DIR and ADIOS2_DIR to point to the fftw and ADIOS2 locations respectively.
-3. Run `FC=mpif90 make`. Set FC to any other 
+Edit Makefile.inc to set compiler, and the location of FFTW and ADIOS2 libraries.
+Run `make`.
 
 Run
 ---
-Compiling the code creates an executable called 'Brusselator'.
-You can run this with mpirun (or other methods such as aprun on Cray machines):
 
 Example:
-`mpirun -np 4 ./Brusselator`
-
-All output data is written to `./data/brusselator.bp`.
+`mpirun -np 4 ./Brusselator output nx ny nz steps plotgap(seconds)`
 
