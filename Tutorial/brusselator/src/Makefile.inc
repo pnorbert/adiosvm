@@ -6,7 +6,7 @@ ADIOS2_DIR?=
 ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl
 
 FFLAGS=-cpp -O3 -DADIOS2
-CXXFLAGS=-std=c++11
+CXXFLAGS=-O3 -std=c++11
 INCLUDES = -I${FFTW_DIR}/include -I${decompdir}/include -I${ADIOS2_DIR}/include/fortran
 FFTW_LIB = -L${FFTW_DIR}/lib -lfftw3
 DECOMPLIB = -L${decompdir}/lib -l2decomp_fft
