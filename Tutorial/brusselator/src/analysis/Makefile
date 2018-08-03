@@ -4,7 +4,7 @@ all: norm_calc
 	@echo -n "\n------ DONE BUILDING ANALYSIS analysis/norm_calc ------\n"
 
 norm_calc: norm_calc.cpp
-	${CXX} ${CXXFLAGS} norm_calc.cpp -o norm_calc -I ${ADIOS2_DIR}/include/ ${ADIOS2_LIB}
+	@set -e; ${CXX} ${CXXFLAGS} norm_calc.cpp -o norm_calc -I ${ADIOS2_DIR}/include/ ${ADIOS2_LIB}
 
 clean:
 	rm -f *.o norm_calc

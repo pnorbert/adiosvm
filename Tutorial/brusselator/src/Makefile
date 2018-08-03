@@ -7,7 +7,7 @@ simulation:
 	cd simulation; ${MAKE}
 
 analysis:
-	cd analysis; ${MAKE}
+	@set -e; cd analysis; ${MAKE}
 
 clean:
 	cd simulation; ${MAKE} clean
