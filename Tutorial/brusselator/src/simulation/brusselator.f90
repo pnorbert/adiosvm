@@ -91,7 +91,7 @@ PROGRAM main
     INTEGER(kind=4) 	                                ::  Nz=64
     INTEGER(kind=4)                                     ::  nmax=10000000
     REAL(kind=8)                                        ::  Tmax=60.0
-    REAL(kind=4)		                                ::  plotgap
+    INTEGER(kind=4)		                                ::  plotgap
     REAL(kind=8), PARAMETER	                            ::  pi=3.14159265358979323846264338327950288419716939937510d0
     REAL(kind=8), PARAMETER		                        ::  Lx=1.0,Ly=1.0,Lz=1.0
     
@@ -154,6 +154,10 @@ PROGRAM main
     CALL MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr) 
 
     CALL processArgs(fname,Nx,Ny,Nz,nmax,plotgap)
+    if (plotgap .eq. 0) then
+      if (myid .eq. 0) print *, "plotgap cannot be 0"
+      call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
+    endif
     if(myid.eq.0) write(6,*) 'Information: ',fname,Nx,Ny,Nz,nmax,plotgap
 
     CALL decomp_2d_init(Nx,Ny,Nz,p_row,p_col)
@@ -228,12 +232,13 @@ PROGRAM main
         END DO 		
         time(n)=time(n-1)+dt
 
-        !write data		
-        IF (time(n).ge.plottime) THEN
+        !write data
+        if (mod(n,plotgap) .eq. 0) then
+        !IF (time(n).ge.plottime) THEN
             plotnum=plotnum+1
             plottime=plottime+plotgap
             IF (myid.eq.0) THEN
-                PRINT *,'time',time(n),'n',n,'plot',plotnum
+                PRINT *,'time',time(n),', n',n,', plot',plotnum
             END IF
             CALL savedata(Nx,Ny,Nz,plotnum,name,savefield,uhigh,vhigh,decomp)
             ! If time greater than plotting time
@@ -290,7 +295,7 @@ subroutine usage()
         print *, "ny:       global array size in Y dimension per processor (power of 2 for FFT)"
         print *, "nz:       global array size in Z dimension per processor (power of 2 for FFT)"
         print *, "steps:    the total number of steps"
-        print *, "plotgap:  the gap (seconds) between time outputs"
+        print *, "plotgap:  frequency of output (no. of steps between output)"
     endif
 end subroutine usage
 
@@ -311,16 +316,21 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     integer :: numargs
     integer :: nx,ny,nz
     integer :: nmax, ierr
-    real(kind=4) :: plotgap
+    integer(kind=4) :: plotgap
     character*(*) :: fname
+    integer       :: myrank
+
+    ierr = 0
+    call MPI_Comm_rank (MPI_COMM_WORLD, myrank, ierr)
 
     !! process arguments
     numargs = iargc()
     !print *,"Number of arguments:",numargs
     if ( numargs < 6 ) then
         call usage()
-        !call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
-        call exit(1)
+        CALL MPI_BARRIER(MPI_COMM_WORLD,ierr)
+        call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
+        !call exit(1)
     endif
     call getarg(1, fname)
     call getarg(2, npx_str)
@@ -333,9 +343,19 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     read (npy_str,'(i5)') ny
     read (npz_str,'(i6)') nz
     read (nmax_str,'(i6)') nmax
-    read (plotgap_str,'(f7.2)') plotgap
+    read (plotgap_str,'(i6)', iostat=ierr) plotgap
+    if (ierr.ne. 0) then
+      if (myrank.eq.0)then
+        print *, "ERROR: Incorrect value found for plotgap."
+        print *, "Must be an integer, instead found ", trim(plotgap_str)
+        print *, "The definition of plotgap was changed recently."
+        print *, "It now represents output frequency, that is, the no. of timesteps between outputs."
+        print *, "Previously, it was the time gap in seconds between outputs."
+      endif
+      CALL MPI_BARRIER(MPI_COMM_WORLD,ierr)
+      call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
+    endif
 !    read (steps_str,'(i6)') steps
 !    read (iters_str,'(i6)') iters
-
 end subroutine processArgs
 
