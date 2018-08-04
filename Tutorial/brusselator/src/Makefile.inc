@@ -32,6 +32,18 @@ DECOMPLIB = -L${decompdir}/lib -l2decomp_fft
 LIBS = ${DECOMPLIB} ${ADIOS2_LIB} ${FFTW_LIB}
 
 
+ifndef FC
+$(error FC is not set)
+endif
+ifndef CXX
+$(error CXX is not set)
+endif
+ifndef FFTW_DIR
+$(error FFTW_DIR is not set)
+endif
+ifndef ADIOS2_DIR
+$(error ADIOS2_DIR is not set)
+endif
 
 #================================================
 # SETTINGS FOR THE 2DECOMP_FFT LIBRARY BELOW.
