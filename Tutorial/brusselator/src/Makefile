@@ -1,3 +1,5 @@
+include Makefile.inc
+
 .PHONY: all simulation analysis clean cleanall
 
 all : simulation analysis
