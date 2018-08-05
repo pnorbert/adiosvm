@@ -1,7 +1,6 @@
 # Set variables here
-FC?=
-CXX?=
-CC?=
+FC=
+CXX=
 FFTW_DIR?=
 ADIOS2_DIR?=
 
@@ -20,16 +19,6 @@ LIBS = ${DECOMPLIB} ${ADIOS2_LIB} ${FFTW_LIB}
 #====================================================
 # DO NOT EDIT BEYOND THIS UNLESS ABSOLUTELY NECESSARY
 #====================================================
-ifeq ($(origin FC),default)
-undefine FC
-endif
-ifeq ($(origin CC),default)
-undefine CC
-endif
-ifeq ($(origin CXX),default)
-undefine CXX
-endif
-
 
 .DEFAULT_GOAL := all
 var_checks:
@@ -38,23 +27,6 @@ var_checks:
 	@if test -z "$(FFTW_DIR)"; then echo "FFTW_DIR not set"; exit 1; fi
 	@if test -z "$(ADIOS2_DIR)"; then echo "ADIOS2_DIR not set"; exit 1; fi
 
-#   define var_checks
-#   $(info FC is ${FC})
-#   $(info CXX is ${CXX})
-#   ifndef CXX
-#   $(error CXX is not set)
-#   endif
-#   # ifeq (${FC},)
-#   ifndef FC
-#   $(error FC is not set)
-#   endif
-#   ifndef FFTW_DIR
-#   $(error FFTW_DIR is not set)
-#   endif
-#   ifndef ADIOS2_DIR
-#   $(error ADIOS2_DIR is not set)
-#   endif
-#   #   endef
 #============================
 # END OF BLOCK
 #============================
