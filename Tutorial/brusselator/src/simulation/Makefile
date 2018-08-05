@@ -11,13 +11,13 @@ SOURCES = brusselator.f90 initialdata.f90 savedata.f90 getgrid.f90 \
 OBJECTS = brusselator.o initialdata.o savedata.o getgrid.o \
 		 linear.o nonlinear1.o nonlinear2.o 
 
-all : 2decomp_fft Brusselator
+all : var_checks Brusselator
 	@echo -n "\n------ DONE BUILDING SIMULATION simulation/Brusselator ------\n"
 
-2decomp_fft:
+2decomp_fft: var_checks
 	cd 2decomp_fft; $(MAKE)
 
-Brusselator: $(OBJECTS)
+Brusselator: var_checks 2decomp_fft  $(OBJECTS)
 		${FC} -o Brusselator  $(OBJECTS) $(LIBS)
 
 brusselator.o : brusselator.f90 savedata.o

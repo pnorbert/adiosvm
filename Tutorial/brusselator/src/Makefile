@@ -2,13 +2,13 @@ include Makefile.inc
 
 .PHONY: all simulation analysis clean cleanall
 
-all : simulation analysis
+all : var_checks simulation analysis
 	@echo -n "\n------ Simulation and analysis built in their respective directories ------\n"
 
-simulation:
+simulation: var_checks
 	cd simulation; ${MAKE}
 
-analysis:
+analysis: var_checks
 	@set -e; cd analysis; ${MAKE}
 
 clean:

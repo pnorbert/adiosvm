@@ -1,6 +1,25 @@
-#============================
-# DO NOT EDIT THIS BLOCK
-#============================
+# Set variables here
+FC?=
+CXX?=
+CC?=
+FFTW_DIR?=
+ADIOS2_DIR?=
+
+ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl
+
+FFLAGS=-cpp -O3 -DADIOS2
+CXXFLAGS=-O3 -std=c++11
+CFLAGS=-O3
+
+INCLUDES = -I${FFTW_DIR}/include -I${decompdir}/include -I${ADIOS2_DIR}/include/fortran
+FFTW_LIB = -L${FFTW_DIR}/lib -lfftw3
+DECOMPLIB = -L${decompdir}/lib -l2decomp_fft
+LIBS = ${DECOMPLIB} ${ADIOS2_LIB} ${FFTW_LIB}
+
+
+#====================================================
+# DO NOT EDIT BEYOND THIS UNLESS ABSOLUTELY NECESSARY
+#====================================================
 ifeq ($(origin FC),default)
 undefine FC
 endif
@@ -10,40 +29,37 @@ endif
 ifeq ($(origin CXX),default)
 undefine CXX
 endif
+
+
+.DEFAULT_GOAL := all
+var_checks:
+	@if test -z "$(FC)"; then echo "FC not set"; exit 1; fi
+	@if test -z "$(CXX)"; then echo "CXX not set"; exit 1; fi
+	@if test -z "$(FFTW_DIR)"; then echo "FFTW_DIR not set"; exit 1; fi
+	@if test -z "$(ADIOS2_DIR)"; then echo "ADIOS2_DIR not set"; exit 1; fi
+
+#   define var_checks
+#   $(info FC is ${FC})
+#   $(info CXX is ${CXX})
+#   ifndef CXX
+#   $(error CXX is not set)
+#   endif
+#   # ifeq (${FC},)
+#   ifndef FC
+#   $(error FC is not set)
+#   endif
+#   ifndef FFTW_DIR
+#   $(error FFTW_DIR is not set)
+#   endif
+#   ifndef ADIOS2_DIR
+#   $(error ADIOS2_DIR is not set)
+#   endif
+#   #   endef
 #============================
-# END OF THREAT
+# END OF BLOCK
 #============================
 
 
-# You can edit these variables
-FC?=
-CXX?=
-FFTW_DIR?=
-ADIOS2_DIR?=
-
-ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl
-
-FFLAGS=-cpp -O3 -DADIOS2
-CXXFLAGS=-O3 -std=c++11
-
-INCLUDES = -I${FFTW_DIR}/include -I${decompdir}/include -I${ADIOS2_DIR}/include/fortran
-FFTW_LIB = -L${FFTW_DIR}/lib -lfftw3
-DECOMPLIB = -L${decompdir}/lib -l2decomp_fft
-LIBS = ${DECOMPLIB} ${ADIOS2_LIB} ${FFTW_LIB}
-
-
-ifndef FC
-$(error FC is not set)
-endif
-ifndef CXX
-$(error CXX is not set)
-endif
-ifndef FFTW_DIR
-$(error FFTW_DIR is not set)
-endif
-ifndef ADIOS2_DIR
-$(error ADIOS2_DIR is not set)
-endif
 
 #================================================
 # SETTINGS FOR THE 2DECOMP_FFT LIBRARY BELOW.
@@ -119,7 +135,7 @@ F90FLAGS=$(OPTIM) $(CRAYPTR) $(CPPFLAGS) $(INC)
 LDFLAGS=$(OPTIM)
 
 #--------------------------C Compiler---------------------------------
-CC=${CC}
+#CC=${CC}
 CFLAGS=-O3
 
 #-----------------------External Library------------------------------
