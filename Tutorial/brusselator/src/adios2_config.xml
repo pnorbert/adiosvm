@@ -5,10 +5,20 @@
            Configuration for the Writer 
         ====================================-->
 
+    <io name="writer">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+    <!--====================================
+           Configuration for the Reader 
+        ====================================-->
+
     <io name="analysis_reader">
         <engine type="BPFile">
         </engine>
     </io>
+
 
 </adios-config>
 
