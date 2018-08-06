@@ -44,7 +44,7 @@ MODULE BRUSSELATOR_IO
             adios2_debug_mode_on, ierr)
 
         ! Init IO object
-        call adios2_declare_io (ad_io, adios2_handle, "writer", ierr)
+        call adios2_declare_io (ad_io, adios2_handle, "SimulationOutput", ierr)
 
         ! Define variables
 

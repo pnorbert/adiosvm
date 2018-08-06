@@ -1,24 +1,38 @@
 <?xml version="1.0"?>
 <adios-config>
 
-    <!--====================================
-           Configuration for the Writer 
-        ====================================-->
+    <!--======================================
+           Configuration for the Brusselator 
+        ======================================-->
 
-    <io name="writer">
+    <io name="SimulationOutput">
         <engine type="BPFile">
         </engine>
     </io>
 
     <!--====================================
-           Configuration for the Reader 
+           Configuration for the norm calc 
         ====================================-->
 
-    <io name="analysis_reader">
+    <io name="AnalysisInput">
         <engine type="BPFile">
         </engine>
     </io>
 
+    <io name="AnalysisOutput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+
+    <!--======================================
+           Configuration for the Python plot 
+        ======================================-->
+
+    <io name="VizInput">
+        <engine type="SST">
+        </engine>
+    </io>
 
 </adios-config>
 

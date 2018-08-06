@@ -94,11 +94,11 @@ int main(int argc, char *argv[])
     adios2::ADIOS ad ("adios2_config.xml", MPI_COMM_WORLD, adios2::DebugON);
 
     // IO object and engine for reading
-    adios2::IO reader_io = ad.DeclareIO("analysis_reader");
+    adios2::IO reader_io = ad.DeclareIO("AnalysisInput");
     adios2::Engine reader_engine = reader_io.Open(in_filename, adios2::Mode::Read, MPI_COMM_WORLD);
 
     // IO object and engine for writing
-    adios2::IO writer_io = ad.DeclareIO("analysis_writer");
+    adios2::IO writer_io = ad.DeclareIO("AnalysisOutput");
     adios2::Engine writer_engine = writer_io.Open(out_filename, adios2::Mode::Write, MPI_COMM_WORLD);
 
     // read data per timestep
