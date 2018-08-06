@@ -1,6 +1,27 @@
 <?xml version="1.0"?>
 <adios-config>
 
+    <!-- example engines 
+
+        <engine type="BPFile"/>
+        <engine type="HDF5"/>
+        <engine type="SST"/>
+        <engine type="InSituMPI"/>
+
+        DataMan is more elaborate with a transport and IP address required
+        <io name="heat">
+            <engine type="DataMan">
+                <parameter key="Blocking" value="no"/>
+            </engine>
+
+            <transport type="WAN">
+                <parameter key="Library" value="ZMQ"/>
+                <parameter key="IPAddress" value="127.0.0.1"/>
+            </transport>
+        </io>
+
+     -->
+
     <!--======================================
            Configuration for the Brusselator 
         ======================================-->
@@ -14,20 +35,18 @@
            Configuration for the norm calc 
         ====================================-->
 
-    <io name="AnalysisInput">
-        <engine type="BPFile">
-        </engine>
-    </io>
-
     <io name="AnalysisOutput">
         <engine type="BPFile">
         </engine>
     </io>
 
-
-    <!--======================================
+    <!--================================================
            Configuration for the Python plot 
-        ======================================-->
+           Configuration for the Visualization Input
+           should match the Simulation Output or the 
+           Analysis Output depending on what code you
+           attach to (simulation or analysis)
+        ===============================================-->
 
     <io name="VizInput">
         <engine type="SST">

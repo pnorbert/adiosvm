@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     adios2::ADIOS ad ("adios2_config.xml", MPI_COMM_WORLD, adios2::DebugON);
 
     // IO object and engine for reading
-    adios2::IO reader_io = ad.DeclareIO("AnalysisInput");
+    adios2::IO reader_io = ad.DeclareIO("SimulationOutput");
     adios2::Engine reader_engine = reader_io.Open(in_filename, adios2::Mode::Read, MPI_COMM_WORLD);
 
     // IO object and engine for writing
