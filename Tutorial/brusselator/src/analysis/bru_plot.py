@@ -55,9 +55,24 @@ def Plot2D(args, fr, data, fullshape, step, fontsize, displaysec):
     ax.set_ylabel("y")
 
     plt.ion()
+    print (step)
     if (args.outfile == "screen"):
         plt.show()
         plt.pause(displaysec)
+    elif args.outfile.endswith(".bp"):
+        if step == 0:
+            global adios
+            global ioWriter
+            global var
+            global writer
+            adios = adios2.ADIOS(mpi.comm_world)
+            ioWriter = adios.DeclareIO("VizOutput")
+            var = ioWriter.DefineVariable("norm", data.shape, [0,0], data.shape, adios2.ConstantDims, data)
+            writer = ioWriter.Open(args.outfile, adios2.Mode.Write)
+        
+        writer.BeginStep()
+        writer.Put(var, data, adios2.Mode.Sync)
+        writer.EndStep()
     else:
         imgfile = args.outfile+"{0:0>3}".format(step)+".png"
         fig.savefig(imgfile)
@@ -86,6 +101,7 @@ if __name__ == "__main__":
     start, size, fullshape = mpi.Partition(fr, args)
 
     # Read through the steps, one at a time
+    global step
     step = 0
     while (not fr.eof()):
         inpstep = fr.currentstep()
