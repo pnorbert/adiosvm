@@ -22,19 +22,30 @@ def SetupArgs():
     parser.add_argument("--nompi", "-nompi", help="ADIOS was installed without MPI", action="store_true")
     parser.add_argument("--istart", "-istart", help="starting plane index", default=1)
     parser.add_argument("--isize", "-isize", help="size of a plane", required=True)
+    parser.add_argument("--displaysec", "-dsec", help="Gap between plot window refresh", default=0.1)
     parser.add_argument("--nx", "-nx", help="process decomposition in the x direction",default=1)
     parser.add_argument("--ny", "-ny", help="process decomposition in the y direction",default=1)
     args = parser.parse_args()
 
     args.istart = int(args.istart)
     args.isize = int(args.isize)
+    args.displaysec = float(args.displaysec)
     args.nx = int(args.nx)
     args.ny = int(args.ny)
-
     return args
 
 
-def Plot2D(args, data, fullshape, step, fontsize, displaysec, slice_direction):
+def Plot2D(slice_direction, start_coord, size_dims, fr, args, fullshape, step, fontsize, endl=False):
+    # Read data from adios2 file
+    var1 = args.varname
+    var2 = args.varname2
+    data1= fr.read(var1, start_coord, size_dims )
+    data2= fr.read(var2, start_coord, size_dims, endl=endl)
+    data = np.sqrt(data1*data1-data2*data2)
+    data = np.squeeze(data)
+
+    # Plotting part
+    displaysec = args.displaysec
     gs = gridspec.GridSpec(1, 1)
     fig = plt.figure(1, figsize=(8,10))
     ax = fig.add_subplot(gs[0, 0])
@@ -78,20 +89,10 @@ def Plot2D(args, data, fullshape, step, fontsize, displaysec, slice_direction):
     plt.clf()
 
 
-def plot_slice (slice_dir, start_coord, size_dims, fr, args, fullshape, step, fontsize, displaysec,endl=False):
-    var1 = args.varname
-    var2 = args.varname2
-    data1= fr.read(var1, start_coord, size_dims )
-    data2= fr.read(var2, start_coord, size_dims, endl=endl)
-    data = np.sqrt(data1*data1-data2*data2)
-    data = np.squeeze(data)
-    Plot2D(args, data, fullshape, step, fontsize, displaysec, "XY")
-
 
 if __name__ == "__main__":
     # fontsize on plot
     fontsize = 22
-    displaysec = 0.01
 
     args = SetupArgs()
     print(args)
@@ -115,9 +116,9 @@ if __name__ == "__main__":
     while (not fr.eof()):
         inpstep = fr.currentstep()
         
-        #plot_slice ('xy', [0,0,args.istart], [args.isize,args.isize,1], fr, args, fullshape, step, fontsize, displaysec)
-        #plot_slice ('xz', [0,args.istart,0], [args.isize,1,args.isize], fr, args, fullshape, step, fontsize, displaysec)
-        plot_slice ('yz', [args.istart,0,0], [1,args.isize,args.isize], fr, args, fullshape, step, fontsize, displaysec,endl=True)
+        #Plot2D ('xy', [0,0,args.istart], [args.isize,args.isize,1], fr, args, fullshape, step, fontsize)
+        #Plot2D ('xz', [0,args.istart,0], [args.isize,1,args.isize], fr, args, fullshape, step, fontsize)
+        Plot2D ('yz', [args.istart,0,0], [1,args.isize,args.isize], fr, args, fullshape, step, fontsize, endl=True)
 
         step += 1
 
