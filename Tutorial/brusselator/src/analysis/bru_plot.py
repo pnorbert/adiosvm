@@ -35,15 +35,7 @@ def SetupArgs():
     return args
 
 
-def Plot2D(slice_direction, start_coord, size_dims, fr, args, fullshape, step, fontsize, endl=False):
-    # Read data from adios2 file
-    var1 = args.varname
-    var2 = args.varname2
-    data1= fr.read(var1, start_coord, size_dims )
-    data2= fr.read(var2, start_coord, size_dims, endl=endl)
-    data = np.sqrt(data1*data1-data2*data2)
-    data = np.squeeze(data)
-
+def Plot2D(slice_direction, data, args, fullshape, step, fontsize):
     # Plotting part
     displaysec = args.displaysec
     gs = gridspec.GridSpec(1, 1)
@@ -60,7 +52,7 @@ def Plot2D(slice_direction, start_coord, size_dims, fr, args, fullshape, step, f
         x = fullshape[1] / args.nx * i
         ax.plot([x, x], [0, fullshape[0]], color='black')
 
-    ax.set_title("Timestep = {0}".format(step), fontsize=fontsize)
+    ax.set_title("{0} plane, Timestep {1}".format(slice_direction, step), fontsize=fontsize)
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     plt.ion()
@@ -89,6 +81,15 @@ def Plot2D(slice_direction, start_coord, size_dims, fr, args, fullshape, step, f
     plt.clf()
 
 
+def read_data(args, fr, start_coord, size_dims, endl=False):
+    var1 = args.varname
+    var2 = args.varname2
+    data1= fr.read(var1, start_coord, size_dims )
+    data2= fr.read(var2, start_coord, size_dims, endl=endl)
+    data = np.sqrt(data1*data1-data2*data2)
+    data = np.squeeze(data)
+    return data
+
 
 if __name__ == "__main__":
     # fontsize on plot
@@ -115,10 +116,15 @@ if __name__ == "__main__":
     step = 0
     while (not fr.eof()):
         inpstep = fr.currentstep()
+
+        data = read_data (args, fr, [0,0,args.istart], [args.isize,args.isize,1], endl=False)
+        Plot2D ('xy', data, args, fullshape, step, fontsize)
         
-        #Plot2D ('xy', [0,0,args.istart], [args.isize,args.isize,1], fr, args, fullshape, step, fontsize)
-        #Plot2D ('xz', [0,args.istart,0], [args.isize,1,args.isize], fr, args, fullshape, step, fontsize)
-        Plot2D ('yz', [args.istart,0,0], [1,args.isize,args.isize], fr, args, fullshape, step, fontsize, endl=True)
+        data = read_data (args, fr, [0,args.istart,0], [args.isize,1,args.isize], endl=False)
+        Plot2D ('xz', data, args, fullshape, step, fontsize)
+        
+        data = read_data (args, fr, [args.istart,0,0], [1,args.isize,args.isize], endl=True)
+        Plot2D ('yz',  data, args, fullshape, step, fontsize)
 
         step += 1
 
