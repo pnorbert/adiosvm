@@ -11,22 +11,19 @@ import argparse
 ### Global Variables #######
 ############################
 
-thresh_val = 5
-min_blob_size = 100
+thresh_val = 100
+min_blob_size = 10
 
 ############################
 
 def preprocess(im, thresh_val):
     """Convert image to grayscale and threshold"""
 
-    # Convert to grayscale
-    #gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-
     # Blur features
     blurred = cv.GaussianBlur(im, (5, 5), 0)
         
-    # Threshold peaks
-    thresh = cv.threshold(blurred, thresh_val, 255, cv.THRESH_BINARY)[1]
+    # Threshold peaks (dark color feature)
+    thresh = cv.threshold(blurred, thresh_val, 255, cv.THRESH_BINARY_INV)[1]
         
     return thresh
 
@@ -70,6 +67,7 @@ def get_feats(im):
 
         # Dict to store contour specific information
         contour = {}
+        cv.drawContours(im, contours, -1, (255,255,255), 3)
 
         # Feature measures
         contour['contour_area'] = cv.contourArea(con)
@@ -85,25 +83,28 @@ def get_feats(im):
     return df
 
 def segment(im_array, save_loc):
+    copy = im_array.copy()
    
     # Preprocess fusion data
     thresh = preprocess(im_array, thresh_val)
-    #import ipdb; ipdb.set_trace()
     
     # Filter out small blobs
     filt = filter_blobs(thresh, min_blob_size)
 
+    color = cv.cvtColor(copy, cv.COLOR_GRAY2RGB)
+
     # Trace features on original image
-    for con in cv.findContours(filt, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)[1]:
-        cv.drawContours(im_array, con, -1, (0,255,0), 3)
+    contours = cv.findContours(filt, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)[1]
+    cv.drawContours(color, contours, -1, (0,255,0), 1)
     
     # SET SAVE LOCATIONS
     save_path = None
 
     # Save modified original image
-    #cv.imwrite(save_path, im_array)
-    cv.imshow('img', im_array)
-    cv.waitKey(1000)
+    #cv.imwrite(save_path, color2)
+    color2 = cv.resize(color, (0,0), fx=8, fy=8)
+    cv.imshow('img', color2)
+    cv.waitKey(0)
 
     return filt
 
@@ -121,11 +122,10 @@ if __name__ == '__main__':
         inpstep = fr.currentstep()
         shape = np.fromstring(fr.available_variables()['norm']['Shape'], dtype=int, sep=',').tolist()
         data = fr.read('norm', [0,0], shape, endl=True)
-        #data[:,:] = 0.0
-        #data[60:70,:] = 10.0
+        data2 = (data-np.amin(data))/(np.amax(data)-np.amin(data))*255
 
         # Read data from specified file
-        im_array = data.astype(np.uint8)
+        im_array = data2.astype(np.uint8)
 
         # Segment
         save_loc = None
