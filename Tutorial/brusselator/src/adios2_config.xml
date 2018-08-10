@@ -53,5 +53,10 @@
         </engine>
     </io>
 
+    <io name="FeatureInput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
 </adios-config>
 
