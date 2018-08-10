@@ -98,13 +98,13 @@ def segment(im_array, save_loc):
     cv.drawContours(color, contours, -1, (0,255,0), 1)
     
     # SET SAVE LOCATIONS
-    save_path = None
+    save_path = "feature"
 
     # Save modified original image
-    #cv.imwrite(save_path, color2)
-    color2 = cv.resize(color, (0,0), fx=8, fy=8)
-    cv.imshow('img', color2)
-    cv.waitKey(0)
+    color2 = cv.resize(color, (0,0), fx=4, fy=4)
+    #cv.imshow('img', color2)
+    #cv.waitKey(0)
+    cv.imwrite("%s.%05d.png"%(save_path, step), color2)
 
     return filt
 
@@ -117,6 +117,7 @@ if __name__ == '__main__':
     # Read the data from this object
     fr = adios2.open(args.instream, "r", MPI.COMM_WORLD, "adios2_config.xml", "FeatureInput")
 
+    global step
     step = 0
     while (not fr.eof()):
         inpstep = fr.currentstep()
@@ -134,5 +135,6 @@ if __name__ == '__main__':
         # Get features
         feats_df = get_feats(mask)
         print (feats_df)
+        step += 1
 
     fr.close()
