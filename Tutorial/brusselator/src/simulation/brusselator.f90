@@ -92,6 +92,9 @@ PROGRAM main
     INTEGER(kind=4)                                     ::  nmax=10000000
     REAL(kind=8)                                        ::  Tmax=60.0
     INTEGER(kind=4)		                                ::  plotgap
+    CHARACTER(len=15)                                   ::  compression_method
+    CHARACTER(len=15)                                   ::  compression_param_key
+    CHARACTER(len=15)                                   ::  compression_param_value
     REAL(kind=8), PARAMETER	                            ::  pi=3.14159265358979323846264338327950288419716939937510d0
     REAL(kind=8), PARAMETER		                        ::  Lx=1.0,Ly=1.0,Lz=1.0
     
@@ -153,7 +156,9 @@ PROGRAM main
     CALL MPI_COMM_SIZE(MPI_COMM_WORLD, numprocs, ierr)
     CALL MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr) 
 
-    CALL processArgs(fname,Nx,Ny,Nz,nmax,plotgap)
+    CALL processArgs(fname,Nx,Ny,Nz,nmax,plotgap, &
+                     compression_method, compression_param_key, &
+                     compression_param_value)
     if (plotgap .eq. 0) then
       if (myid .eq. 0) print *, "plotgap cannot be 0"
       call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
@@ -166,7 +171,9 @@ PROGRAM main
     ! initialise FFT library
     CALL decomp_2d_fft_init
 
-    CALL io_init (fname,decomp, nx, ny, nz, ierr)
+    CALL io_init (fname,decomp, nx, ny, nz, &
+                  compression_method, compression_param_key, &
+                  compression_param_value, ierr)
 
     ALLOCATE(Uhigh(decomp%xst(1):decomp%xen(1),&
         decomp%xst(2):decomp%xen(2),&
@@ -296,6 +303,9 @@ subroutine usage()
         print *, "nz:       global array size in Z dimension per processor (power of 2 for FFT)"
         print *, "steps:    the total number of steps"
         print *, "plotgap:  frequency of output (no. of steps between output)"
+        print *, "compression method (optional):  sz, zfp"
+        print *, "compression parameter key:  sz: rate, zfp: accuracy/rate/precision"
+        print *, "compression parameter value:  0.001; 8, etc."
     endif
 end subroutine usage
 
@@ -313,6 +323,8 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     implicit none
     character(len=256) :: npx_str, npy_str, npz_str 
     character(len=256) :: steps_str,iters_str,nmax_str, plotgap_str
+    character(len=15)  :: compression_method, compression_param_key, &
+                          compression_param_value
     integer :: numargs
     integer :: nx,ny,nz
     integer :: nmax, ierr
@@ -326,7 +338,7 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     !! process arguments
     numargs = iargc()
     !print *,"Number of arguments:",numargs
-    if ( numargs < 6 ) then
+    if ( numargs /= 6 || numargs /= 9 ) then
         call usage()
         CALL MPI_BARRIER(MPI_COMM_WORLD,ierr)
         call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
@@ -338,6 +350,12 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     call getarg(4, npz_str)
     call getarg(5, nmax_str)
     call getarg(6, plotgap_str)
+
+    if ( numargs == 9 ) then
+        call getarg(7, compression_method)
+        call getarg(8, compression_param_key)
+        call getarg(9, compression_param_value)
+    end if
 !    call getarg(6, iters_str)
     read (npx_str,'(i5)') nx
     read (npy_str,'(i5)') ny

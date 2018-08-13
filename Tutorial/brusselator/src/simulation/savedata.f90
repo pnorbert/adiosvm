@@ -10,19 +10,25 @@ MODULE BRUSSELATOR_IO
     type(adios2_engine)     :: ad_engine
     type(adios2_variable)   :: var_xcoords, var_ycoords, var_zcoords
     type(adios2_variable)   :: var_plotnum, var_u_r, var_u_i, var_v_r, var_v_i
+    type(adios2_operator)   :: ad_operator
+    integer                 :: operation_id
     logical                 :: adios2_initialized
 
     CONTAINS
 
     !----------------------------------------------------------------------------!
-    SUBROUTINE io_init (fname,decomp, nx, ny, nz, ierr)
+    SUBROUTINE io_init (fname,decomp, nx, ny, nz, compression_method, &
+                        compression_param_key, compression_param_value, ierr)
     !----------------------------------------------------------------------------!
         implicit none
 
+        character*(*), intent(in)       :: fname
         type(decomp_info), intent(in)   :: decomp
         integer, intent(in)             :: nx, ny, nz
+        CHARACTER(len=15)               :: compression_method, &
+                                           compression_param_key, &
+                                           compression_param_value
         integer, intent(out)            :: ierr
-        character*(*), intent(in)       :: fname
 
         ierr = 0
         ! Code for getting sizes, subsizes, and starts copied from 2decomp_fft
@@ -66,6 +72,26 @@ MODULE BRUSSELATOR_IO
             sizes, starts, subsizes, .true., ierr)
         call adios2_define_variable (var_v_i, ad_io, "v_imag", adios2_type_dp, 3, &
             sizes, starts, subsizes, .true., ierr)
+
+        if( compression_method /= '' .or. compression_method /= 'none' )
+            call adios2_define_operator(ad_operator, adios, 'Compressor', &
+                                        compression_method, ierr)
+        end if
+
+        if( ad_operator%valid .eqv. .true. ) then
+            call adios2_add_operation(operation_id, var_u_r, ad_operator, &
+                                      compression_param_key, &
+                                      compression_param_value, ierr)
+            call adios2_add_operation(operation_id, var_u_i, ad_operator, &
+                                      compression_param_key, &
+                                      compression_param_value, ierr)
+            call adios2_add_operation(operation_id, var_v_r, ad_operator, &
+                                      compression_param_key, &
+                                      compression_param_value, ierr)
+            call adios2_add_operation(operation_id, var_v_i, ad_operator, &
+                                      compression_param_key, &
+                                      compression_param_value, ierr)
+        end if
 
         ! Open file
         call adios2_open (ad_engine, ad_io, fname, adios2_mode_write, &
