@@ -310,7 +310,8 @@ subroutine usage()
 end subroutine usage
 
 !!***************************
-subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
+subroutine processArgs(fname,nx,ny,nz,nmax,plotgap, compression_method, &
+                       compression_param_key, compression_param_value)
 #ifndef __GFORTRAN__
 #ifndef __GNUC__
     interface
@@ -338,7 +339,7 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     !! process arguments
     numargs = iargc()
     !print *,"Number of arguments:",numargs
-    if ( numargs /= 6 || numargs /= 9 ) then
+    if ( numargs /= 6 .and. numargs /= 9 ) then
         call usage()
         CALL MPI_BARRIER(MPI_COMM_WORLD,ierr)
         call MPI_Abort(MPI_COMM_WORLD, -1, ierr)
@@ -350,6 +351,10 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap)
     call getarg(4, npz_str)
     call getarg(5, nmax_str)
     call getarg(6, plotgap_str)
+
+    compression_method = ''
+    compression_param_key = ''
+    compression_param_value = ''
 
     if ( numargs == 9 ) then
         call getarg(7, compression_method)

@@ -1,8 +1,8 @@
 # Set variables here
-FC=
-CXX=
-FFTW_DIR?=
-ADIOS2_DIR?=
+FC=mpif90
+CXX=mpic++
+FFTW_DIR=/usr
+ADIOS2_DIR=/home/wfg/tmp/adios2
 
 ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl
 

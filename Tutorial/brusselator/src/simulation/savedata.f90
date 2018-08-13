@@ -73,8 +73,9 @@ MODULE BRUSSELATOR_IO
         call adios2_define_variable (var_v_i, ad_io, "v_imag", adios2_type_dp, 3, &
             sizes, starts, subsizes, .true., ierr)
 
-        if( compression_method /= '' .or. compression_method /= 'none' )
-            call adios2_define_operator(ad_operator, adios, 'Compressor', &
+        if( compression_method /= '' ) then
+            write(*,*) 'compression_method ', compression_method
+            call adios2_define_operator(ad_operator, adios2_handle, 'Compressor', &
                                         compression_method, ierr)
         end if
 
@@ -82,15 +83,15 @@ MODULE BRUSSELATOR_IO
             call adios2_add_operation(operation_id, var_u_r, ad_operator, &
                                       compression_param_key, &
                                       compression_param_value, ierr)
-            call adios2_add_operation(operation_id, var_u_i, ad_operator, &
-                                      compression_param_key, &
-                                      compression_param_value, ierr)
+!            call adios2_add_operation(operation_id, var_u_i, ad_operator, &
+!                                      compression_param_key, &
+!                                      compression_param_value, ierr)
             call adios2_add_operation(operation_id, var_v_r, ad_operator, &
                                       compression_param_key, &
                                       compression_param_value, ierr)
-            call adios2_add_operation(operation_id, var_v_i, ad_operator, &
-                                      compression_param_key, &
-                                      compression_param_value, ierr)
+!            call adios2_add_operation(operation_id, var_v_i, ad_operator, &
+!                                      compression_param_key, &
+!                                      compression_param_value, ierr)
         end if
 
         ! Open file

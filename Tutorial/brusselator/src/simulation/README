@@ -7,3 +7,8 @@ Run
 Example:
 `mpirun -np 4 ./Brusselator output nx ny nz steps plotgap(seconds)`
 
+To add SZ compression (to the real parts only):
+`mpirun -np 4 ./Brusselator output nx ny nz steps plotgap(seconds) sz accuracy global_accuracy`
+
+where: 
+	global_accuracy = 1e-4, 1e-5, etc.
