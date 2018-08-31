@@ -19,3 +19,6 @@ cleanall:
 	cd simulation; ${MAKE} cleanall
 	cd analysis; ${MAKE} cleanall
 
+clean-data:
+	rm -rf *.bp* *.h5 *.sst *.png
+
