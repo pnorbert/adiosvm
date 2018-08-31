@@ -19,8 +19,29 @@
                 <parameter key="IPAddress" value="127.0.0.1"/>
             </transport>
         </io>
-
      -->
+
+    <!-- example operators and operations
+        Operators are defined in the adios-config group.
+        Operations go inside an IO group (but not inside engine group)
+    
+    <operator name="CompressorZFP" type="zfp"/>
+    <operator name="CompressorSZ" type="sz"/>
+
+    <io name="SimulationOutput">
+        <variable name="T">
+            <operation operator="CompressorZFP">
+                <parameter key="accuracy" value="0.0001"/>
+            </operation>
+        </variable>
+    </io>
+
+    -->
+
+    <!--===========================================
+        Create an operator inside the ADIOS object 
+        ===========================================-->
+    <operator name="CompressorZFP" type="zfp"/>
 
     <!--===========================================
            Configuration for the Simulation Output 

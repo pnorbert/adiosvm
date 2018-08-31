@@ -22,7 +22,23 @@
                 <parameter key="IPAddress" value="127.0.0.1"/>
             </transport>
         </io>
+    -->
 
+    <!-- example operations 
+        These operations go inside an IO group (but not inside engine group)
+
+    <io name="SimulationOutput">
+        <variable name="T">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.0001"/>
+            </operation>
+        </variable>
+        <variable name="dT">
+            <operation type="sz">
+                <parameter key="accuracy" value="0.0001"/>
+            </operation>
+        </variable>
+    </io>
     -->
 
     <!--===========================================

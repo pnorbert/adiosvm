@@ -28,6 +28,6 @@ LDFLAGS=-g  -O2
 # set USE_VTKM to OFF if you don't have VTK-m 
 USE_VTKM=ON
 override VTKM_DIR=/opt/vtk-m
-override VTKM_INC=-I${VTKM_DIR}/include/vtkm-1.1
-override VTKM_LIB=-L${VTKM_DIR}/lib -lvtkm_rendering-1.1 -lvtkm_cont-1.1
+override VTKM_INC=-I${VTKM_DIR}/include/vtkm-1.2
+override VTKM_LIB=-L${VTKM_DIR}/lib -lvtkm_rendering-1.2 -lvtkm_cont-1.2
 
