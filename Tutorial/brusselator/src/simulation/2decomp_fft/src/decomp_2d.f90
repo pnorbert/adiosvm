@@ -294,11 +294,11 @@ contains
   !     all internal data structures initialised properly
   !     library ready to use
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine decomp_2d_init(nx,ny,nz,p_row,p_col,periodic_bc)
+  subroutine decomp_2d_init(nx,ny,nz,p_row,p_col,comm,periodic_bc)
 
     implicit none
 
-    integer, intent(IN) :: nx,ny,nz,p_row,p_col
+    integer, intent(IN) :: nx,ny,nz,p_row,p_col,comm
     logical, dimension(3), intent(IN), optional :: periodic_bc
     
     integer :: errorcode, ierror, row, col
@@ -321,12 +321,12 @@ contains
        periodic_z = .false.
     end if
 
-    call MPI_COMM_RANK(MPI_COMM_WORLD,nrank,ierror)
-    call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc,ierror)
+    call MPI_COMM_RANK(comm,nrank,ierror)
+    call MPI_COMM_SIZE(comm,nproc,ierror)
 
     if (p_row==0 .and. p_col==0) then
        ! determine the best 2D processor grid
-       call best_2d_grid(nproc, row, col)
+       call best_2d_grid(nproc, row, col, comm)
     else
        if (nproc /= p_row*p_col) then
           errorcode = 1
@@ -348,16 +348,16 @@ contains
     dims(2) = col
     periodic(1) = periodic_y
     periodic(2) = periodic_z
-    call MPI_CART_CREATE(MPI_COMM_WORLD,2,dims,periodic, &
+    call MPI_CART_CREATE(comm,2,dims,periodic, &
          .false., &  ! do not reorder rank
          DECOMP_2D_COMM_CART_X, ierror)
     periodic(1) = periodic_x
     periodic(2) = periodic_z
-    call MPI_CART_CREATE(MPI_COMM_WORLD,2,dims,periodic, &
+    call MPI_CART_CREATE(comm,2,dims,periodic, &
          .false., DECOMP_2D_COMM_CART_Y, ierror)
     periodic(1) = periodic_x
     periodic(2) = periodic_y
-    call MPI_CART_CREATE(MPI_COMM_WORLD,2,dims,periodic, &
+    call MPI_CART_CREATE(comm,2,dims,periodic, &
          .false., DECOMP_2D_COMM_CART_Z, ierror)
 
     call MPI_CART_COORDS(DECOMP_2D_COMM_CART_X,nrank,2,coord,ierror)
@@ -923,7 +923,7 @@ contains
     
     ! maxcor
     call MPI_ALLREDUCE(ncores, maxcor, 1, MPI_INTEGER, MPI_MAX, &
-         MPI_COMM_WORLD, ierror)
+         comm, ierror)
     
     call FIPC_finalize(ierror)
     
@@ -1231,11 +1231,11 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Auto-tuning algorithm to select the best 2D processor grid
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine best_2d_grid(iproc, best_p_row, best_p_col)
+  subroutine best_2d_grid(iproc, best_p_row, best_p_col, comm)
 
     implicit none
 
-    integer, intent(IN) :: iproc
+    integer, intent(IN) :: iproc, comm
     integer, intent(OUT) :: best_p_row, best_p_col
 
     integer, allocatable, dimension(:) :: factors
@@ -1271,7 +1271,7 @@ contains
           dims(2) = col
           periodic(1) = .false.
           periodic(2) = .false.
-          call MPI_CART_CREATE(MPI_COMM_WORLD,2,dims,periodic, &
+          call MPI_CART_CREATE(comm,2,dims,periodic, &
                .false.,DECOMP_2D_COMM_CART_X, ierror)
           call MPI_CART_COORDS(DECOMP_2D_COMM_CART_X,nrank,2,coord,ierror)
           
@@ -1301,7 +1301,7 @@ contains
           call decomp_info_finalize(decomp)
 
           call MPI_ALLREDUCE(t2,t1,1,MPI_DOUBLE_PRECISION,MPI_SUM, &
-                   MPI_COMM_WORLD,ierror)
+                   comm,ierror)
           t1 = t1 / dble(nproc)
 
           if (nrank==0) then
