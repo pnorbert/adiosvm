@@ -83,6 +83,7 @@ MODULE BRUSSELATOR_IO
         real(kind=8), intent(in)    :: xcoords(:), ycoords(:), zcoords(:)
         integer                     :: ierr
 
+        ierr = 0
         call adios2_put (ad_engine, var_xcoords, xcoords, adios2_mode_sync, ierr)
         call adios2_put (ad_engine, var_ycoords, ycoords, adios2_mode_sync, ierr)
         call adios2_put (ad_engine, var_zcoords, zcoords, adios2_mode_sync, ierr)
@@ -180,6 +181,7 @@ MODULE BRUSSELATOR_IO
         END DO; END DO; END DO
 
 #ifdef ADIOS2
+        ierr = 0
         call mpi_comm_rank (mpi_comm_world, myrank, ierr)
         call adios2_begin_step (ad_engine, ierr)
         !if (myrank .eq. 0) call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
@@ -241,6 +243,7 @@ MODULE BRUSSELATOR_IO
         integer, intent(out) :: ierr
 
 #ifdef ADIOS2
+        ierr = 0
         call adios2_close    (ad_engine, ierr)
         call adios2_finalize (adios2_handle, ierr)
 #endif

@@ -167,6 +167,7 @@ PROGRAM main
     CALL decomp_2d_fft_init
 
     CALL io_init (fname,decomp, nx, ny, nz, ierr)
+    name = fname
 
     ALLOCATE(Uhigh(decomp%xst(1):decomp%xen(1),&
         decomp%xst(2):decomp%xen(2),&
