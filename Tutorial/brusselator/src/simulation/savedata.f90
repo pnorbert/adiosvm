@@ -93,7 +93,8 @@ MODULE BRUSSELATOR_IO
 
 
     !----------------------------------------------------------------------------!
-    SUBROUTINE savedata(Nx,Ny,Nz,plotnum,name,field,u,v,decomp)
+    SUBROUTINE savedata(Nx,Ny,Nz,plotnum,fname,field,u,v,decomp,timestep, &
+                        xcoords,ycoords,zcoords)
     !----------------------------------------------------------------------------!
         !--------------------------------------------------------------------
         !
@@ -106,36 +107,39 @@ MODULE BRUSSELATOR_IO
         ! INPUT
         !
         ! .. Scalars ..
-        !  Nx				= number of modes in x - power of 2 for FFT
-        !  Ny				= number of modes in y - power of 2 for FFT
-        !  Nz				= number of modes in z - power of 2 for FFT
-        !  plotnum			= number of plot to be made
-        ! .. Arrays ..
-        !  field 			= real data to be saved
-        !  name_config		= root of filename to save to 
+        !  Nx       = number of modes in x - power of 2 for FFT
+        !  Ny       = number of modes in y - power of 2 for FFT
+        !  Nz       = number of modes in z - power of 2 for FFT
+        !  plotnum  = number of plot to be made
+        !  timestep = computational timestep number
         !
-        ! .. Output	..	
-        ! plotnum			= number of plot to be saved
+        ! .. Arrays ..
+        !  field      = real data to be saved
+        !  name_config    = root of filename to save to
+        !  xcoords, ycoords, zcoords: x,y,z coordinates respectively
+        !
+        ! .. Output ..  
+        ! plotnum     = number of plot to be saved
         ! .. Special Structures ..
-        !  decomp			= contains information on domain decomposition
-        !					see http://www.2decomp.org/ for more information
+        !  decomp     = contains information on domain decomposition
+        !         see http://www.2decomp.org/ for more information
         ! LOCAL VARIABLES
         !
         ! .. Scalars ..
-        !  i				= loop counter in x direction
-        !  j				= loop counter in y direction
-        !  k				= loop counter in z direction
-        !  count			= counter
-        !  iol				= size of file
+        !  i        = loop counter in x direction
+        !  j        = loop counter in y direction
+        !  k        = loop counter in z direction
+        !  count      = counter
+        !  iol        = size of file
         ! .. Arrays ..
-        ! 	number_file		= array to hold the number of the plot
+        !   number_file   = array to hold the number of the plot
         !
         ! REFERENCES
         !
         ! ACKNOWLEDGEMENTS
         !
         ! ACCURACY
-        !		
+        !   
         ! ERROR INDICATORS AND WARNINGS
         !
         ! FURTHER COMMENTS
@@ -143,18 +147,25 @@ MODULE BRUSSELATOR_IO
         ! External routines required
         ! 
         ! External libraries required
-        ! 2DECOMP&FFT	 -- Domain decomposition and Fast Fourier Library
-        !			(http://www.2decomp.org/index.html)
+        ! 2DECOMP&FFT  -- Domain decomposition and Fast Fourier Library
+        !     (http://www.2decomp.org/index.html)
         ! MPI library
         USE decomp_2d
         USE decomp_2d_fft
         USE decomp_2d_io
-        IMPLICIT NONE					 
+        IMPLICIT NONE          
         INCLUDE 'mpif.h'
         ! Declare variables
-        INTEGER(KIND=4), INTENT(IN)						:: Nx,Ny,Nz
-        INTEGER(KIND=4), INTENT(IN)						:: plotnum
-        TYPE(DECOMP_INFO), INTENT(IN)					::  decomp
+        INTEGER(KIND=4), INTENT(IN)         :: Nx,Ny,Nz
+        INTEGER(KIND=4), INTENT(IN)         :: plotnum
+        TYPE(DECOMP_INFO), INTENT(IN)       :: decomp
+        CHARACTER*100, INTENT(IN)           :: fname
+        integer(kind=4), intent(in)         :: timestep
+        CHARACTER*100                       :: name_config
+        INTEGER(kind=4)                     :: i,j,k,iol,count,ind
+        CHARACTER*100                       :: number_file
+        integer                             :: ierr, myrank
+        real(kind=8), intent(in), optional  :: xcoords(:), ycoords(:), zcoords(:)
         REAL(KIND=8), DIMENSION(decomp%xst(1):decomp%xen(1),&
             decomp%xst(2):decomp%xen(2),&
             decomp%xst(3):decomp%xen(3)), &
@@ -163,19 +174,14 @@ MODULE BRUSSELATOR_IO
             decomp%xst(2):decomp%xen(2),&
             decomp%xst(3):decomp%xen(3)), &
             INTENT(IN) :: u,v
-        CHARACTER*100, INTENT(IN)	     				:: name
-        CHARACTER*100               					:: name_config
-        INTEGER(kind=4)									:: i,j,k,iol,count,ind
-        CHARACTER*100									:: number_file
-        integer                                         :: ierr, myrank
     
     
         ! create character array with full filename
         ! write out using 2DECOMP&FFT MPI-IO routines
 
         ! Write U real
-        ind=index(name,' ') -1
-        name_config=name(1:ind)//'u'
+        ind=index(fname,' ') -1
+        name_config=fname(1:ind)//'u'
         DO k=decomp%xst(3),decomp%xen(3); DO j=decomp%xst(2),decomp%xen(2); DO i=decomp%xst(1),decomp%xen(1)
         field(i,j,k)=REAL(u(i,j,k))
         END DO; END DO; END DO
@@ -185,6 +191,12 @@ MODULE BRUSSELATOR_IO
         call mpi_comm_rank (mpi_comm_world, myrank, ierr)
         call adios2_begin_step (ad_engine, ierr)
         !if (myrank .eq. 0) call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
+
+        if (timestep .eq. 1) then
+          if (myrank .eq. 0) then
+            if(present(xcoords)) call write_coordinates (xcoords, ycoords, zcoords)
+          endif
+        endif
         call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
         call adios2_put (ad_engine, var_u_r, field, adios2_mode_sync, ierr)
 #else
@@ -192,13 +204,13 @@ MODULE BRUSSELATOR_IO
         WRITE(number_file,'(i0)') plotnum
         number_file = name_config(1:ind)//number_file
         ind = index(number_file,' ') - 1
-        number_file = number_file(1:ind)//'.datbin'	
+        number_file = number_file(1:ind)//'.datbin' 
         CALL decomp_2d_write_one(1,field,number_file, decomp)
 #endif
     
         ! Write V real
-        ind=index(name,' ') -1
-        name_config=name(1:ind)//'v'
+        ind=index(fname,' ') -1
+        name_config=fname(1:ind)//'v'
         DO k=decomp%xst(3),decomp%xen(3); DO j=decomp%xst(2),decomp%xen(2); DO i=decomp%xst(1),decomp%xen(1)
         field(i,j,k)=REAL(v(i,j,k))
         END DO; END DO; END DO
@@ -210,7 +222,7 @@ MODULE BRUSSELATOR_IO
         WRITE(number_file,'(i0)') plotnum
         number_file = name_config(1:ind)//number_file
         ind = index(number_file,' ') - 1
-        number_file = number_file(1:ind)//'.datbin'	
+        number_file = number_file(1:ind)//'.datbin' 
         CALL decomp_2d_write_one(1,field,number_file, decomp)
 #endif
 
