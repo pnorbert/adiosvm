@@ -49,17 +49,23 @@ void printUsage()
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
-    int rank, comm_size, step_num = 0;
-    
-    MPI_Comm_rank (MPI_COMM_WORLD, &rank);
-    MPI_Comm_size (MPI_COMM_WORLD, &comm_size);
+    int rank, comm_size, wrank, step_num = 0;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
+
+    const unsigned int color = 2;
+    MPI_Comm comm;
+    MPI_Comm_split(MPI_COMM_WORLD, color, wrank, &comm);
+
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &comm_size);
 
     if (argc < 4)
     {
         std::cout << "Not enough arguments\n";
         if (rank == 0)
             printUsage();
-        MPI_Abort(MPI_COMM_WORLD, -1);
+        MPI_Abort(comm, -1);
     }
 
     std::string in_filename;
@@ -97,15 +103,15 @@ int main(int argc, char *argv[])
     adios2::Variable<double> var_u_real_out, var_u_imag_out, var_v_real_out, var_v_imag_out;
 
     // adios2 io object and engine init
-    adios2::ADIOS ad ("adios2_config.xml", MPI_COMM_WORLD, adios2::DebugON);
+    adios2::ADIOS ad ("adios2_config.xml", comm, adios2::DebugON);
 
     // IO object and engine for reading
     adios2::IO reader_io = ad.DeclareIO("SimulationOutput");
-    adios2::Engine reader_engine = reader_io.Open(in_filename, adios2::Mode::Read, MPI_COMM_WORLD);
+    adios2::Engine reader_engine = reader_io.Open(in_filename, adios2::Mode::Read, comm);
 
     // IO object and engine for writing
     adios2::IO writer_io = ad.DeclareIO("AnalysisOutput");
-    adios2::Engine writer_engine = writer_io.Open(out_filename, adios2::Mode::Write, MPI_COMM_WORLD);
+    adios2::Engine writer_engine = writer_io.Open(out_filename, adios2::Mode::Write, comm);
 
     // read data per timestep
     while(true) {

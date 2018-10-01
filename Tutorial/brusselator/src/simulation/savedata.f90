@@ -2,7 +2,7 @@ MODULE BRUSSELATOR_IO
     use mpi
     use decomp_2d
     use adios2
-    public 
+    public
 
     integer*8, dimension(3) :: sizes, subsizes, starts
     type(adios2_adios)      :: adios2_handle
@@ -15,12 +15,12 @@ MODULE BRUSSELATOR_IO
     CONTAINS
 
     !----------------------------------------------------------------------------!
-    SUBROUTINE io_init (fname,decomp, nx, ny, nz, ierr)
+    SUBROUTINE io_init (fname,decomp, nx, ny, nz, comm, ierr)
     !----------------------------------------------------------------------------!
         implicit none
 
         type(decomp_info), intent(in)   :: decomp
-        integer, intent(in)             :: nx, ny, nz
+        integer, intent(in)             :: nx, ny, nz, comm
         integer, intent(out)            :: ierr
         character*(*), intent(in)       :: fname
 
@@ -40,7 +40,7 @@ MODULE BRUSSELATOR_IO
 
 #ifdef ADIOS2
         ! Init adios2
-        call adios2_init_config (adios2_handle, "adios2_config.xml", mpi_comm_world, &
+        call adios2_init_config (adios2_handle, "adios2_config.xml", comm, &
             adios2_debug_mode_on, ierr)
 
         ! Init IO object
@@ -69,7 +69,7 @@ MODULE BRUSSELATOR_IO
 
         ! Open file
         call adios2_open (ad_engine, ad_io, fname, adios2_mode_write, &
-            mpi_comm_world, ierr)
+            comm, ierr)
 #endif
     end subroutine io_init
 
@@ -84,9 +84,9 @@ MODULE BRUSSELATOR_IO
         integer                     :: ierr
 
         ierr = 0
-        call adios2_put (ad_engine, var_xcoords, xcoords, adios2_mode_sync, ierr)
-        call adios2_put (ad_engine, var_ycoords, ycoords, adios2_mode_sync, ierr)
-        call adios2_put (ad_engine, var_zcoords, zcoords, adios2_mode_sync, ierr)
+        call adios2_put (ad_engine, var_xcoords, xcoords, adios2_mode_deferred, ierr)
+        call adios2_put (ad_engine, var_ycoords, ycoords, adios2_mode_deferred, ierr)
+        call adios2_put (ad_engine, var_zcoords, zcoords, adios2_mode_deferred, ierr)
 
     END SUBROUTINE write_coordinates
     !----------------------------------------------------------------------------!
@@ -101,7 +101,7 @@ MODULE BRUSSELATOR_IO
         !
         ! PURPOSE
         !
-        ! This subroutine saves a three dimensional real array in binary 
+        ! This subroutine saves a three dimensional real array in binary
         ! format
         !
         ! INPUT
@@ -118,7 +118,7 @@ MODULE BRUSSELATOR_IO
         !  name_config    = root of filename to save to
         !  xcoords, ycoords, zcoords: x,y,z coordinates respectively
         !
-        ! .. Output ..  
+        ! .. Output ..
         ! plotnum     = number of plot to be saved
         ! .. Special Structures ..
         !  decomp     = contains information on domain decomposition
@@ -139,13 +139,13 @@ MODULE BRUSSELATOR_IO
         ! ACKNOWLEDGEMENTS
         !
         ! ACCURACY
-        !   
+        !
         ! ERROR INDICATORS AND WARNINGS
         !
         ! FURTHER COMMENTS
         !--------------------------------------------------------------------
         ! External routines required
-        ! 
+        !
         ! External libraries required
         ! 2DECOMP&FFT  -- Domain decomposition and Fast Fourier Library
         !     (http://www.2decomp.org/index.html)
@@ -153,7 +153,7 @@ MODULE BRUSSELATOR_IO
         USE decomp_2d
         USE decomp_2d_fft
         USE decomp_2d_io
-        IMPLICIT NONE          
+        IMPLICIT NONE
         INCLUDE 'mpif.h'
         ! Declare variables
         INTEGER(KIND=4), INTENT(IN)         :: Nx,Ny,Nz
@@ -174,8 +174,7 @@ MODULE BRUSSELATOR_IO
             decomp%xst(2):decomp%xen(2),&
             decomp%xst(3):decomp%xen(3)), &
             INTENT(IN) :: u,v
-    
-    
+
         ! create character array with full filename
         ! write out using 2DECOMP&FFT MPI-IO routines
 
@@ -197,17 +196,17 @@ MODULE BRUSSELATOR_IO
             if(present(xcoords)) call write_coordinates (xcoords, ycoords, zcoords)
           endif
         endif
-        call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_sync, ierr)
-        call adios2_put (ad_engine, var_u_r, field, adios2_mode_sync, ierr)
+        call adios2_put (ad_engine, var_plotnum, plotnum, adios2_mode_deferred, ierr)
+        call adios2_put (ad_engine, var_u_r, field, adios2_mode_deferred, ierr)
 #else
         ind = index(name_config,' ') - 1
         WRITE(number_file,'(i0)') plotnum
         number_file = name_config(1:ind)//number_file
         ind = index(number_file,' ') - 1
-        number_file = number_file(1:ind)//'.datbin' 
+        number_file = number_file(1:ind)//'.datbin'
         CALL decomp_2d_write_one(1,field,number_file, decomp)
 #endif
-    
+
         ! Write V real
         ind=index(fname,' ') -1
         name_config=fname(1:ind)//'v'
@@ -216,13 +215,13 @@ MODULE BRUSSELATOR_IO
         END DO; END DO; END DO
 
 #ifdef ADIOS2
-        call adios2_put (ad_engine, var_v_r, field, adios2_mode_sync, ierr)
+        call adios2_put (ad_engine, var_v_r, field, adios2_mode_deferred, ierr)
 #else
         ind = index(name_config,' ') - 1
         WRITE(number_file,'(i0)') plotnum
         number_file = name_config(1:ind)//number_file
         ind = index(number_file,' ') - 1
-        number_file = number_file(1:ind)//'.datbin' 
+        number_file = number_file(1:ind)//'.datbin'
         CALL decomp_2d_write_one(1,field,number_file, decomp)
 #endif
 
@@ -234,24 +233,24 @@ MODULE BRUSSELATOR_IO
         field(i,j,k)=AIMAG(u(i,j,k))
         END DO; END DO; END DO
 
-        call adios2_put (ad_engine, var_u_i, field, adios2_mode_sync, ierr)
+        call adios2_put (ad_engine, var_u_i, field, adios2_mode_deferred, ierr)
 
         ! Write V imag
         DO k=decomp%xst(3),decomp%xen(3); DO j=decomp%xst(2),decomp%xen(2); DO i=decomp%xst(1),decomp%xen(1)
         field(i,j,k)=AIMAG(v(i,j,k))
         END DO; END DO; END DO
 
-        call adios2_put (ad_engine, var_v_i, field, adios2_mode_sync, ierr)
+        call adios2_put (ad_engine, var_v_i, field, adios2_mode_deferred, ierr)
         call adios2_end_step (ad_engine, ierr)
 #endif
     END SUBROUTINE savedata
-    
-    
+
+
     !----------------------------------------------------------------------------!
     SUBROUTINE IO_FINALIZE(ierr)
     !----------------------------------------------------------------------------!
         implicit none
-    
+
         integer, intent(out) :: ierr
 
 #ifdef ADIOS2
@@ -259,7 +258,7 @@ MODULE BRUSSELATOR_IO
         call adios2_close    (ad_engine, ierr)
         call adios2_finalize (adios2_handle, ierr)
 #endif
-    
+
     END SUBROUTINE IO_FINALIZE
 
 END MODULE BRUSSELATOR_IO
