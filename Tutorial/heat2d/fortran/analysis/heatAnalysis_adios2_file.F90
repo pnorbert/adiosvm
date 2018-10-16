@@ -55,7 +55,7 @@ program reader
     ! We can inquire the dimensions, type and number of steps 
     ! of a variable directly from the metadata
     call adios2_inquire_variable(var_T, io, "T", ierr)
-    call adios2_variable_shape(var_T, ndim, dims, ierr)
+    call adios2_variable_shape(dims, ndim, var_T, ierr)
     if (rank == 0) then
         print '(" Global array size: ",i0, "x", i0)', dims(1), dims(2)
     endif
@@ -73,8 +73,9 @@ program reader
     allocate( T(readsize(1), readsize(2)) )
 
     !TODO:  Get the number of available steps
-    call adios2_variable_steps_start(var_T, steps_start, ierr)
-    call adios2_variable_steps(var_T, steps_count, ierr)
+    !jyc: removed as of Oct 16 2018
+    !call adios2_variable_steps_start(var_T, steps_start, ierr)
+    call adios2_variable_steps(steps_count, var_T, ierr)
     ts = steps_start+steps_count-1 ! Let's read the last timestep
     if (rank == 0) then
         print '(" First available step = ", i0)', steps_start

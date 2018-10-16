@@ -45,7 +45,7 @@ subroutine io_write(tstep,curr)
     integer, intent(in) :: tstep
     integer, intent(in) :: curr
 
-    integer :: adios2_err
+    integer :: adios2_err, istatus
     character (len=200) :: filename
     ! variables for definition
     integer*8 :: varid
@@ -90,7 +90,7 @@ subroutine io_write(tstep,curr)
     io_start_time = MPI_WTIME()
 
     call adios2_begin_step( bp_writer, adios2_step_mode_append, 0., &
-                            adios2_err)
+                            istatus, adios2_err)
 
     ! We need the temporary survive until EndStep, so we cannot just pass
     ! here the T(1:ndx,1:ndy,curr)
