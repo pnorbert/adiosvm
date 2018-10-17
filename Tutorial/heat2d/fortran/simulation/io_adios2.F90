@@ -14,7 +14,7 @@ module heat_io
     type(adios2_adios)    :: adios
     type(adios2_io)       :: io
     type(adios2_engine)   :: bp_writer
-    type(adios2_variable) :: var_gndx, var_gndy, var_t, var_dT
+    type(adios2_variable) :: var_gndx, var_gndy, var_T
 
 contains
 
@@ -65,7 +65,7 @@ subroutine io_write(tstep,curr)
             print '("Using ",a, " engine for output")', bp_writer%type
         endif
 
-        ! Define T and dT array dimensions
+        ! Define T array dimensions
         shape_dims(1) = gndx
         start_dims(1) = offx
         count_dims(1) = ndx
@@ -79,11 +79,6 @@ subroutine io_write(tstep,curr)
                                      start_dims, count_dims, &
                                      adios2_constant_dims,  &
                                      adios2_err )
-
-        call adios2_define_variable( var_dT, io, "dT", adios2_type_dp, &
-                                     2, shape_dims, &
-                                     start_dims, count_dims, &
-                                     adios2_constant_dims, adios2_err )
     endif
 
     call MPI_BARRIER(app_comm, adios2_err)
@@ -92,12 +87,12 @@ subroutine io_write(tstep,curr)
     call adios2_begin_step( bp_writer, adios2_step_mode_append, 0., &
                             istatus, adios2_err)
 
-    ! We need the temporary survive until EndStep, so we cannot just pass
-    ! here the T(1:ndx,1:ndy,curr)
+    ! We need the temporary array survive until EndStep, 
+    ! so we cannot just pass here the T(1:ndx,1:ndy,curr)
     allocate(T_temp(1:ndx,1:ndy))
     T_temp = T(1:ndx,1:ndy,curr)
+
     call adios2_put( bp_writer, var_T, T_temp, adios2_err )
-    call adios2_put( bp_writer, var_dT, dT, adios2_err )
 
     call adios2_end_step( bp_writer, adios2_err)
 

@@ -65,7 +65,7 @@ subroutine io_write(tstep,curr)
     comm = MPI_COMM_WORLD
     info = MPI_INFO_NULL
 
-    if (rank==0.and.tstep==1) then
+    if (rank==0.and.tstep==0) then
         print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
     endif
     write(filename,'(a,".h5")') trim(outputfile)
@@ -97,7 +97,7 @@ subroutine io_write(tstep,curr)
     call h5pset_fapl_mpio_f(plist_id, comm, info, err)
 
 
-    IF (tstep == 1) THEN
+    IF (tstep == 0) THEN
 
         call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err, access_prp = plist_id)
         call h5pclose_f(plist_id, err)
@@ -120,11 +120,11 @@ subroutine io_write(tstep,curr)
         call h5pclose_f(plist_id, err)
         call h5dopen_f(file_id, "T", dset_id, err)
 
-        global_dims(3) = tstep 
+        global_dims(3) = tstep+1
 
         call h5dset_extent_f(dset_id, global_dims, err)
         
-        offset(3) = tstep-1
+        offset(3) = tstep
 
         call h5dget_space_f(dset_id, dspace_id, err)
 
