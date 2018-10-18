@@ -63,6 +63,9 @@ program reader
         if (ierr /= adios2_step_status_ok) then
             exit
         endif
+        if (istatus == adios2_step_status_end_of_stream) then
+            exit
+        endif
 
         if (rank == 0) then
             print '(" Process step: ",i0)', ts
