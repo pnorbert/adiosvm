@@ -60,10 +60,12 @@ program reader
     ts = 0;
     do 
         call adios2_begin_step(fh, adios2_step_mode_next_available, -1.0, istatus, ierr)
-        if (ierr /= adios2_step_status_ok) then
+        if (ierr /= 0) then
+            print '(" Failure when trying to get next step: ",a)', streamname
             exit
         endif
         if (istatus == adios2_step_status_end_of_stream) then
+            ! Stream has terminated, no more steps are available
             exit
         endif
 
