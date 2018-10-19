@@ -71,18 +71,23 @@ program reader
     endif
           
     allocate( T(readsize(1), readsize(2)) )
+    call adios2_set_selection(var_T, 2, offset, readsize, ierr)
 
     call adios2_variable_steps(steps_count, var_T, ierr)
-    ts = steps_count-1 ! Let's read the last timestep
     if (rank == 0) then
         print '(" Available steps      = ", i0)', steps_count
-        print '(" Read step            = ", i0)', ts
     endif
-    call adios2_set_step_selection(var_T, ts*1_8, 1_8, ierr)
-    call adios2_set_selection(var_T, 2, offset, readsize, ierr)
-    call adios2_get(fh, var_T, T, ierr)
+
+    do ts = 0,steps_count-1
+        if (rank == 0) then
+            print '(" Read step       = ", i0)', ts
+        endif
+        call adios2_set_step_selection(var_T, ts*1_8, 1_8, ierr)
+        call adios2_get(fh, var_T, T, adios2_mode_sync, ierr)
+        call print_array (T, offset, rank, ts)
+    enddo
+
     call adios2_close(fh, ierr)
-    call print_array (T, offset, rank, ts)
 
     ! Terminate
     deallocate(dims)
