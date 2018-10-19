@@ -23,7 +23,7 @@ program reader
     ! Variable information
     integer                  :: ndim
     integer*8, dimension(:), allocatable  :: dims
-    integer*8                :: steps_start, steps_count
+    integer*8                :: steps_count
     ! Offsets and sizes
     integer*8, dimension(2)  :: offset=0, readsize=1
 
@@ -72,13 +72,9 @@ program reader
           
     allocate( T(readsize(1), readsize(2)) )
 
-    !TODO:  Get the number of available steps
-    !jyc: removed as of Oct 16 2018
-    !call adios2_variable_steps_start(var_T, steps_start, ierr)
     call adios2_variable_steps(steps_count, var_T, ierr)
-    ts = steps_start+steps_count-1 ! Let's read the last timestep
+    ts = steps_count-1 ! Let's read the last timestep
     if (rank == 0) then
-        print '(" First available step = ", i0)', steps_start
         print '(" Available steps      = ", i0)', steps_count
         print '(" Read step            = ", i0)', ts
     endif
