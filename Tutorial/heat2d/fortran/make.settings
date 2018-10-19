@@ -10,10 +10,10 @@ override ADIOS2_DIR=/opt/adios2
 override ADIOS1_DIR=/opt/adios1
 
 #Location of the (sequential) HDF5 libraries
-HDF5_DIR=/opt/hdf5-1.10.1
+HDF5_DIR=/opt/hdf5-serial
 
 #Location of the Parallel HDF5 libraries
-PHDF5_DIR=/opt/hdf5-1.10.1-parallel
+PHDF5_DIR=/opt/hdf5-parallel
  
 ## mpicc and mpif90 SETTINGS
 CC=mpicc
