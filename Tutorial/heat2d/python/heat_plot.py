@@ -78,22 +78,22 @@ if __name__ == "__main__":
     # Read the data from this object
     fr = adios2.open(args.instream, "r", mpi.comm_world, "adios2.xml", "VizInput")
 
-    # Get the ADIOS selections -- equally partition the data if parallelization is requested
-    start, size, fullshape = mpi.Partition(fr, args)
-
     # Read through the steps, one at a time
-    step = 0
-    while (not fr.eof()):
+    firststep = True
+    for step in fr:
+        if firststep:
+            # Get the ADIOS selections -- equally partition the data if parallelization is requested
+            start, size, fullshape = mpi.Partition(fr, args)
+            firststep = False
+
         inpstep = fr.currentstep()
-        data = fr.read(args.varname, start, size, endl=True)
+        data = fr.read(args.varname, start, size)
 
         # Print a couple simple diagnostics
         avg = np.average(data)
         std = np.std(data)
         print("step:{0}, rank: {1}, avg: {2:.3f}, std: {3:.3f}".format(inpstep, mpi.rank['world'], avg, std))
         Plot2D(args, fr, data, fullshape, inpstep, fontsize, displaysec)
-
-        step += 1
 
     fr.close()
 
