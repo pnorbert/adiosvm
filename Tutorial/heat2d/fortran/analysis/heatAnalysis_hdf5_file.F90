@@ -60,29 +60,35 @@ program reader
     readsize(2) = gndy / nproc
     readsize(3) = 1 ! Read one timestep
 
+    offset(1)   = 0
+    offset(2)   = rank * readsize(2)
+
     if (rank == nproc-1) then  ! last process should read all the rest of columns
         readsize(2) = gndy - readsize(2)*(nproc-1)
-        !readsize(2) = 3
     endif
           
-    offset(1)   = 0
-    offset(2)   = rank * (gndy / nproc)
-    offset(3)   = dims(3)-1 ! Read the latest timestep
-
-    ! Create a memory space for the partial read
-    call h5screate_simple_f (3, readsize, memspace, ierr)
-
     allocate( T(readsize(1), readsize(2), readsize(3)) )
 
-    call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, offset, &
-                               readsize, ierr)
-       
-    call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, T, readsize, ierr, &
-                   memspace, dataspace, H5P_DEFAULT_F)
+    
+    do ts = 0,dims(3)-1
 
+        if (rank == 0) then
+            print '(" Read step       = ", i0)', ts
+        endif
 
-    ts   = dims(3)-1 ! Read the latest timestep
-    call print_array (T(:,:,1), offset, rank, ts)
+        offset(3) = ts
+
+        ! Create a memory space for the partial read
+        call h5screate_simple_f (3, readsize, memspace, ierr)
+
+        call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, offset, &
+                                   readsize, ierr)
+               
+        call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, T, readsize, ierr, &
+                       memspace, dataspace, H5P_DEFAULT_F)
+
+        call print_array (T(:,:,1), offset, rank, ts)
+    enddo
 
     call h5dclose_f(dset_id, ierr)
 
@@ -91,8 +97,7 @@ program reader
     call h5close_f(ierr)
 
     ! Terminate
-    !call adios_selection_delete (sel)
-    !call adios_read_finalize_method (ADIOS_READ_METHOD_BP, ierr)
+    deallocate(T)
     call MPI_Finalize (ierr)
 
 contains
