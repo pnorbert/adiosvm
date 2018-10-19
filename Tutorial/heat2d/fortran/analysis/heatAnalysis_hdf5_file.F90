@@ -37,7 +37,11 @@ program reader
     call MPI_Comm_size (group_comm, nproc , ierr)
     call h5open_f(ierr)
 
-    write(filename,'("../heat.h5")')
+    call processArgs()
+
+    if (rank == 0) then
+        print '(" Input file: ",a)', trim(filename)
+    endif
 
     ! Open the file
     call h5fopen_f (filename, H5F_ACC_RDWR_F, file_id, ierr)
@@ -90,4 +94,37 @@ program reader
     !call adios_selection_delete (sel)
     !call adios_read_finalize_method (ADIOS_READ_METHOD_BP, ierr)
     call MPI_Finalize (ierr)
+
+contains
+
+    !!***************************
+  subroutine usage()
+    print *, "Usage: heatAnalysis_hdf5_file  input"
+    print *, "input:  name of HDF5 input file"
+  end subroutine usage
+
+!!***************************
+  subroutine processArgs()
+
+#ifndef __GFORTRAN__
+#ifndef __GNUC__
+    interface
+         integer function iargc()
+         end function iargc
+    end interface
+#endif
+#endif
+
+    integer :: numargs
+
+    !! process arguments
+    numargs = iargc()
+    !print *,"Number of arguments:",numargs
+    if ( numargs < 1 ) then
+        call usage()
+        call exit(1)
+    endif
+    call getarg(1, filename)
+
+  end subroutine processArgs
   end program reader  
