@@ -15,6 +15,7 @@ module heat_io
     type(adios2_io)       :: io
     type(adios2_engine)   :: bp_writer
     type(adios2_variable) :: var_gndx, var_gndy, var_T
+    type(adios2_attribute) :: attr_unit, attr_desc
 
 contains
 
@@ -79,6 +80,9 @@ subroutine io_write(tstep,curr)
                                      start_dims, count_dims, &
                                      adios2_constant_dims,  &
                                      adios2_err )
+        call adios2_define_attribute(attr_unit, io, "unit", "C", "T", adios2_err);
+        call adios2_define_attribute(attr_desc, io, "description", "Temperature from simulation", "T", adios2_err);
+
     endif
 
     call MPI_BARRIER(app_comm, adios2_err)

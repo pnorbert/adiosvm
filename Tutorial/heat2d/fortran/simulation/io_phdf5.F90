@@ -57,6 +57,15 @@ subroutine io_write(tstep,curr)
     INTEGER(HID_T) :: memspace
     INTEGER(HID_T) :: plist_id
 
+    ! variables for two attributes
+    CHARACTER(LEN=1) ::  T_unit = 'C'
+    CHARACTER(LEN=80) ::  T_desc = 'Temperature from simulation' 
+    INTEGER(SIZE_T) :: attrlen    
+    INTEGER(HID_T) :: aspace_id     ! Attribute Dataspace identifier
+    INTEGER(HID_T) :: atype_id      ! Attribute Type identifier
+    INTEGER(HID_T) :: att_unit_id
+    INTEGER(HID_T) :: att_desc_id
+
     INTEGER :: comm, info
 
     character (len=200) :: filename
@@ -102,6 +111,9 @@ subroutine io_write(tstep,curr)
         call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err, access_prp = plist_id)
         call h5pclose_f(plist_id, err)
 
+        !
+        ! Create dataset T 
+        !
         call h5screate_simple_f(ndims, global_dims, dspace_id, err, max_dims)
 
         call h5pcreate_f(H5P_DATASET_CREATE_F, plist_id, err)
@@ -110,8 +122,19 @@ subroutine io_write(tstep,curr)
                      dset_id, err, plist_id)
         call h5pclose_f(plist_id, err)
 
-        !!call h5sclose_f(dspace_id, err)
-        !!call h5dget_space_f(dset_id, dspace_id, err)
+        !
+        ! Create the attribute and write the array data to it.
+        !
+        attrlen=1
+        call h5screate_simple_f(1, (/ 1_8 /), aspace_id, err)
+        call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, err)
+        call h5tset_size_f(atype_id, attrlen, err)
+        call h5acreate_f(dset_id, "unit", atype_id, aspace_id, att_unit_id, err)
+        call h5awrite_f(att_unit_id, atype_id, T_unit, (/ 1_8 /), err)
+        !
+        call h5aclose_f(att_unit_id, err)
+        call h5sclose_f(aspace_id, err)
+        call h5tclose_f(atype_id, err)
 
     ELSE
 

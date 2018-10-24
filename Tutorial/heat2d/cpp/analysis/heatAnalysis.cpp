@@ -106,6 +106,8 @@ int main(int argc, char *argv[])
         adios2::Variable<double> vTin;
         adios2::Variable<double> vTout;
         adios2::Variable<double> vdT;
+        adios2::Attribute<std::string> aT_unit;
+        adios2::Attribute<std::string> aT_desc;
         adios2::Engine writer;
         bool firstStep = true;
         int step = 0;
@@ -128,6 +130,8 @@ int main(int argc, char *argv[])
             // Variable objects disappear between steps so we need this every
             // step
             vTin = inIO.InquireVariable<double>("T");
+            aT_unit = inIO.InquireAttribute<std::string>("T/unit");
+            aT_desc = inIO.InquireAttribute<std::string>("T/description");
 
             if (firstStep)
             {
@@ -152,6 +156,13 @@ int main(int argc, char *argv[])
                     "dT", {gndx, gndy}, settings.offset, settings.readsize);
                 writer = outIO.Open(settings.outputfile, adios2::Mode::Write,
                                      mpiReaderComm);
+                outIO.DefineAttribute<std::string>("unit", 
+                        aT_unit.Data()[0], vTout.Name());
+                outIO.DefineAttribute<std::string>("T/description", 
+                        aT_desc.Data()[0]);
+                outIO.DefineAttribute<std::string>("description", 
+                        "Temperature difference between two steps calculated in analysis", "dT");
+
                 outIO.LockDefinitions();
 
                 MPI_Barrier(mpiReaderComm); // sync processes just for stdout

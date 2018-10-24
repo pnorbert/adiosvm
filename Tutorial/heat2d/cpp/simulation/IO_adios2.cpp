@@ -52,6 +52,11 @@ IO::IO(const Settings &s, MPI_Comm comm)
         // local size, could be defined later using SetSelection()
         {s.ndx, s.ndy});
 
+    io.DefineAttribute<std::string>("description", 
+            "Temperature from simulation", "T");
+    io.DefineAttribute<std::string>("unit", 
+            "C", varT.Name());
+
     writer = io.Open(s.outputfile, adios2::Mode::Write, comm);
 
     // Some optimization:
