@@ -44,7 +44,7 @@ program reader
     endif
 
     ! Open the file
-    call h5fopen_f (filename, H5F_ACC_RDWR_F, file_id, ierr)
+    call h5fopen_f (filename, H5F_ACC_RDONLY_F, file_id, ierr)
 
     ! Open the T dataset
     call h5dopen_f(file_id, "T", dset_id, ierr)
