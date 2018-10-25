@@ -40,8 +40,7 @@ will perform the calculation
 - producing an output of 6 steps stored in heat.bp 
 
 $ bpls -l heat.bp 
-  double   T     7*{150, 160} = 0 / 200 / null  / null 
-  double   dT    7*{150, 160} = -0.0278419 / 0.0348972 / null  / null
+  double   T     6*{150, 160} = 0 / 200
 
 $ ./plot_heat.sh heat.bp
 $ eog . 
@@ -56,26 +55,26 @@ $ ./analysis/heatAnalysis_adios2_file
 
 $ mpirun -n 3 analysis/heatAnalysis_adios2_file  heat.bp
  Input file: heat.bp
+ Using BPFile engine for input
  Global array size: 160x150
- First available step = 0
- Available steps      = 7
- Read step            = 6
+ Available steps      = 6
+ Read step            = 0
+ ...
+ Read step            = 5
 
-will perform reading the last step from the simulation output on 3 processes and 
+will perform reading the data step by step from the simulation output on 3 processes and 
 each process will print its part of the data array into a separate text file (fort.*)
 
 
 $ mpirun -n 3 analysis/heatAnalysis_adios2_stream  heat.bp
  Input file: heat.bp
+ Using BPFile engine for input
  Process step: 0
  Global array size: 160x150
  Process step: 1
- Process step: 2
- Process step: 3
- Process step: 4
+ ...
  Process step: 5
- Process step: 6
-  Stream has terminated. Quit reader
+
 
 will read each step in heat.bp one by one and print the data into text files (fort.*)
 

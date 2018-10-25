@@ -8,7 +8,7 @@ program reader
     character(len=256) :: filename, errmsg
     integer :: nproc          ! number of processors
     
-    real*8, dimension(:,:,:),   allocatable :: T, dT 
+    real*8, dimension(:,:),   allocatable :: T
 
     ! Offsets and sizes
     integer :: gndx, gndy
@@ -67,7 +67,7 @@ program reader
         readsize(2) = gndy - readsize(2)*(nproc-1)
     endif
           
-    allocate( T(readsize(1), readsize(2), readsize(3)) )
+    allocate( T(readsize(1), readsize(2)) )
 
     
     do ts = 0,dims(3)-1
@@ -87,7 +87,7 @@ program reader
         call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, T, readsize, ierr, &
                        memspace, dataspace, H5P_DEFAULT_F)
 
-        call print_array (T(:,:,1), offset, rank, ts)
+        call print_array (T, offset, rank, ts)
     enddo
 
     call h5dclose_f(dset_id, ierr)
