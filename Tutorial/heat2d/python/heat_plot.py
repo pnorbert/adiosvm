@@ -4,7 +4,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 """
 Example:
 
-$ mpirun -n 1 python ./heat_transfer.py -f inputstream -o outputstream -v varname
+$ mpirun -n 1 python ./heat_transfer.py -i inputstream -o outputstream -v varname
+
+The plotting part is serial, so in practice use 1 process only. 
+However the decomposition and read part works in parallel in this script.
 """
 
 import adios2
