@@ -1,12 +1,22 @@
 
 default: 
 	@echo "Make targets at this level are for cleaning only:"
+	@echo "  adios       :  build ADIOS examples"
+	@echo "  hdf5        :  build HDF5 examples"
 	@echo "  clean-code  :  recursively delete objects and binaries"
 	@echo "  clean-data  :  recursively delete files created by the examples"
 	@echo "  distclean   :  clean-code and clean-data"
 
 all: default
 help: default
+
+adios:
+	cd simulation; make adios2
+	cd analysis; make adios2_file adios2_stream
+
+hdf5:
+	cd simulation; make phdf5 hdf5_a hdf5_b
+	cd analysis; make hdf5_file
 
 subdirs = simulation analysis query
 
