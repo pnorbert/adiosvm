@@ -77,26 +77,22 @@ if __name__ == "__main__":
     # Setup up 2D communicators if MPI is installed
     mpi = decomp.MPISetup(args)
 
-
     # Read the data from this object
-    fr = adios2.open(args.instream, "r", mpi.comm_world, "adios2.xml", "VizInput")
+    with adios2.open(args.instream, "r", mpi.comm_world, "adios2.xml", "VizInput") as fr:
 
-    # Read through the steps, one at a time
-    firststep = True
-    for step in fr:
-        if firststep:
+        # Read through the steps, one at a time
+        for fr_step in fr:
+            
+            inpstep = fr_step.currentstep()
+            
+            if inpstep == 0:
             # Get the ADIOS selections -- equally partition the data if parallelization is requested
-            start, size, fullshape = mpi.Partition(fr, args)
-            firststep = False
+                start, size, fullshape = mpi.Partition(fr_step, args)
 
-        inpstep = fr.currentstep()
-        data = fr.read(args.varname, start, size)
+            data = fr_step.read(args.varname, start, size)
 
-        # Print a couple simple diagnostics
-        avg = np.average(data)
-        std = np.std(data)
-        print("step:{0}, rank: {1}, avg: {2:.3f}, std: {3:.3f}".format(inpstep, mpi.rank['world'], avg, std))
-        Plot2D(args, fr, data, fullshape, inpstep, fontsize, displaysec)
-
-    fr.close()
-
+            # Print a couple simple diagnostics
+            avg = np.average(data)
+            std = np.std(data)
+            print("step:{0}, rank: {1}, avg: {2:.3f}, std: {3:.3f}".format(inpstep, mpi.rank['world'], avg, std))
+            Plot2D(args, fr_step, data, fullshape, inpstep, fontsize, displaysec)
