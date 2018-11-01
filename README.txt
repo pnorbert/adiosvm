@@ -529,47 +529,38 @@ Complicated way:
 
 
 3. Build Visit from svn trunk
-- Get Visit trunk from repository and build against dependencies
-  that has been built in the previous step
-- You need to do step 2 (build visit from source release)
+- This has to be built on a second scratch disk. It requires ~10GB space. 
+  The installation is just 0.5GB.
 
-   $ cd ~/Software
-   $ svn co http://portal.nersc.gov/svn/visit/trunk/src visit.src
-   $ cd visit.src
-   
-   Get the local build cmake config created by build_visit2.7.2 and edit
-   $ cp ~/Software/visit/adiosVM.cmake ./config-site
-   
-     - Add CMAKE_INSTALL_PREFIX to point to desired installation target (/opt/visit):
+   $ cd /work/adios
+   $ mkdir visit.build
+   $ cd visit.build/
+   $ svn co http://visit.ilight.com/svn/visit/trunk/src/svn_bin svn_bin
+   $ ln -s svn_bin/build_visit .
+   $ ln -s svn_bin/bv_support .
+   $ git clone github:ornladios/ADIOS2.git
+   $ ./build_visit --system-cmake --system-python --adios2 --silo --szip --zlib --hdf5 --makeflags -j4 --prefix /opt/visit
 
-         VISIT_OPTION_DEFAULT(CMAKE_INSTALL_PREFIX /opt/visit)
+   when it is failed or succeeded with building the Visit source (not just the third-parties),
+   i.e. when trunk/ already exists
 
-     - Edit VISIT_ADIOS_DIR to point to desired ADIOS install (/opt/adios1/):
+   $ cp adiosVM.cmake trunk/src/config-site
+   -- edit trunk/src/config-site/adiosVM.cmake  and point to a SERIAL ADIOS2 installation
+       VISIT_OPTION_DEFAULT(VISIT_ADIOS2_DIR /opt/adios2-serial)
+       VISIT_OPTION_DEFAULT(VISIT_ADIOS2_PAR_DIR /opt/adios2)
 
-         VISIT_OPTION_DEFAULT(VISIT_ADIOS_DIR /opt/adios1/)
 
+   and build manually after this:
 
-   Configure visit with cmake that was built by visit release
-   $ rm CMakeCache.txt
-   $ ~/Software/visit/cmake-2.8.10.2/bin/cmake .
+   $ cd trunk
+   $ mkdir -p build
+   $ cd build
+   $ cmake ../src
    $ make -j 4
-   $ make install
 
 
-   If a dependency package's version is updated, you need to download and build a new one.
-   E.g. with VTK 6.1
-
-   $ cd ~/Software/visit
-   $ wget http://www.vtk.org/files/release/6.1/VTK-6.1.0.tar.gz
-   $ tar zxf VTK-6.1.0.tar.gz
-   $ mkdir VTK-6.1.0-build
-   $ cd VTK-6.1.0-build
-   
-   In ../build_visit2.7.1_log, search for "Configuring VTK . . ." and see how cmake was called (a long line).
-   Replace the CMAKE_INSTALL_PREFIX:PATH and run that command
-
-   $ "/home/adios/Software/visit/visit/cmake/2.8.10.2/linux-x86_64_gcc-4.6/bin/cmake" <whatever appears here> ../VTK-6.1.0
-
+   $ sudo make install
+   This should put the installation files into /opt/visit/<version> and the executable script into /opt/visit/bin
 
 
 
