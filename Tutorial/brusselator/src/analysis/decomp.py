@@ -61,7 +61,7 @@ class MPISetup(object):
         start = np.zeros(3, dtype=np.int64)
         size = np.zeros(3, dtype=np.int64)
 
-        var = fp.available_variables()
+        var = fp.availablevariables()
         dshape = var[args.varname]['Shape'].split(',')
         for i in range(len(dshape)):
             datashape[i] = int(dshape[i])

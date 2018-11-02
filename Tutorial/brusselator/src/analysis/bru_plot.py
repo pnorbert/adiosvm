@@ -81,11 +81,11 @@ def Plot2D(slice_direction, data, args, fullshape, step, fontsize):
     plt.clf()
 
 
-def read_data(args, fr, start_coord, size_dims, endl=False):
+def read_data(args, fr, start_coord, size_dims):
     var1 = args.varname
     var2 = args.varname2
     data1= fr.read(var1, start_coord, size_dims )
-    data2= fr.read(var2, start_coord, size_dims, endl=endl)
+    data2= fr.read(var2, start_coord, size_dims)
     data = np.sqrt(data1*data1-data2*data2)
     data = np.squeeze(data)
     return data
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     # Read the data from this object
     fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2_config.xml", "VizInput")
-    vars_info = fr.available_variables()
+    vars_info = fr.availablevariables()
     print(vars_info[args.varname]["Shape"])
  
     # Get the ADIOS selections -- equally partition the data if parallelization is requested
@@ -114,17 +114,20 @@ if __name__ == "__main__":
 
     # Read through the steps, one at a time
     step = 0
-    while (not fr.eof()):
-        inpstep = fr.currentstep()
+    for fr_step in fr:
+        inpstep = fr_step.currentstep()
 
-        data = read_data (args, fr, [0,0,args.istart], [args.isize,args.isize,1], endl=False)
-        Plot2D ('xy', data, args, fullshape, step, fontsize)
+        if args.slice in ('xy', 'all'):
+            data = read_data (args, fr_step, [0,0,args.istart], [args.isize,args.isize,1])
+            Plot2D ('xy', data, args, fullshape, step, fontsize)
         
-        data = read_data (args, fr, [0,args.istart,0], [args.isize,1,args.isize], endl=False)
-        Plot2D ('xz', data, args, fullshape, step, fontsize)
+        if args.slice in ('xz', 'all'):
+            data = read_data (args, fr_step, [0,args.istart,0], [args.isize,1,args.isize])
+            Plot2D ('xz', data, args, fullshape, step, fontsize)
         
-        data = read_data (args, fr, [args.istart,0,0], [1,args.isize,args.isize], endl=True)
-        Plot2D ('yz',  data, args, fullshape, step, fontsize)
+        if args.slice in ('yz', 'all'):
+            data = read_data (args, fr_step, [args.istart,0,0], [1,args.isize,args.isize])
+            Plot2D ('yz',  data, args, fullshape, step, fontsize)
 
         step += 1
 
