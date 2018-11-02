@@ -134,7 +134,7 @@ program heat_transfer
     tend = MPI_Wtime()
 
     call MPI_Finalize (ierr)
-    if (rank==0) print '("Total runtime = ",f6.3,"s")', tend-tstart
+    if (rank==0) print '("Total runtime = ",f9.3,"s")', tend-tstart
 end program heat_transfer
 
 

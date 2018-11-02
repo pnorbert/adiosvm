@@ -47,7 +47,6 @@ subroutine io_write(tstep,curr)
     integer, intent(in) :: curr
 
     integer :: adios2_err, istatus
-    character (len=200) :: filename
     ! variables for definition
     integer*8 :: varid
     ! character(len=100) :: gdims, ldims, offs
@@ -55,12 +54,10 @@ subroutine io_write(tstep,curr)
     integer*8, dimension(2) :: shape_dims, start_dims, count_dims
     real*8, dimension(:,:), allocatable :: T_temp
 
-    write(filename,'(a,".bp")') trim(outputfile)
-
     ! Define variables at the first time
     if (tstep.eq.0) then
 
-        call adios2_open (bp_writer, io, filename, adios2_mode_write, adios2_err)
+        call adios2_open (bp_writer, io, outputfile, adios2_mode_write, adios2_err)
         ! For information purposes only:
         if (rank == 0) then
             print '("Using ",a, " engine for output")', bp_writer%type
@@ -86,7 +83,6 @@ subroutine io_write(tstep,curr)
     endif
 
     call MPI_BARRIER(app_comm, adios2_err)
-    io_start_time = MPI_WTIME()
 
     call adios2_begin_step( bp_writer, adios2_step_mode_append, 0., &
                             istatus, adios2_err)

@@ -68,20 +68,12 @@ subroutine io_write(tstep,curr)
 
     INTEGER :: comm, info
 
-    character (len=200) :: filename
     character(2) :: mode = "w"
 
     comm = MPI_COMM_WORLD
     info = MPI_INFO_NULL
 
-    if (rank==0.and.tstep==0) then
-        print '("Writing: "," filename ",14x,"size(GB)",4x,"io_time(sec)",6x,"GB/s")'
-    endif
-    write(filename,'(a,".h5")') trim(outputfile)
-    !print '("rank ",i0," writes to: ",a)', rank, trim(filename)
-
     call MPI_BARRIER(app_comm, err)
-    io_start_time = MPI_WTIME()
 
     ndims = 3
     dims(1) = ndx
@@ -108,7 +100,7 @@ subroutine io_write(tstep,curr)
 
     IF (tstep == 0) THEN
 
-        call h5fcreate_f (filename, H5F_ACC_TRUNC_F, file_id, err, access_prp = plist_id)
+        call h5fcreate_f (outputfile, H5F_ACC_TRUNC_F, file_id, err, access_prp = plist_id)
         call h5pclose_f(plist_id, err)
 
         !
@@ -138,7 +130,7 @@ subroutine io_write(tstep,curr)
 
     ELSE
 
-        call h5fopen_f(filename, H5F_ACC_RDWR_F, file_id, err, &
+        call h5fopen_f(outputfile, H5F_ACC_RDWR_F, file_id, err, &
                        access_prp = plist_id)
         call h5pclose_f(plist_id, err)
         call h5dopen_f(file_id, "T", dset_id, err)
@@ -177,12 +169,6 @@ subroutine io_write(tstep,curr)
     call h5fclose_f(file_id, err)
 
     call MPI_BARRIER(app_comm ,err)
-    io_end_time = MPI_WTIME()
-    io_total_time = io_end_time - io_start_time
-    sz = io_size * nproc/1024.d0/1024.d0/1024.d0 !size in GB
-    gbs = sz/io_total_time
-    if (rank==0) print '("Step ",i3,": ",a20,f12.4,2x,f12.3,2x,f12.3)', &
-        tstep,filename,sz,io_total_time,gbs
 end subroutine io_write
 
 end module heat_io
