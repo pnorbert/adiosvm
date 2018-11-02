@@ -24,7 +24,7 @@ def SetupArgs():
     parser.add_argument("--displaysec", "-dsec", help="Float representing gap between plot window refresh", default=0.1)
     parser.add_argument("--nx", "-nx", help="Integer representing process decomposition in the x direction",default=1)
     parser.add_argument("--ny", "-ny", help="Integer representing process decomposition in the y direction",default=1)
-    parser.add_argument("--slice", "-slice", help="The 2D slice to be displayed/stored xy/yz/xz/all", default='all')
+    parser.add_argument("--plane", "-plane", help="The 2D plane to be displayed/stored xy/yz/xz/all", default='all')
     args = parser.parse_args()
 
     args.istart = int(args.istart)
@@ -32,13 +32,13 @@ def SetupArgs():
     args.nx = int(args.nx)
     args.ny = int(args.ny)
 
-    if args.slice not in ('xz', 'yz', 'xy', 'all'):
-        raise "Input argument --slice must be one of xz/yz/xy/all"
+    if args.plane not in ('xz', 'yz', 'xy', 'all'):
+        raise "Input argument --plane must be one of xz/yz/xy/all"
 
     return args
 
 
-def Plot2D(slice_direction, data, args, fullshape, step, fontsize):
+def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
     # Plotting part
     displaysec = args.displaysec
     gs = gridspec.GridSpec(1, 1)
@@ -55,7 +55,7 @@ def Plot2D(slice_direction, data, args, fullshape, step, fontsize):
         x = fullshape[1] / args.nx * i
         ax.plot([x, x], [0, fullshape[0]], color='black')
 
-    ax.set_title("{0} plane, Timestep {1}".format(slice_direction, step), fontsize=fontsize)
+    ax.set_title("{0} plane, Timestep {1}".format(plane_direction, step), fontsize=fontsize)
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     plt.ion()
@@ -78,7 +78,7 @@ def Plot2D(slice_direction, data, args, fullshape, step, fontsize):
         writer.Put(var, data, adios2.Mode.Sync)
         writer.EndStep()
     else:
-        imgfile = args.outfile+"{0:0>3}".format(step)+"_" + slice_direction + ".png"
+        imgfile = args.outfile+"{0:0>3}".format(step)+"_" + plane_direction + ".png"
         fig.savefig(imgfile)
 
     plt.clf()
@@ -118,15 +118,15 @@ if __name__ == "__main__":
     for fr_step in fr:
         cur_step= fr_step.currentstep()
 
-        if args.slice in ('xy', 'all'):
+        if args.plane in ('xy', 'all'):
             data = read_data (args, fr_step, [0,0,args.istart], [shape3[0],shape3[1],1])
             Plot2D ('xy', data, args, fullshape, cur_step, fontsize)
         
-        if args.slice in ('xz', 'all'):
+        if args.plane in ('xz', 'all'):
             data = read_data (args, fr_step, [0,args.istart,0], [shape3[0],1,shape3[2]])
             Plot2D ('xz', data, args, fullshape, cur_step, fontsize)
         
-        if args.slice in ('yz', 'all'):
+        if args.plane in ('yz', 'all'):
             data = read_data (args, fr_step, [args.istart,0,0], [1,shape3[1],shape3[2]])
             Plot2D ('yz',  data, args, fullshape, cur_step, fontsize)
 
