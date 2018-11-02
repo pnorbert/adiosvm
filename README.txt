@@ -441,6 +441,9 @@ V. ADIOS Tutorial code
 1. Linux Packages
    KSTAR demo requires gnuplot
    $ sudo apt-get install gnuplot
+
+   Brusselator demo requires FFTW3
+   $ sudo apt-get install libfftw3-dev
    
 
 VI. Build VTK-M from source
