@@ -16,7 +16,7 @@ adios2:
 
 hdf5:
 	cd simulation; make phdf5 hdf5_a hdf5_b
-	cd analysis; make hdf5_file
+	cd analysis; make hdf5_file phdf5_file
 
 subdirs = simulation analysis
 
