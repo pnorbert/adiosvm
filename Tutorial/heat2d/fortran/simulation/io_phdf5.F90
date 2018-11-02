@@ -1,4 +1,3 @@
-
 !  ADIOS is freely available under the terms of the BSD license described
 !  in the COPYING file in the top level directory of this source distribution.
 !
@@ -32,6 +31,80 @@ subroutine io_finalize()
 
 end subroutine io_finalize
 
+subroutine add_attr_str(dset_id, attrName,  strVal)
+    use HDF5      
+
+    INTEGER(HSIZE_T), DIMENSION(1) :: attrdim = (/1/)    
+    INTEGER(HID_T) :: aspace_id     ! Attribute Dataspace identifier
+    INTEGER(HID_T) :: atype_id      ! Attribute Type identifier
+    INTEGER(HID_T) :: att_id
+    INTEGER :: err
+
+    !INTEGER(SIZE_T), intent(in) :: strlen    
+    INTEGER(HID_T),  intent(in) :: dset_id
+    CHARACTER(LEN=*), INTENT(IN) :: strVal
+    CHARACTER(LEN=*), INTENT(IN) :: attrName
+
+    INTEGER(SIZE_T) :: strlen2;
+    strlen2 = LEN_TRIM(strVal);
+    
+    call h5screate_simple_f(1, attrdim, aspace_id, err)
+    call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, err)
+    call h5tset_size_f(atype_id, strlen2, err)
+    call h5acreate_f(dset_id, attrName, atype_id, aspace_id, att_id, err)
+    call h5awrite_f(att_id, atype_id, strVal, attrdim, err)
+    !
+    call h5aclose_f(att_id, err)
+    call h5sclose_f(aspace_id, err)
+    call h5tclose_f(atype_id, err)
+
+end subroutine add_attr_str
+
+
+subroutine add_attr_native(dset_id, attrName, htype, val)
+    use HDF5      
+
+    INTEGER(HID_T) :: aspace_id     ! Attribute Dataspace identifier
+    INTEGER(HID_T) :: att_id
+    INTEGER :: err
+
+    INTEGER(HID_T),  intent(in) :: htype
+    INTEGER(HID_T),  intent(in) :: dset_id
+    TYPE(C_PTR)     , INTENT(IN)  :: val
+    !TYPE            , INTENT(IN) :: val
+    !INTEGER     , INTENT(IN)  :: val
+    CHARACTER(LEN=*), INTENT(IN) :: attrName
+
+    INTEGER(SIZE_T) :: strlen2;
+    
+    call h5screate_f(H5S_SCALAR_F, aspace_id, err);
+    call h5acreate_f(dset_id, attrName, htype, aspace_id, att_id, err)
+    call h5awrite_f(att_id, htype, val, err)      
+
+    call h5aclose_f(att_id, err)
+    call h5sclose_f(aspace_id, err)
+
+end subroutine add_attr_native
+
+subroutine add_attr_array_native(dset_id, attrName, aspace_id, htype, buf)
+    use HDF5
+
+    INTEGER(HID_T) :: att_id
+    INTEGER :: err
+
+    INTEGER(HID_T),  intent(in) :: htype
+    INTEGER(HID_T),  intent(in) :: dset_id
+    INTEGER(HID_T), INTENT(IN) :: aspace_id   
+    CHARACTER(LEN=*), INTENT(IN) :: attrName
+
+    TYPE(C_PTR), INTENT(IN), TARGET :: buf
+
+    call h5acreate_f(dset_id, attrName, htype, aspace_id, att_id, err)
+    call h5awrite_f(att_id, htype, buf, err);
+    
+    call h5aclose_f(att_id, err)
+end subroutine add_attr_array_native
+
 subroutine io_write(tstep,curr)
     use heat_vars
     use HDF5
@@ -46,8 +119,9 @@ subroutine io_write(tstep,curr)
 
     INTEGER(HSSIZE_T), DIMENSION(3) :: offset 
     INTEGER(HSIZE_T),  DIMENSION(3) :: dims 
-    INTEGER(HSIZE_T),  DIMENSION(3) :: global_dims 
+    INTEGER(HSIZE_T),  DIMENSION(3), TARGET :: global_dims 
     INTEGER(HSIZE_T),  DIMENSION(3) :: max_dims 
+
 
     integer*8 io_size
 
@@ -56,15 +130,14 @@ subroutine io_write(tstep,curr)
     INTEGER(HID_T) :: dspace_id
     INTEGER(HID_T) :: memspace
     INTEGER(HID_T) :: plist_id
+    INTEGER(HID_T) :: array_attr_space_id
+    INTEGER(HSIZE_T), DIMENSION(1) :: array_attr_dim = (/3/)        
 
     ! variables for two attributes
     CHARACTER(LEN=1) ::  T_unit = 'C'
     CHARACTER(LEN=80) ::  T_desc = 'Temperature from simulation' 
-    INTEGER(SIZE_T) :: attrlen    
-    INTEGER(HID_T) :: aspace_id     ! Attribute Dataspace identifier
-    INTEGER(HID_T) :: atype_id      ! Attribute Type identifier
-    INTEGER(HID_T) :: att_unit_id
-    INTEGER(HID_T) :: att_desc_id
+    !REAL,  DIMENSION(1), TARGET ::T_temp = 0.5
+    REAL, TARGET ::T_temp = 0.5;
 
     INTEGER :: comm, info
 
@@ -74,6 +147,7 @@ subroutine io_write(tstep,curr)
     info = MPI_INFO_NULL
 
     call MPI_BARRIER(app_comm, err)
+    io_start_time = MPI_WTIME()
 
     ndims = 3
     dims(1) = ndx
@@ -99,7 +173,6 @@ subroutine io_write(tstep,curr)
 
 
     IF (tstep == 0) THEN
-
         call h5fcreate_f (outputfile, H5F_ACC_TRUNC_F, file_id, err, access_prp = plist_id)
         call h5pclose_f(plist_id, err)
 
@@ -111,23 +184,15 @@ subroutine io_write(tstep,curr)
         call h5pcreate_f(H5P_DATASET_CREATE_F, plist_id, err)
         call h5pset_chunk_f(plist_id, ndims, dims, err)
         call h5dcreate_f(file_id, "T", H5T_NATIVE_DOUBLE, dspace_id, &
-                     dset_id, err, plist_id)
+                         dset_id, err, plist_id)
         call h5pclose_f(plist_id, err)
 
-        !
-        ! Create the attribute and write the array data to it.
-        !
-        attrlen=1
-        call h5screate_simple_f(1, (/ 1_8 /), aspace_id, err)
-        call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, err)
-        call h5tset_size_f(atype_id, attrlen, err)
-        call h5acreate_f(dset_id, "unit", atype_id, aspace_id, att_unit_id, err)
-        call h5awrite_f(att_unit_id, atype_id, T_unit, (/ 1_8 /), err)
-        !
-        call h5aclose_f(att_unit_id, err)
-        call h5sclose_f(aspace_id, err)
-        call h5tclose_f(atype_id, err)
-
+    call add_attr_str(dset_id, "unit", T_unit);
+    call add_attr_str(dset_id, "description", T_desc);        
+    call add_attr_native(dset_id, "temp", H5T_NATIVE_DOUBLE, C_LOC(T_temp));
+    call h5screate_simple_f(1, array_attr_dim, array_attr_space_id, err);
+    call add_attr_array_native(dset_id, "shape", array_attr_space_id, H5T_NATIVE_INTEGER, C_LOC(global_dims));
+    call h5sclose_f(array_attr_space_id, err);
     ELSE
 
         call h5fopen_f(outputfile, H5F_ACC_RDWR_F, file_id, err, &
@@ -174,3 +239,4 @@ end subroutine io_write
 end module heat_io
 
 
+ 
