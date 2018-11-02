@@ -31,16 +31,16 @@ $ simulation/heatSimulation_adios2
  steps:  the total number of steps to output
  iterations: one step consist of this many iterations
 
-$ mpirun -n 12 simulation/heatSimulation_adios2 heat  4 3    40 50   6 500
+$ mpirun -n 12 simulation/heatSimulation_adios2 heat.bp  4 3    256 256   6 500
 
 will perform the calculation 
 - on 12 processes 
-- on a 4*40 x 3*50 2D array (Fortran column-major ordering)
+- on a 4*256 x 3*256 2D array (Fortran column-major ordering)
 - for 6*500 iterations, 
 - producing an output of 6 steps stored in heat.bp 
 
 $ bpls -l heat.bp 
-  double   T     6*{150, 160} = 0 / 200
+  double   T     6*{768, 1024} = 0 / 200
 
 $ ./plot_heat.sh heat.bp
 $ eog . 
@@ -56,7 +56,7 @@ $ ./analysis/heatAnalysis_adios2_file
 $ mpirun -n 3 analysis/heatAnalysis_adios2_file  heat.bp
  Input file: heat.bp
  Using BPFile engine for input
- Global array size: 160x150
+ Global array size: 1024x768
  Available steps      = 6
  Read step            = 0
  ...
@@ -70,7 +70,7 @@ $ mpirun -n 3 analysis/heatAnalysis_adios2_stream  heat.bp
  Input file: heat.bp
  Using BPFile engine for input
  Process step: 0
- Global array size: 160x150
+ Global array size: 1024x768
  Process step: 1
  ...
  Process step: 5
@@ -87,12 +87,12 @@ In adios2.xml, use "SST" for engine of the io group "SimulationOutput"
 
 In two terminal windows:
 
-$ mpirun -n 4 simulation/heatSimulation_adios2 heat 2 2 300 300 100 600
+$ mpirun -n 12 simulation/heatSimulation_adios2 heat.bp 4 3 256 256 100 500
 $ mpirun -n 2 analysis/heatAnalysis_adios2_stream heat.bp
 
 or 
 
-$ mpirun -n 4 simulation/heatSimulation_adios2 heat 2 2 300 300 100 600
-$ mpirun -n 2 /opt/adios2/bin/adios2_reorganize heat.bp staged.bp SST "" BPFile "" 2 1
+$ mpirun -n 12 simulation/heatSimulation_adios2 heat.bp 4 3 256 256 100 500
+$ mpirun -n 2 /opt/adios2/bin/adios_reorganize heat.bp staged.bp SST "" BPFile "" 2 1
 
 
