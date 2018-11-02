@@ -49,7 +49,7 @@
         ===============================================-->
 
     <io name="VizInput">
-        <engine type="SST">
+        <engine type="BPFile">
         </engine>
     </io>
 
