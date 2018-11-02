@@ -89,7 +89,7 @@ def read_data(args, fr, start_coord, size_dims):
     var2 = args.varname2
     data1= fr.read(var1, start_coord, size_dims )
     data2= fr.read(var2, start_coord, size_dims)
-    data = np.sqrt(data1*data1-data2*data2)
+    data = np.sqrt(data1*data1+data2*data2)
     data = np.squeeze(data)
     return data
 
