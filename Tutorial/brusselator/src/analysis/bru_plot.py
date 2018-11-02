@@ -21,17 +21,20 @@ def SetupArgs():
     parser.add_argument("--varname2", "-v2", help="Name of variable read", default="u_imag")
     parser.add_argument("--nompi", "-nompi", help="ADIOS was installed without MPI", action="store_true")
     parser.add_argument("--istart", "-istart", help="Integer representing starting plane index", default=1)
-    parser.add_argument("--isize", "-isize", help="Integer representing the size of the variable per dimension", required=True)
     parser.add_argument("--displaysec", "-dsec", help="Float representing gap between plot window refresh", default=0.1)
     parser.add_argument("--nx", "-nx", help="Integer representing process decomposition in the x direction",default=1)
     parser.add_argument("--ny", "-ny", help="Integer representing process decomposition in the y direction",default=1)
+    parser.add_argument("--slice", "-slice", help="The 2D slice to be displayed/stored xy/yz/xz/all", default='all')
     args = parser.parse_args()
 
     args.istart = int(args.istart)
-    args.isize = int(args.isize)
     args.displaysec = float(args.displaysec)
     args.nx = int(args.nx)
     args.ny = int(args.ny)
+
+    if args.slice not in ('xz', 'yz', 'xy', 'all'):
+        raise "Input argument --slice must be one of xz/yz/xy/all"
+
     return args
 
 
@@ -56,7 +59,7 @@ def Plot2D(slice_direction, data, args, fullshape, step, fontsize):
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     plt.ion()
-    print (step)
+    print ("Step: {0}".format(step))
     if (args.outfile == "screen"):
         plt.show()
         plt.pause(displaysec)
@@ -104,32 +107,28 @@ if __name__ == "__main__":
     # Read the data from this object
     fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2_config.xml", "VizInput")
     vars_info = fr.availablevariables()
-    print(vars_info[args.varname]["Shape"])
+
+    shape3_str = vars_info[args.varname]["Shape"].split(',')
+    shape3 = list(map(int,shape3_str))
  
     # Get the ADIOS selections -- equally partition the data if parallelization is requested
     start, size, fullshape = mpi.Partition(fr, args)
 
-    print ("printing mpi start and size")
-    print (start, size)
-
     # Read through the steps, one at a time
-    step = 0
     for fr_step in fr:
-        inpstep = fr_step.currentstep()
+        cur_step= fr_step.currentstep()
 
         if args.slice in ('xy', 'all'):
-            data = read_data (args, fr_step, [0,0,args.istart], [args.isize,args.isize,1])
-            Plot2D ('xy', data, args, fullshape, step, fontsize)
+            data = read_data (args, fr_step, [0,0,args.istart], [shape3[0],shape3[1],1])
+            Plot2D ('xy', data, args, fullshape, cur_step, fontsize)
         
         if args.slice in ('xz', 'all'):
-            data = read_data (args, fr_step, [0,args.istart,0], [args.isize,1,args.isize])
-            Plot2D ('xz', data, args, fullshape, step, fontsize)
+            data = read_data (args, fr_step, [0,args.istart,0], [shape3[0],1,shape3[2]])
+            Plot2D ('xz', data, args, fullshape, cur_step, fontsize)
         
         if args.slice in ('yz', 'all'):
-            data = read_data (args, fr_step, [args.istart,0,0], [1,args.isize,args.isize])
-            Plot2D ('yz',  data, args, fullshape, step, fontsize)
-
-        step += 1
+            data = read_data (args, fr_step, [args.istart,0,0], [1,shape3[1],shape3[2]])
+            Plot2D ('yz',  data, args, fullshape, cur_step, fontsize)
 
     fr.close()
 
