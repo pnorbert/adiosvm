@@ -40,7 +40,7 @@ void printUsage()
         << "Usage: analysis input_filename output_filename output_norm_only\n"
         << "  input_filename:   Name of the input file handle for reading data\n"
         << "  output_filename:  Name of the output file to which data must be written\n"
-        << "  output_norm_only: Enter 1 if you only want to write the norms of U and V, and not the original variables\n\n";
+        << "  output_norm_only: (0/1) Enter 1 if you only want to write the norms of U and V, and not the original variables\n\n";
 }
 
 /*
@@ -147,46 +147,47 @@ int main(int argc, char *argv[])
 
         // Set selection
         var_u_real_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {shape_u_real[0]/comm_size*rank,0,0},
-                    {shape_u_real[0]/comm_size, shape_u_real[1], shape_u_real[2]}));
+                    {0,0,shape_u_real[2]/comm_size*rank},
+                    {shape_u_real[0], shape_u_real[1], shape_u_real[2]/comm_size}));
         var_u_imag_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {shape_u_imag[0]/comm_size*rank,0,0},
-                    {shape_u_imag[0]/comm_size, shape_u_imag[1], shape_u_imag[2]}));
+                    {0,0,shape_u_imag[2]/comm_size*rank},
+                    {shape_u_imag[0], shape_u_imag[1], shape_u_imag[2]/comm_size}));
         var_v_real_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {shape_v_real[0]/comm_size*rank,0,0},
-                    {shape_v_real[0]/comm_size, shape_v_real[1], shape_v_real[2]}));
+                    {0,0,shape_v_real[2]/comm_size*rank},
+                    {shape_v_real[0], shape_v_real[1], shape_v_real[2]/comm_size}));
         var_v_imag_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {shape_v_imag[0]/comm_size*rank,0,0},
-                    {shape_v_imag[0]/comm_size, shape_v_imag[1], shape_v_imag[2]}));
+                    {0,0,shape_v_imag[2]/comm_size*rank},
+                    {shape_v_imag[0], shape_v_imag[1], shape_v_imag[2]/comm_size}));
 
         // Declare variables to output
         if (firstStep) {
             var_u_norm = writer_io.DefineVariable<double> ("u_norm",
                     { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
-                    { shape_u_real[0]/comm_size * rank, 0, 0 },
-                    { shape_u_real[0]/comm_size, shape_u_real[1], shape_u_real[2] } );
+                    { 0, 0, shape_u_real[2]/comm_size * rank },
+                    { shape_u_real[0], shape_u_real[1], shape_u_real[2]/comm_size } );
             var_v_norm = writer_io.DefineVariable<double> ("v_norm",
                     { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
-                    { shape_v_real[0]/comm_size * rank, 0, 0 },
-                    { shape_v_real[0]/comm_size, shape_v_real[1], shape_v_real[2] } );
+                    { 0, 0, shape_v_real[2]/comm_size * rank },
+                    { shape_v_real[0], shape_v_real[1], shape_v_real[2]/comm_size } );
 
             if ( !write_norms_only) {
                 var_u_real_out = writer_io.DefineVariable<double> ("u_real",
                         { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
-                        { shape_u_real[0]/comm_size * rank, 0, 0 },
-                        { shape_u_real[0]/comm_size, shape_u_real[1], shape_u_real[2] } );
+                        { 0, 0, shape_u_real[2]/comm_size * rank },
+                        { shape_u_real[0], shape_u_real[1], shape_u_real[2]/comm_size } );
                 var_u_imag_out = writer_io.DefineVariable<double> ("u_imag",
+                        // can use shape_u_real here for the imag var as the shape is the same
                         { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
-                        { shape_u_real[0]/comm_size * rank, 0, 0 },
-                        { shape_u_real[0]/comm_size, shape_u_real[1], shape_u_real[2] } );
+                        { 0, 0, shape_u_real[2]/comm_size * rank },
+                        { shape_u_real[0], shape_u_real[1], shape_u_real[2]/comm_size } );
                 var_v_real_out = writer_io.DefineVariable<double> ("v_real",
                         { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
-                        { shape_v_real[0]/comm_size * rank, 0, 0 },
-                        { shape_v_real[0]/comm_size, shape_v_real[1], shape_v_real[2] } );
+                        { 0, 0, shape_v_real[2]/comm_size * rank },
+                        { shape_v_real[0], shape_v_real[1], shape_v_real[2]/comm_size } );
                 var_v_imag_out = writer_io.DefineVariable<double> ("v_imag",
                         { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
-                        { shape_v_real[0]/comm_size * rank, 0, 0 },
-                        { shape_v_real[0]/comm_size, shape_v_real[1], shape_v_real[2] } );
+                        { 0, 0, shape_v_real[2]/comm_size * rank },
+                        { shape_v_real[0], shape_v_real[1], shape_v_real[2]/comm_size } );
             }
             firstStep = false;
         }
