@@ -70,14 +70,15 @@ int main(int argc, char *argv[])
 
     std::string in_filename;
     std::string out_filename;
-    std::string out_norms_only;
     bool write_norms_only = false;
     in_filename = argv[1];
     out_filename = argv[2];
-    write_norms_only=true;
-//    out_norms_only = argv[3];
-//    if (out_norms_only.compare("1") == 0)
-//        write_norms_only = true;
+    if (argc >= 4)
+    {
+        std::string out_norms_only = argv[3];
+        if (out_norms_only.compare("1") == 0)
+            write_norms_only = true;
+    }
 
 
     std::size_t u_global_size, v_global_size;
