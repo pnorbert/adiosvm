@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &comm_size);
 
-    if (argc < 4)
+    if (argc < 3)
     {
         std::cout << "Not enough arguments\n";
         if (rank == 0)
@@ -74,9 +74,10 @@ int main(int argc, char *argv[])
     bool write_norms_only = false;
     in_filename = argv[1];
     out_filename = argv[2];
-    out_norms_only = argv[3];
-    if (out_norms_only.compare("1") == 0)
-        write_norms_only = true;
+    write_norms_only=true;
+//    out_norms_only = argv[3];
+//    if (out_norms_only.compare("1") == 0)
+//        write_norms_only = true;
 
 
     std::size_t u_global_size, v_global_size;

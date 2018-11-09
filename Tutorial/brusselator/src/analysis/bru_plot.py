@@ -108,6 +108,8 @@ if __name__ == "__main__":
     fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2_config.xml", "VizInput")
     vars_info = fr.availablevariables()
 
+    print("vars_info {0}".format(vars_info))
+
     shape3_str = vars_info[args.varname]["Shape"].split(',')
     shape3 = list(map(int,shape3_str))
  

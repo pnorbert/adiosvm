@@ -5,7 +5,7 @@
 
         <engine type="BPFile"/>
         <engine type="HDF5"/>
-        <engine type="SST"/>
+        <engine type=""/>
         <engine type="InSituMPI"/>
 
         DataMan is more elaborate with a transport and IP address required
@@ -27,7 +27,19 @@
         ======================================-->
 
     <io name="SimulationOutput">
-        <engine type="BPFile">
+        <engine type="SST">
+<!---
+        <variable name="u_norm">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.00001"/>
+            </operation>
+        </variable>
+        <variable name="v_norm">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.00001"/>
+            </operation>
+        </variable>
+-->
         </engine>
     </io>
 
@@ -36,8 +48,38 @@
         ====================================-->
 
     <io name="AnalysisOutput">
+        <engine type="SST">
+        </engine>
+        <!---
+        <variable name="u_norm">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.00001"/>
+            </operation>
+        </variable>
+        <variable name="v_norm">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.00001"/>
+            </operation>
+        </variable>
+        --->
+    </io>
+    <!--====================================
+           Configuration for the norm calc2
+        ====================================-->
+
+    <io name="AnalysisOutput2">
         <engine type="BPFile">
         </engine>
+        <variable name="u_norm">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.00001"/>
+            </operation>
+        </variable>
+        <variable name="v_norm">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.00001"/>
+            </operation>
+        </variable>
     </io>
 
     <!--================================================
@@ -48,8 +90,8 @@
            attach to (simulation or analysis)
         ===============================================-->
 
-    <io name="VizInput">
-        <engine type="BPFile">
+        <io name="VizInput">
+        <engine type="SST">
         </engine>
     </io>
 
