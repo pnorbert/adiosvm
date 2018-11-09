@@ -229,7 +229,7 @@ PROGRAM main
     time(n)=0.0
     plotnum=10000000
     !Write initial data to disc
-    CALL savedata(Nx,Ny,Nz,plotnum,fname,savefield,uhigh,vhigh,decomp,n,xcoords,ycoords,zcoords)
+!    CALL savedata(Nx,Ny,Nz,plotnum,fname,savefield,uhigh,vhigh,decomp,n,xcoords,ycoords,zcoords)
 
     ! Free memory used by coordinates
     if (myid .eq. 0) then
