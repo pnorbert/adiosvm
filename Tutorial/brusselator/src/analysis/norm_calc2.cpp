@@ -37,10 +37,10 @@ std::vector<T> compute_norm(const std::vector<T>& real, const std::vector<T>& im
 void printUsage()
 {
     std::cout
-        << "Usage: analysis input_filename output_filename output_norm_only\n"
+        << "Usage: analysis input_filename output_filename [output_inputdata]\n"
         << "  input_filename:   Name of the input file handle for reading data\n"
         << "  output_filename:  Name of the output file to which data must be written\n"
-        << "  output_norm_only: Enter 1 if you only want to write the norms of U and V, and not the original variables\n\n";
+        << "  output_inputdata: Enter 0 if you want to write the original variables besides the analysis results\n\n";
 }
 
 /*
@@ -70,15 +70,15 @@ int main(int argc, char *argv[])
 
     std::string in_filename;
     std::string out_filename;
-    std::string out_norms_only;
-    bool write_norms_only = false;
+    bool write_norms_only = true;
     in_filename = argv[1];
     out_filename = argv[2];
-    write_norms_only=true;
-//    out_norms_only = argv[3];
-//    if (out_norms_only.compare("1") == 0)
-//        write_norms_only = true;
-
+    if (argc >= 4)
+    {
+        std::string out_norms_only = argv[3];
+        if (out_norms_only.compare("0") == 0)
+            write_norms_only = false;
+    }
 
     std::size_t u_global_size, v_global_size;
     std::size_t u_local_size, v_local_size;
