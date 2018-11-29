@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include <cmath>
+#include <thread>
 #include "adios2.h"
 
 /*
@@ -119,10 +120,18 @@ int main(int argc, char *argv[])
     while(true) {
 
         // Begin step
-        adios2::StepStatus read_status  = reader_engine.BeginStep (adios2::StepMode::NextAvailable, 0.0f);
-        if (read_status != adios2::StepStatus::OK)
+        adios2::StepStatus read_status = reader_engine.BeginStep(adios2::StepMode::NextAvailable, 10.0f);
+        if (read_status == adios2::StepStatus::NotReady)
+        {
+            // std::cout << "Stream not ready yet. Waiting...\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            continue;
+        }
+        else if (read_status != adios2::StepStatus::OK)
+        {
             break;
-
+        }
+ 
         step_num ++;
         if (rank == 0)
             std::cout << "Step: " << step_num << std::endl;
