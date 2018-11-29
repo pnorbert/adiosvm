@@ -325,6 +325,8 @@ end subroutine usage
 
 !!***************************
 subroutine processArgs(fname,nx,ny,nz,nmax,plotgap,comm)
+    use mpi
+    implicit none
 #ifndef __GFORTRAN__
 #ifndef __GNUC__
     interface
@@ -333,8 +335,6 @@ subroutine processArgs(fname,nx,ny,nz,nmax,plotgap,comm)
     end interface
 #endif
 #endif
-    use mpi
-    implicit none
     character(len=256) :: npx_str, npy_str, npz_str
     character(len=256) :: steps_str,iters_str,nmax_str, plotgap_str
     integer :: numargs
