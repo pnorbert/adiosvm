@@ -19,23 +19,6 @@
 #include <fftw3-mpi.h>
 
 /*
- * Function to compute the norm of a vector
- */
-template <class T> 
-std::vector<T> compute_norm(const std::vector<T>& real, const std::vector<T>& imag)
-{
-    if(real.size() != imag.size()) 
-        throw std::invalid_argument("ERROR: real and imag parts have different sizes\n"); 
-    
-    std::vector<T> norm( real.size() );
-    
-    for (auto i = 0; i < real.size(); ++i )
-        norm[i] = std::sqrt( std::pow(real[i], 2.) + std::pow(imag[i], 2.) );
-    
-    return norm;
-}
-
-/*
  * Print info to the user on how to invoke the application
  */
 void printUsage()
@@ -281,7 +264,7 @@ int main(int argc, char *argv[])
     // Clean up FFTW
     fftw_free(in);
     fftw_free(out);
-    //fftw_destroy_plan(plan);
+    fftw_destroy_plan(plan);
 
     MPI_Finalize();
     return 0;
