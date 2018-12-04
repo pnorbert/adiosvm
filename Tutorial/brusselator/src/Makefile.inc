@@ -4,7 +4,7 @@ CXX=mpicxx
 FFTW_DIR?=/usr
 ADIOS2_DIR?=/opt/adios2
 
-ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl -ladios2_enet -lc++
+ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl -ladios2_enet 
 
 FFLAGS=-cpp -O3 -DADIOS2
 CXXFLAGS=-O3 -std=c++11
