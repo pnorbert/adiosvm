@@ -3,7 +3,7 @@
  * Reads variable u_real, u_imag, v_real, v_imag, and computes the norm of U and V.
  * Writes the variables and their computed norm to an ADIOS2 file.
  *
- * Kshitij Mehta
+ * Jong Choi
  *
  * @TODO:
  *      - Error checks. What is vector resizing returns an out-of-memory error? Must handle it
@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cmath>
 #include <thread>
+#include <cassert>
 #include "adios2.h"
 
 #include <mpi.h>
@@ -35,6 +36,7 @@ void printUsage()
  */
 int main(int argc, char *argv[])
 {
+    int rank, comm_size, wrank, step_num = 0, err;
     fftw_complex *in;
     fftw_complex *out;
     fftw_plan plan;
@@ -43,8 +45,6 @@ int main(int argc, char *argv[])
 
     MPI_Init(&argc, &argv);
     fftw_mpi_init();
-
-    int rank, comm_size, wrank, step_num = 0;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
 
@@ -156,6 +156,12 @@ int main(int argc, char *argv[])
                                                 MPI_COMM_WORLD, &local_n0, &local_0_start);
             in = fftw_alloc_complex(alloc_local);
             out = fftw_alloc_complex(alloc_local);
+
+            if ((NULL == in) or (NULL == out)) {
+                std::cout << "FATAL ERROR: Could not allocate memory for fftw arrays. Exiting ..";
+                MPI_Abort(MPI_COMM_WORLD, err);
+            }
+
             u_fft_real.reserve(alloc_local);
             u_fft_imag.reserve(alloc_local);
 
