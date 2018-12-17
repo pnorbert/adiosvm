@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
     fftw_complex *out;
     fftw_plan plan;
     ptrdiff_t alloc_local, alloc_offset, local_n0, local_0_start;
-    size_t x_dim, x_off;
 
     MPI_Init(&argc, &argv);
     fftw_mpi_init();
@@ -154,11 +153,19 @@ int main(int argc, char *argv[])
         if (firstStep) {
             alloc_local = fftw_mpi_local_size_3d(shape_u_real[0], shape_u_real[1], shape_u_real[2], 
                                                 MPI_COMM_WORLD, &local_n0, &local_0_start);
+            printf("[rank: %d] shape_u_real = %ld, %ld, %ld\n", rank, shape_u_real[0], shape_u_real[1], shape_u_real[2]);
+            printf("[rank: %d] alloc_local, local_n0, local_0_start = %ld, %ld, %ld\n", rank, alloc_local, local_n0, local_0_start);
+            if (local_n0 < 1)
+            {
+                std::cerr << "FATAL ERROR: MPI size should not be larger than the first dimension. Exiting .." << std::endl;
+                MPI_Abort(MPI_COMM_WORLD, err);
+            }
+            assert(local_0_start + local_n0 <= shape_u_real[0]);
             in = fftw_alloc_complex(alloc_local);
             out = fftw_alloc_complex(alloc_local);
 
             if ((NULL == in) or (NULL == out)) {
-                std::cout << "FATAL ERROR: Could not allocate memory for fftw arrays. Exiting ..";
+                std::cerr << "FATAL ERROR: Could not allocate memory for fftw arrays. Exiting .." << std::endl;
                 MPI_Abort(MPI_COMM_WORLD, err);
             }
 
@@ -168,54 +175,49 @@ int main(int argc, char *argv[])
             plan = fftw_mpi_plan_dft_3d(shape_u_real[0], shape_u_real[1], shape_u_real[2], 
                                         in, out, MPI_COMM_WORLD, FFTW_FORWARD, FFTW_ESTIMATE);
 
-            x_dim = alloc_local/shape_u_real[1]/shape_u_real[2];
-            MPI_Scan(&x_dim, &x_off, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
-            x_off = x_off - x_dim;
-            //printf("[%d] alloc_local=%lu, offset=%lu\n", rank, alloc_local, x_off);
-
             var_u_fft_real = writer_io.DefineVariable<double> ("u_fft_real",
-                    { shape_u_real[0]*shape_u_real[1]*shape_u_real[2] },
-                    { x_off*shape_u_real[1]*shape_u_real[2] },
-                    { (size_t)alloc_local } );
+                    { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
+                    { (size_t) local_0_start, 0, 0 },
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
             var_u_fft_imag = writer_io.DefineVariable<double> ("u_fft_imag",
-                    { shape_u_real[0]*shape_u_real[1]*shape_u_real[2] },
-                    { x_off*shape_u_real[1]*shape_u_real[2] },
-                    { (size_t)alloc_local } );
+                    { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
+                    { (size_t) local_0_start, 0, 0 },
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
 
             if ( !write_norms_only) {
                 var_u_real_out = writer_io.DefineVariable<double> ("u_real",
                         { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
-                        { x_off, 0, 0 },
-                        { x_dim, shape_u_real[1], shape_u_real[2] } );
+                        { (size_t) local_0_start, 0, 0 },
+                        { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
                 var_u_imag_out = writer_io.DefineVariable<double> ("u_imag",
                         { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
-                        { x_off, 0, 0 },
-                        { x_dim, shape_u_real[1], shape_u_real[2] } );
+                        { (size_t) local_0_start, 0, 0 },
+                        { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
                 var_v_real_out = writer_io.DefineVariable<double> ("v_real",
                         { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
-                        { x_off, 0, 0 },
-                        { x_dim, shape_u_real[1], shape_u_real[2] } );
+                        { (size_t) local_0_start, 0, 0 },
+                        { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
                 var_v_imag_out = writer_io.DefineVariable<double> ("v_imag",
                         { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
-                        { x_off, 0, 0 },
-                        { x_dim, shape_u_real[1], shape_u_real[2] } );
+                        { (size_t) local_0_start, 0, 0 },
+                        { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
             }
             firstStep = false;
         }
 
         // Set selection
         var_u_real_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {x_off,0,0},
-                    {x_dim, shape_u_real[1], shape_u_real[2]}));
+                    { (size_t) local_0_start, 0, 0},
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
         var_u_imag_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {x_off,0,0},
-                    {x_dim, shape_u_real[1], shape_u_real[2]}));
+                    { (size_t) local_0_start, 0, 0},
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
         var_v_real_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {x_off,0,0},
-                    {x_dim, shape_u_real[1], shape_u_real[2]}));
+                    { (size_t) local_0_start, 0, 0},
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
         var_v_imag_in.SetSelection(adios2::Box<adios2::Dims>(
-                    {x_off,0,0},
-                    {x_dim, shape_u_real[1], shape_u_real[2]}));
+                    { (size_t) local_0_start, 0, 0},
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
 
         // Read adios2 data
         reader_engine.Get<double>(var_u_real_in, u_real_data);
@@ -227,7 +229,7 @@ int main(int argc, char *argv[])
         reader_engine.EndStep();
 
         // Input to FFTW
-        for (int i = 0; i < x_dim; i++)
+        for (int i = 0; i < local_n0; i++)
         {
             for (int j = 0; j < shape_u_real[1]; j++)
             {
