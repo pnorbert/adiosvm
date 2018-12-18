@@ -92,10 +92,12 @@ int main(int argc, char *argv[])
 
     std::vector<double> u_fft_real;
     std::vector<double> u_fft_imag;
+    std::vector<double> v_fft_real;
+    std::vector<double> v_fft_imag;
     
     // adios2 variable declarations
     adios2::Variable<double> var_u_real_in, var_u_imag_in, var_v_real_in, var_v_imag_in;
-    adios2::Variable<double> var_u_fft_real, var_u_fft_imag;
+    adios2::Variable<double> var_u_fft_real, var_u_fft_imag, var_v_fft_real, var_v_fft_imag;
     adios2::Variable<double> var_u_real_out, var_u_imag_out, var_v_real_out, var_v_imag_out;
 
     // adios2 io object and engine init
@@ -171,6 +173,8 @@ int main(int argc, char *argv[])
 
             u_fft_real.reserve(alloc_local);
             u_fft_imag.reserve(alloc_local);
+            v_fft_real.reserve(alloc_local);
+            v_fft_imag.reserve(alloc_local);
 
             plan = fftw_mpi_plan_dft_3d(shape_u_real[0], shape_u_real[1], shape_u_real[2], 
                                         in, out, MPI_COMM_WORLD, FFTW_FORWARD, FFTW_ESTIMATE);
@@ -181,6 +185,15 @@ int main(int argc, char *argv[])
                     { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
             var_u_fft_imag = writer_io.DefineVariable<double> ("u_fft_imag",
                     { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
+                    { (size_t) local_0_start, 0, 0 },
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
+
+            var_v_fft_real = writer_io.DefineVariable<double> ("v_fft_real",
+                    { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
+                    { (size_t) local_0_start, 0, 0 },
+                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
+            var_v_fft_imag = writer_io.DefineVariable<double> ("v_fft_imag",
+                    { shape_v_real[0], shape_v_real[1], shape_v_real[2] },
                     { (size_t) local_0_start, 0, 0 },
                     { (size_t) local_n0, shape_u_real[1], shape_u_real[2] } );
 
@@ -214,10 +227,10 @@ int main(int argc, char *argv[])
                     { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
         var_v_real_in.SetSelection(adios2::Box<adios2::Dims>(
                     { (size_t) local_0_start, 0, 0},
-                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
+                    { (size_t) local_n0, shape_v_real[1], shape_v_real[2]}));
         var_v_imag_in.SetSelection(adios2::Box<adios2::Dims>(
                     { (size_t) local_0_start, 0, 0},
-                    { (size_t) local_n0, shape_u_real[1], shape_u_real[2]}));
+                    { (size_t) local_n0, shape_v_real[1], shape_v_real[2]}));
 
         // Read adios2 data
         reader_engine.Get<double>(var_u_real_in, u_real_data);
@@ -228,6 +241,7 @@ int main(int argc, char *argv[])
         // End adios2 step
         reader_engine.EndStep();
 
+        // U
         // Input to FFTW
         for (int i = 0; i < local_n0; i++)
         {
@@ -252,10 +266,37 @@ int main(int argc, char *argv[])
             u_fft_imag[i] = out[i][1];
         }
 
+        // V
+        // Input to FFTW
+        for (int i = 0; i < local_n0; i++)
+        {
+            for (int j = 0; j < shape_u_real[1]; j++)
+            {
+                for (int k = 0; k < shape_u_real[2]; k++)
+                {
+                    size_t idx = i*shape_u_real[1]*shape_u_real[2] + j*shape_u_real[2] + k;
+                    in[idx][0] = v_real_data[idx];
+                    in[idx][1] = v_imag_data[idx];
+                }
+            }
+        }
+
+        // Do a fourier transform
+        fftw_execute(plan);
+
+        // Output
+        for (size_t i = 0; i < alloc_local; i++)
+        {
+            v_fft_real[i] = out[i][0];
+            v_fft_imag[i] = out[i][1];
+        }
+
         // write U, V, and their norms out
         writer_engine.BeginStep ();
         writer_engine.Put<double> (var_u_fft_real, u_fft_real.data());
         writer_engine.Put<double> (var_u_fft_imag, u_fft_imag.data());
+        writer_engine.Put<double> (var_v_fft_real, v_fft_real.data());
+        writer_engine.Put<double> (var_v_fft_imag, v_fft_imag.data());
         if (!write_norms_only) {
             writer_engine.Put<double> (var_u_real_out, u_real_data.data());
             writer_engine.Put<double> (var_u_imag_out, u_imag_data.data());
