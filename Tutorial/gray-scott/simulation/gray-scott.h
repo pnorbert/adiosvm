@@ -31,12 +31,12 @@ protected:
 
     std::vector<double> u, v, u2, v2;
 
-    int rank;
-    int procs;
+    int rank, procs;
     int west, east, up, down, north, south;
     MPI_Comm comm;
     MPI_Comm cart_comm;
 
+    // MPI datatypes for halo exchange
     MPI_Datatype xy_face_type;
     MPI_Datatype xz_face_type;
     MPI_Datatype yz_face_type;
@@ -62,13 +62,13 @@ protected:
                      const std::vector<double> &s) const;
 
     // Exchange faces with neighbors
-    void sendrecv(std::vector<double> &u, std::vector<double> &v) const;
+    void exchange(std::vector<double> &u, std::vector<double> &v) const;
     // Exchange XY faces with north/south
-    void sendrecv_xy(std::vector<double> &local_data) const;
+    void exchange_xy(std::vector<double> &local_data) const;
     // Exchange XZ faces with up/down
-    void sendrecv_xz(std::vector<double> &local_data) const;
+    void exchange_xz(std::vector<double> &local_data) const;
     // Exchange YZ faces with west/east
-    void sendrecv_yz(std::vector<double> &local_data) const;
+    void exchange_yz(std::vector<double> &local_data) const;
 
     // Return a copy of data with ghosts removed
     std::vector<double> data_noghost(const std::vector<double> &data) const;

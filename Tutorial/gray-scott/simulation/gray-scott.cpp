@@ -1,4 +1,7 @@
-#include <iomanip>
+// The solver is based on Hiroshi Watanabe's 2D Gray-Scott reaction diffusion
+// code available at:
+// https://github.com/kaityo256/sevendayshpc/tree/master/day5
+
 #include <mpi.h>
 #include <random>
 #include <vector>
@@ -21,7 +24,7 @@ void GrayScott::init()
 
 void GrayScott::iterate()
 {
-    sendrecv(u, v);
+    exchange(u, v);
     calc(u, v, u2, v2);
 
     u.swap(u2);
@@ -158,58 +161,55 @@ void GrayScott::init_mpi()
     MPI_Type_commit(&yz_face_type);
 }
 
-void GrayScott::sendrecv_xy(std::vector<double> &local_data) const
+void GrayScott::exchange_xy(std::vector<double> &local_data) const
 {
-    const int lz = size_z;
     MPI_Status st;
 
-    // Send XY face z=lz to north and receive z=0 from south
-    MPI_Sendrecv(&local_data[l2i(0, 0, lz)], 1, xy_face_type, north, 1,
+    // Send XY face z=size_z to north and receive z=0 from south
+    MPI_Sendrecv(&local_data[l2i(0, 0, size_z)], 1, xy_face_type, north, 1,
                  &local_data[l2i(0, 0, 0)], 1, xy_face_type, south, 1,
                  cart_comm, &st);
-    // Send XY face z=1 to south and receive z=lz+1 from north
+    // Send XY face z=1 to south and receive z=size_z+1 from north
     MPI_Sendrecv(&local_data[l2i(0, 0, 1)], 1, xy_face_type, south, 1,
-                 &local_data[l2i(0, 0, lz + 1)], 1, xy_face_type, north, 1,
+                 &local_data[l2i(0, 0, size_z + 1)], 1, xy_face_type, north, 1,
                  cart_comm, &st);
 }
 
-void GrayScott::sendrecv_xz(std::vector<double> &local_data) const
+void GrayScott::exchange_xz(std::vector<double> &local_data) const
 {
-    const int ly = size_y;
     MPI_Status st;
 
-    // Send XZ face y=ly to up and receive y=0 from down
-    MPI_Sendrecv(&local_data[l2i(1, ly, 1)], 1, xz_face_type, up, 2,
+    // Send XZ face y=size_y to up and receive y=0 from down
+    MPI_Sendrecv(&local_data[l2i(1, size_y, 1)], 1, xz_face_type, up, 2,
                  &local_data[l2i(1, 0, 1)], 1, xz_face_type, down, 2, cart_comm,
                  &st);
-    // Send XZ face y=1 to down and receive y=ly+1 from up
+    // Send XZ face y=1 to down and receive y=size_y+1 from up
     MPI_Sendrecv(&local_data[l2i(1, 1, 1)], 1, xz_face_type, down, 2,
-                 &local_data[l2i(1, ly + 1, 1)], 1, xz_face_type, up, 2,
+                 &local_data[l2i(1, size_y + 1, 1)], 1, xz_face_type, up, 2,
                  cart_comm, &st);
 }
 
-void GrayScott::sendrecv_yz(std::vector<double> &local_data) const
+void GrayScott::exchange_yz(std::vector<double> &local_data) const
 {
-    const int lx = size_x;
     MPI_Status st;
 
-    // Send YZ face x=lx to east and receive x=0 from west
-    MPI_Sendrecv(&local_data[l2i(lx, 0, 1)], 1, yz_face_type, east, 3,
+    // Send YZ face x=size_x to east and receive x=0 from west
+    MPI_Sendrecv(&local_data[l2i(size_x, 0, 1)], 1, yz_face_type, east, 3,
                  &local_data[l2i(0, 0, 1)], 1, yz_face_type, west, 3, cart_comm,
                  &st);
-    // Send YZ face x=1 to west and receive x=lx+1 from east
+    // Send YZ face x=1 to west and receive x=size_x+1 from east
     MPI_Sendrecv(&local_data[l2i(1, 0, 1)], 1, yz_face_type, west, 3,
-                 &local_data[l2i(lx + 1, 0, 1)], 1, yz_face_type, east, 3,
+                 &local_data[l2i(size_x + 1, 0, 1)], 1, yz_face_type, east, 3,
                  cart_comm, &st);
 }
 
-void GrayScott::sendrecv(std::vector<double> &u, std::vector<double> &v) const
+void GrayScott::exchange(std::vector<double> &u, std::vector<double> &v) const
 {
-    sendrecv_xy(u);
-    sendrecv_xz(u);
-    sendrecv_yz(u);
+    exchange_xy(u);
+    exchange_xz(u);
+    exchange_yz(u);
 
-    sendrecv_xy(v);
-    sendrecv_xz(v);
-    sendrecv_yz(v);
+    exchange_xy(v);
+    exchange_xz(v);
+    exchange_yz(v);
 }
