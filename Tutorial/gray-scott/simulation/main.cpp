@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <mpi.h>
 #include <vector>
@@ -75,6 +76,15 @@ void print_simulator_settings(const GrayScott &s)
               << s.size_z << std::endl;
 }
 
+std::chrono::milliseconds
+diff(const std::chrono::steady_clock::time_point &start,
+     const std::chrono::steady_clock::time_point &end)
+{
+    auto diff = end - start;
+
+    return std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+}
+
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -149,13 +159,16 @@ int main(int argc, char **argv)
 
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
 
+    auto start_all = std::chrono::steady_clock::now();
+    auto start_step = std::chrono::steady_clock::now();
+
     for (int i = 0; i < settings.steps; i++) {
         sim.iterate();
 
         if (i % settings.plotgap == 0) {
             if (rank == 0) {
-                std::cout << "Simulation at step " << i 
-                          << " writing output step     " << i/settings.plotgap 
+                std::cout << "Simulation at step " << i
+                          << " writing output step     " << i/settings.plotgap
                           << std::endl;
             }
             std::vector<double> u = sim.u_noghost();
@@ -166,7 +179,24 @@ int main(int argc, char **argv)
             writer.Put<double>(varU, u.data());
             writer.Put<double>(varV, v.data());
             writer.EndStep();
+
+            auto end_step = std::chrono::steady_clock::now();
+
+            if (rank == 0) {
+                std::cout << "Step " << i << " simulated in "
+                          << diff(start_step, end_step).count() << " [ms]"
+                          << std::endl;
+            }
+
+            start_step = std::chrono::steady_clock::now();
         }
+    }
+
+    auto end_all = std::chrono::steady_clock::now();
+
+    if (rank == 0) {
+        std::cout << "Total runtime: " << diff(start_all, end_all).count()
+                  << " [ms]" << std::endl;
     }
 
     writer.Close();
