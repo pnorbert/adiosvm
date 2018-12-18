@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
         // Declare variables to output
         if (firstStep) {
             alloc_local = fftw_mpi_local_size_3d(shape_u_real[0], shape_u_real[1], shape_u_real[2], 
-                                                MPI_COMM_WORLD, &local_n0, &local_0_start);
+                                                comm, &local_n0, &local_0_start);
             printf("[rank: %d] shape_u_real = %ld, %ld, %ld\n", rank, shape_u_real[0], shape_u_real[1], shape_u_real[2]);
             printf("[rank: %d] alloc_local, local_n0, local_0_start = %ld, %ld, %ld\n", rank, alloc_local, local_n0, local_0_start);
             if (local_n0 < 1)
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
             v_fft_imag.reserve(alloc_local);
 
             plan = fftw_mpi_plan_dft_3d(shape_u_real[0], shape_u_real[1], shape_u_real[2], 
-                                        in, out, MPI_COMM_WORLD, FFTW_FORWARD, FFTW_ESTIMATE);
+                                        in, out, comm, FFTW_FORWARD, FFTW_ESTIMATE);
 
             var_u_fft_real = writer_io.DefineVariable<double> ("u_fft_real",
                     { shape_u_real[0], shape_u_real[1], shape_u_real[2] },
