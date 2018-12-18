@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
 
-    auto start_all = std::chrono::steady_clock::now();
+    auto start_total = std::chrono::steady_clock::now();
     auto start_step = std::chrono::steady_clock::now();
 
     for (int i = 0; i < settings.steps; i++) {
@@ -171,6 +171,8 @@ int main(int argc, char **argv)
                           << " writing output step     " << i/settings.plotgap
                           << std::endl;
             }
+            auto end_compute = std::chrono::steady_clock::now();
+
             std::vector<double> u = sim.u_noghost();
             std::vector<double> v = sim.v_noghost();
 
@@ -183,8 +185,10 @@ int main(int argc, char **argv)
             auto end_step = std::chrono::steady_clock::now();
 
             if (rank == 0) {
-                std::cout << "Step " << i << " simulated in "
-                          << diff(start_step, end_step).count() << " [ms]"
+                std::cout << "Step " << i << " compute "
+                          << diff(start_step, end_compute).count()
+                          << " [ms] write IO "
+                          << diff(end_compute, end_step).count() << " [ms]"
                           << std::endl;
             }
 
@@ -192,10 +196,10 @@ int main(int argc, char **argv)
         }
     }
 
-    auto end_all = std::chrono::steady_clock::now();
+    auto end_total = std::chrono::steady_clock::now();
 
     if (rank == 0) {
-        std::cout << "Total runtime: " << diff(start_all, end_all).count()
+        std::cout << "Total runtime: " << diff(start_total, end_total).count()
                   << " [ms]" << std::endl;
     }
 
