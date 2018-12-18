@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     fftw_complex *out;
     fftw_plan plan;
     ptrdiff_t alloc_local, alloc_offset, local_n0, local_0_start;
+    double tick, tock;
 
     MPI_Init(&argc, &argv);
     fftw_mpi_init();
@@ -74,6 +75,9 @@ int main(int argc, char *argv[])
             write_norms_only = false;
     }
 
+    MPI_Barrier(comm);
+    if (rank==0) tick = MPI_Wtime();
+    MPI_Barrier(comm);
 
     std::size_t u_global_size, v_global_size;
     std::size_t u_local_size, v_local_size;
@@ -314,6 +318,13 @@ int main(int argc, char *argv[])
     fftw_free(in);
     fftw_free(out);
     fftw_destroy_plan(plan);
+
+    MPI_Barrier(comm);
+    if (rank==0) {
+        tock = MPI_Wtime();
+        std::cout << "fft3d_calc took " << tock-tick << " seconds\n";
+    }
+    MPI_Barrier(comm);
 
     MPI_Finalize();
     return 0;
