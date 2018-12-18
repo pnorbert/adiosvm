@@ -57,7 +57,7 @@ $ bpls -l gs.bp
   double   V     12*{64, 64, 64} = 0 / 0.649263
 
 
-$ python3 plot/gsplot.py -i gs.bp 
+$ python3 plot/gsplot.py -i gs.bp
 ```
 
 ## How to change the parameters
@@ -79,3 +79,13 @@ Edit settings.json to change the parameters for the simulation.
 | adios_config  | ADIOS2 XML file name                  |
 
 Decomposition is automatically determined by MPI_Dims_create.
+
+## Examples
+
+| D_u | D_v | F    | k      | Output
+| ----|-----|------|------- | -------------------------- |
+| 0.2 | 0.1 | 0.02 | 0.048  | ![](img/example1.jpg?raw=true) |
+| 0.2 | 0.1 | 0.03 | 0.0545 | ![](img/example2.jpg?raw=true) |
+| 0.2 | 0.1 | 0.03 | 0.06   | ![](img/example3.jpg?raw=true) |
+| 0.2 | 0.1 | 0.01 | 0.05   | ![](img/example4.jpg?raw=true) |
+| 0.2 | 0.1 | 0.02 | 0.06   | ![](img/example5.jpg?raw=true) |

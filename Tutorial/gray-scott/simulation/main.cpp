@@ -6,6 +6,11 @@
 
 #include "gray-scott.h"
 
+void print_io_settings(const adios2::IO &io)
+{
+    std::cout << "engine type:      " << io.EngineType() << std::endl;
+}
+
 void print_settings(const Settings &s)
 {
     std::cout << "grid:             " << s.L << "x" << s.L << "x" << s.L
@@ -60,16 +65,17 @@ int main(int argc, char **argv)
 
     sim.init();
 
+    adios2::ADIOS adios(settings.adios_config, MPI_COMM_WORLD, adios2::DebugON);
+
+    adios2::IO io = adios.DeclareIO("SimulationOutput");
+
     if (rank == 0) {
         std::cout << "========================================" << std::endl;
+        print_io_settings(io);
         print_settings(settings);
         print_simulator_settings(sim);
         std::cout << "========================================" << std::endl;
     }
-
-    adios2::ADIOS adios(settings.adios_config, MPI_COMM_WORLD, adios2::DebugON);
-
-    adios2::IO io = adios.DeclareIO("SimulationOutput");
 
     io.DefineAttribute<double>("F", settings.F);
     io.DefineAttribute<double>("k", settings.k);
