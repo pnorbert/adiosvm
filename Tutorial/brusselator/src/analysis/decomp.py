@@ -70,7 +70,7 @@ class MPISetup(object):
 #print('var keys')
 #        print(var.keys())
         data = var[str(args.varname)]
-        dshape = var[unicode(args.varname)]['Shape'].split(',')
+        dshape = var[str(args.varname)]['Shape'].split(',')
         for i in range(len(dshape)):
             datashape[i] = int(dshape[i])
 
