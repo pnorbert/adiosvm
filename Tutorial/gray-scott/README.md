@@ -10,16 +10,15 @@ v_t = Dv * v_xx + v * v^2 - (F + k) * v
 
 ## How to build
 
-Make sure MPI and ADIOS2 are installed.
+Make sure MPI and ADIOS2 are installed and that the PYTHONPATH includes the ADIOS2 package.
+Assuming ADIOS2 is installed in /opt/adios2 and was built with python 3.5:
 
 ```
-$  export CPLUS_INCLUDE_PATH=/opt/adios2/include
-$  export LIBRARY_PATH=/opt/adios2/lib
-$  export PYTHONPATH=/opt/adios2/lib/python3.5/site-packages
+$ export PYTHONPATH=/opt/adios2/lib/python3.5/site-packages
 
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake -DADIOS2_DIR=/opt/adios2 -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_BUILD_TYPE=Debug ..
 $ make
 $ cd ..
 ```
