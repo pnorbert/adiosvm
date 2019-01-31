@@ -27,7 +27,7 @@ $ cd ..
 ## How to run
 
 ```
-$ mpirun -n 8 build/simulation/gray-scott simulation/settings.json
+$ mpirun -n 8 build/gray-scott simulation/settings.json
 ========================================
 grid:             64x64x64
 steps:            3000
@@ -58,6 +58,19 @@ $ bpls -l gs.bp
 
 
 $ python3 plot/gsplot.py -i gs.bp
+
+```
+
+## Analysis example how to run
+
+```
+$ mpirun -n 8 build/gray-scott simulation/settings.json
+$ mpirun -n 1 build/pdf_calc gs.bp pdf.bp 100 
+$ bpls -l pdf.bp
+  double   U/bins  15*{100} = 0.0889799 / 1.03432
+  double   U/pdf   15*{64, 100} = 0 / 2079
+  double   V/bins  15*{100} = 0 / 0.650473
+  double   V/pdf   15*{64, 100} = 0 / 4096
 ```
 
 ## How to change the parameters
