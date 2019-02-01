@@ -277,14 +277,17 @@ int main(int argc, char *argv[])
         // End adios2 step
         reader_engine.EndStep();
 
-        // Compute norms
+        // Compute PDF
         std::vector<double> pdf_u;
         std::vector<double> bins_u;
-        compute_pdf(u, shape, start1, count1, nbins, var_u_in.Min(), var_u_in.Max(), pdf_u, bins_u);
+        std::pair<double, double> minmax_u =  var_u_in.MinMax();
+
+        compute_pdf(u, shape, start1, count1, nbins, minmax_u.first, minmax_u.second, pdf_u, bins_u);
 
         std::vector<double> pdf_v;
         std::vector<double> bins_v;
-        compute_pdf(v, shape, start1, count1, nbins, var_v_in.Min(), var_v_in.Max(), pdf_v, bins_v);
+        std::pair<double, double> minmax_v =  var_v_in.MinMax();
+        compute_pdf(v, shape, start1, count1, nbins, minmax_v.first, minmax_v.second, pdf_v, bins_v);
 
         // write U, V, and their norms out
         writer_engine.BeginStep ();

@@ -18,7 +18,7 @@ $ export PYTHONPATH=/opt/adios2/lib/python3.5/site-packages
 
 $ mkdir build
 $ cd build
-$ cmake -DADIOS2_DIR=/opt/adios2 -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_BUILD_TYPE=Debug ..
+$ cmake -DADIOS2_DIR=/opt/adios2 ..
 $ make
 $ cd ..
 ```

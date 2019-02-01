@@ -20,12 +20,14 @@ def SetupArgs():
     parser.add_argument("--displaysec", "-dsec", help="Float representing gap between plot window refresh", default=0.1)
     parser.add_argument("--nx", "-nx", help="Integer representing process decomposition in the x direction",default=1)
     parser.add_argument("--ny", "-ny", help="Integer representing process decomposition in the y direction",default=1)
+    parser.add_argument("--nz", "-nz", help="Integer representing process decomposition in the z direction",default=1)
     parser.add_argument("--plane", "-plane", help="The 2D plane to be displayed/stored xy/yz/xz/all", default='yz')
     args = parser.parse_args()
 
     args.displaysec = float(args.displaysec)
     args.nx = int(args.nx)
     args.ny = int(args.ny)
+    args.nz = int(args.nz)
 
     if args.plane not in ('xz', 'yz', 'xy', 'all'):
         raise "Input argument --plane must be one of xz/yz/xy/all"
@@ -108,7 +110,7 @@ if __name__ == "__main__":
     # Read through the steps, one at a time
     for fr_step in fr:
 #        if fr_step.currentstep()
-        start, size, fullshape = mpi.Partition(fr, args)
+        start, size, fullshape = mpi.Partition_3D_3D(fr, args)
         cur_step= fr_step.currentstep()
         vars_info = fr.availablevariables()
 #        print (vars_info)
