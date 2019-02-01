@@ -70,6 +70,12 @@ $ bpls -l pdf.bp
   double   U/pdf   15*{64, 100} = 0 / 2079
   double   V/bins  15*{100} = 0 / 0.650473
   double   V/pdf   15*{64, 100} = 0 / 4096
+
+$ python3 plot/pdfplot.py -i pdf.bp 
+OR
+$ mpirun -n 8 python3 plot/pdfplot.py -i pdf.bp -o u
+This is a parallel script, each process plots one PDF. The first process only plots the firsts slice U/pdf[0,:]
+
 ```
 
 ## How to change the parameters
