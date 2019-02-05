@@ -178,17 +178,17 @@ int main(int argc, char *argv[])
 
     // IO object and engine for reading
     adios2::IO reader_io = ad.DeclareIO("SimulationOutput");
-    adios2::Engine reader_engine = reader_io.Open(in_filename, adios2::Mode::Read, comm);
+    adios2::Engine reader = reader_io.Open(in_filename, adios2::Mode::Read, comm);
 
     // IO object and engine for writing
     adios2::IO writer_io = ad.DeclareIO("AnalysisOutput");
-    adios2::Engine writer_engine = writer_io.Open(out_filename, adios2::Mode::Write, comm);
+    adios2::Engine writer = writer_io.Open(out_filename, adios2::Mode::Write, comm);
 
     // read data per timestep
     while(true) {
 
         // Begin step
-        adios2::StepStatus read_status = reader_engine.BeginStep(adios2::StepMode::NextAvailable, 10.0f);
+        adios2::StepStatus read_status = reader.BeginStep(adios2::StepMode::NextAvailable, 10.0f);
         if (read_status == adios2::StepStatus::NotReady)
         {
             // std::cout << "Stream not ready yet. Waiting...\n";
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
             break;
         }
  
-        step_num = writer_engine.CurrentStep();
+        step_num = reader.CurrentStep();
         if (rank == 0)
             std::cout << "Step: " << step_num << std::endl;
 
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
                     { count1, nbins } );
             var_v_pdf = writer_io.DefineVariable<double> ("V/pdf",
                     { shape[0], nbins },
-                    { start1 * rank, 0},
+                    { start1, 0},
                     { count1, nbins } );
 
             if (!rank)
@@ -271,11 +271,11 @@ int main(int argc, char *argv[])
 
 
         // Read adios2 data
-        reader_engine.Get<double>(var_u_in, u);
-        reader_engine.Get<double>(var_v_in, v);
+        reader.Get<double>(var_u_in, u);
+        reader.Get<double>(var_v_in, v);
 
         // End adios2 step
-        reader_engine.EndStep();
+        reader.EndStep();
 
         // Compute PDF
         std::vector<double> pdf_u;
@@ -290,24 +290,24 @@ int main(int argc, char *argv[])
         compute_pdf(v, shape, start1, count1, nbins, minmax_v.first, minmax_v.second, pdf_v, bins_v);
 
         // write U, V, and their norms out
-        writer_engine.BeginStep ();
-        writer_engine.Put<double> (var_u_pdf, pdf_u.data());
-        writer_engine.Put<double> (var_v_pdf, pdf_v.data());
+        writer.BeginStep ();
+        writer.Put<double> (var_u_pdf, pdf_u.data());
+        writer.Put<double> (var_v_pdf, pdf_v.data());
         if (!rank)
         {
-            writer_engine.Put<double> (var_u_bins, bins_u.data());
-            writer_engine.Put<double> (var_v_bins, bins_v.data());
+            writer.Put<double> (var_u_bins, bins_u.data());
+            writer.Put<double> (var_v_bins, bins_v.data());
         }
         if (write_inputvars) {
-            writer_engine.Put<double> (var_u_out, u.data());
-            writer_engine.Put<double> (var_v_out, v.data());
+            writer.Put<double> (var_u_out, u.data());
+            writer.Put<double> (var_v_out, v.data());
         }
-        writer_engine.EndStep ();
+        writer.EndStep ();
     }
 
     // cleanup
-    reader_engine.Close();
-    writer_engine.Close();
+    reader.Close();
+    writer.Close();
     MPI_Finalize();
     return 0;
 }

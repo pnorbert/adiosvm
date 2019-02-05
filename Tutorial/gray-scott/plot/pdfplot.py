@@ -28,16 +28,18 @@ def SetupArgs():
     return args
 
 
-def PlotPDF(pdf, bins, args, start, size, step, fontsize):
+def PlotPDF(pdf, bins, args, start, count, step, fontsize):
     # Plotting part
     displaysec = args.displaysec
     gs = gridspec.GridSpec(1, 1)
     fig = plt.figure(1, figsize=(6,5))
     ax = fig.add_subplot(gs[0, 0])
+    localSliceIdx = count[0] // 2
+    globalSliceIdx = start[0] + localSliceIdx
 
-    ax.plot(bins, pdf[0], 'r')
+    ax.plot(bins, pdf[localSliceIdx], 'r*-')
  
-    ax.set_title("{0}, slice {1}, Timestep {2}".format(args.varname, start[0], step), fontsize=fontsize)
+    ax.set_title("{0}, slice {1}, Timestep {2}".format(args.varname, globalSliceIdx, step), fontsize=fontsize)
     ax.set_xlabel("bins")
     ax.set_ylabel("count")
     plt.ion()
@@ -45,7 +47,7 @@ def PlotPDF(pdf, bins, args, start, size, step, fontsize):
         plt.show()
         plt.pause(displaysec)
     else:
-        imgfile = args.outfile+"{0:0>3}".format(step)+"_" + str(start[0]) + ".png"
+        imgfile = args.outfile+"{0:0>3}".format(step)+"_" + str(globalSliceIdx) + ".png"
         fig.savefig(imgfile)
 
     plt.clf()
@@ -89,19 +91,19 @@ if __name__ == "__main__":
                 print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
         
         start = np.zeros(2, dtype=np.int64)
-        size = np.zeros(2, dtype=np.int64)
+        count = np.zeros(2, dtype=np.int64)
         # Equally partition the PDF arrays among readers
-        start[0], size[0] = decomp.Locate(myrank, mpi.size, shape2[0])
-        start[1], size[1] = (0, shape2[1])
+        start[0], count[0] = decomp.Locate(myrank, mpi.size, shape2[0])
+        start[1], count[1] = (0, shape2[1])
         start_bins = np.array([0], dtype=np.int64)
-        size_bins = np.array([shape2[1]], dtype=np.int64)
+        count_bins = np.array([shape2[1]], dtype=np.int64)
         
-        print("Rank {0} reads {1}  slices from offset {2}".format(myrank, size[0], start[0]))
+        print("Rank {0} reads {1}  slices from offset {2}".format(myrank, count[0], start[0]))
 
-        pdf = fr.read(pdfvar, start, size)
-        bins = fr.read(binvar, start_bins, size_bins)
+        pdf = fr.read(pdfvar, start, count)
+        bins = fr.read(binvar, start_bins, count_bins)
 
-        PlotPDF (pdf, bins, args, start, size, cur_step, fontsize)
+        PlotPDF (pdf, bins, args, start, count, cur_step, fontsize)
         
        
     fr.close()
