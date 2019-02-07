@@ -66,7 +66,7 @@ if __name__ == "__main__":
     fontsize = 22
 
     args = SetupArgs()
-#    print(args)
+    # print(args)
 
     # Setup up 2D communicators if MPI is installed
     mpi = decomp.MPISetup(args)
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     # Read through the steps, one at a time
     for fr_step in fr:
         cur_step = fr_step.currentstep()
-        vars_info = fr.availablevariables()
-#        print (vars_info)
+        vars_info = fr_step.availablevariables()
+        # print (vars_info)
         pdfvar = args.varname+"/pdf"
         binvar = args.varname+"/bins"
         shape2_str = vars_info[pdfvar]["Shape"].split(',')
@@ -100,8 +100,8 @@ if __name__ == "__main__":
         
         print("Rank {0} reads {1}  slices from offset {2}".format(myrank, count[0], start[0]))
 
-        pdf = fr.read(pdfvar, start, count)
-        bins = fr.read(binvar, start_bins, count_bins)
+        pdf = fr_step.read(pdfvar, start, count)
+        bins = fr_step.read(binvar, start_bins, count_bins)
 
         PlotPDF (pdf, bins, args, start, count, cur_step, fontsize)
         
