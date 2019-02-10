@@ -16,8 +16,12 @@
 #include <string>
 #include <thread>
 
-#include "adios2.h"
 
+
+bool epsilon(double d) { return (d < 1.0e-20); }
+bool epsilon(float d) { return (d < 1.0e-20); }
+
+//#include "adios2.h"
 /*
  * Function to compute the PDF of a 2D slice
  */
@@ -58,7 +62,7 @@ void compute_pdf(const std::vector<T> &data,
         return;
     }
 
-    if ((max - min) == 0.0)
+    if (epsilon(max-min) || epsilon(binWidth))
     {
         // special case: constant array
         for (auto i = 0; i < count; ++i )
