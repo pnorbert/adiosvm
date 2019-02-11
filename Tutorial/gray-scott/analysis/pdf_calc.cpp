@@ -221,6 +221,9 @@ int main(int argc, char *argv[])
         var_u_in = reader_io.InquireVariable<double>("U");
         var_v_in = reader_io.InquireVariable<double>("V");
 
+        std::pair<double, double> minmax_u =  var_u_in.MinMax();
+        std::pair<double, double> minmax_v =  var_v_in.MinMax();
+
         shape = var_u_in.Shape();
 
         // Calculate global and local sizes of U and V
@@ -293,32 +296,11 @@ int main(int argc, char *argv[])
         // Compute PDF
         std::vector<double> pdf_u;
         std::vector<double> bins_u;
-        std::pair<double, double> minmax_u =  var_u_in.MinMax();
-        auto mm = std::minmax_element (u.begin(),u.end());
-        double localmin = *mm.first; 
-        double localmax = *mm.second; 
-        double globalmin, globalmax;
-        MPI_Allreduce(&localmin, &globalmin, 1, MPI_DOUBLE, MPI_MIN, comm);
-        MPI_Allreduce(&localmax, &globalmax, 1, MPI_DOUBLE, MPI_MAX, comm);
-        //std::cout << "  rank " << rank << " U metadata [min,max] = [" << minmax_u.first << "," << minmax_u.second << "]" << std::endl;
-        //std::cout << "  rank " << rank << " U local    [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
-        //std::cout << "  rank " << rank << " U global   [min,max] = [" << globalmin << "," << globalmax << "]" << std::endl;
-
-        compute_pdf(u, shape, start1, count1, nbins, globalmin, globalmax, pdf_u, bins_u);
+        compute_pdf(u, shape, start1, count1, nbins, minmax_u.first, minmax_u.second, pdf_u, bins_u);
 
         std::vector<double> pdf_v;
         std::vector<double> bins_v;
-        std::pair<double, double> minmax_v =  var_v_in.MinMax();
-        mm = std::minmax_element (v.begin(),v.end());
-        localmin = *mm.first; 
-        localmax = *mm.second; 
-        MPI_Allreduce(&localmin, &globalmin, 1, MPI_DOUBLE, MPI_MIN, comm);
-        MPI_Allreduce(&localmax, &globalmax, 1, MPI_DOUBLE, MPI_MAX, comm);
-        //std::cout << "  rank " << rank << " V metadata [min,max] = [" << minmax_v.first << "," << minmax_v.second << "]" << std::endl;
-        //std::cout << "  rank " << rank << " V local    [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
-        //std::cout << "  rank " << rank << " V global   [min,max] = [" << globalmin << "," << globalmax << "]" << std::endl;
-
-        compute_pdf(v, shape, start1, count1, nbins, globalmin, globalmax, pdf_v, bins_v);
+        compute_pdf(v, shape, start1, count1, nbins, minmax_v.first, minmax_v.second, pdf_v, bins_v);
 
         // write U, V, and their norms out
         writer.BeginStep ();
