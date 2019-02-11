@@ -107,3 +107,28 @@ Decomposition is automatically determined by MPI_Dims_create.
 | 0.2 | 0.1 | 0.03 | 0.06   | ![](img/example3.jpg?raw=true) |
 | 0.2 | 0.1 | 0.01 | 0.05   | ![](img/example4.jpg?raw=true) |
 | 0.2 | 0.1 | 0.02 | 0.06   | ![](img/example5.jpg?raw=true) |
+
+
+## In situ pipeline example
+
+In adios2.xml, change all IO groups' engine to SST.
+
+      <engine type="SST"
+
+Launch the pipeline in 4 separate terminals:
+```
+$ mpirun -n 8 build/gray-scott simulation/settings.json
+$ mpirun -n 4 build/pdf_calc gs.bp pdf.bp 100 
+$ mpirun -n 2 python3 plot/pdfplot.py -i pdf.bp 
+$ mpirun -n 1 python3 plot/gsplot.py -i gs.bp 
+
+```
+
+MPMD mode run in a single terminal:
+```
+$ mpirun -n 8 build/gray-scott simulation/settings.json : \
+         -n 4 build/pdf_calc gs.bp pdf.bp 100 :           \
+         -n 2 python3 plot/pdfplot.py -i pdf.bp :         \
+         -n 1 python3 plot/gsplot.py -i gs.bp 
+```
+

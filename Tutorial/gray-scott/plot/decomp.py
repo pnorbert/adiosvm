@@ -20,7 +20,7 @@ class MPISetup(object):
             'y': 0}
 
 
-    def __init__(self, args):
+    def __init__(self, args, appID):
 
         self.nx = args.nx
         self.ny = args.ny
@@ -30,28 +30,27 @@ class MPISetup(object):
 
             from mpi4py import MPI
 
-            color = 3
-            self.comm_world = MPI.COMM_WORLD.Split(color, MPI.COMM_WORLD.Get_rank()) 
-            self.size = self.comm_world.Get_size()
-            self.rank['world'] = self.comm_world.Get_rank()
+            self.comm_app = MPI.COMM_WORLD.Split(appID, MPI.COMM_WORLD.Get_rank()) 
+            self.size = self.comm_app.Get_size()
+            self.rank['world'] = self.comm_app.Get_rank()
             if (self.nx * self.ny * self.nz == 1):
                 self.nx = self.size
             if self.size != (self.nx * self.ny * self.nz):
                 raise ValueError("nx * ny * nz != num processes")
 
             if (self.ny > 1) and (self.nx > 1) and (self.nz > 1):
-                comm_x = self.comm_world.Split(self.rank['world'] % self.nx, self.rank['world'])
+                comm_x = self.comm_app.Split(self.rank['world'] % self.nx, self.rank['world'])
             else:
-                comm_x = self.comm_world.Split(self.rank['world'] / self.nx, self.rank['world'])
-            comm_y = self.comm_world.Split(self.rank['world']/self.ny, self.rank['world'])
-            comm_z = self.comm_world.Split(self.rank['world']/self.nz, self.rank['world'])
+                comm_x = self.comm_app.Split(self.rank['world'] / self.nx, self.rank['world'])
+            comm_y = self.comm_app.Split(self.rank['world']/self.ny, self.rank['world'])
+            comm_z = self.comm_app.Split(self.rank['world']/self.nz, self.rank['world'])
             
 
             self.rank['x'] = comm_x.Get_rank()
             self.rank['y'] = comm_y.Get_rank()
             self.rank['z'] = comm_z.Get_rank()
 
-            self.readargs.append(self.comm_world)
+            self.readargs.append(self.comm_app)
 
         else:
             if self.nx != 1:

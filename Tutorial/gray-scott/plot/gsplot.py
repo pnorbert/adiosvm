@@ -97,10 +97,10 @@ if __name__ == "__main__":
 #    print(args)
 
     # Setup up 2D communicators if MPI is installed
-    mpi = decomp.MPISetup(args)
+    mpi = decomp.MPISetup(args, 3)
 
     # Read the data from this object
-    fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2.xml", "VizInput")
+    fr = adios2.open(args.instream, "r", mpi.comm_app,"adios2.xml", "VizInput")
 #    vars_info = fr.availablevariables()
 
 

@@ -69,11 +69,11 @@ if __name__ == "__main__":
     # print(args)
 
     # Setup up 2D communicators if MPI is installed
-    mpi = decomp.MPISetup(args)
+    mpi = decomp.MPISetup(args, 4)
     myrank = mpi.rank['world']
     
     # Read the data from this object
-    fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2.xml", "VizInput")
+    fr = adios2.open(args.instream, "r", mpi.comm_app,"adios2.xml", "VizInput")
 
 
     # Read through the steps, one at a time
