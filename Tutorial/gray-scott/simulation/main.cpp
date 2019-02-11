@@ -37,11 +37,17 @@ void print_simulator_settings(const GrayScott &s)
 
 int main(int argc, char **argv)
 {
-    int rank, procs;
     MPI_Init(&argc, &argv);
+    int rank, procs, wrank;
 
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &procs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
+
+    const unsigned int color = 1;
+    MPI_Comm comm;
+    MPI_Comm_split(MPI_COMM_WORLD, color, wrank, &comm);
+
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &procs);
 
     if (argc < 2) {
         if (rank == 0) {
@@ -61,11 +67,11 @@ int main(int argc, char **argv)
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
-    GrayScott sim(settings, MPI_COMM_WORLD);
+    GrayScott sim(settings, comm);
 
     sim.init();
 
-    adios2::ADIOS adios(settings.adios_config, MPI_COMM_WORLD, adios2::DebugON);
+    adios2::ADIOS adios(settings.adios_config, comm, adios2::DebugON);
 
     adios2::IO io = adios.DeclareIO("SimulationOutput");
 
