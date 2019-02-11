@@ -82,7 +82,7 @@ void compute_pdf(const std::vector<T> &data,
         {
             if (data[start_data+j] > max || data[start_data+j] < min) 
             {
-                std::cout << " data[" << start_data+j << "] = " 
+                std::cout << " data[" << start*slice_size+start_data+j << "] = " 
                     <<  data[start_data+j] << " is out of [min,max] = ["
                     << min << "," << max << "]" << std::endl;
             }
@@ -236,9 +236,9 @@ int main(int argc, char *argv[])
             count1 = shape[0] - count1 * (comm_size - 1);
         }
 
-        std::cout << "  rank " << rank << " slice start={" <<  start1 
+        /*std::cout << "  rank " << rank << " slice start={" <<  start1 
             << ",0,0} count={" << count1  << "," << shape[1] << "," << shape[2]
-            << "}" << std::endl;
+            << "}" << std::endl;*/
 
         // Set selection
         var_u_in.SetSelection(adios2::Box<adios2::Dims>(
@@ -294,22 +294,31 @@ int main(int argc, char *argv[])
         std::vector<double> pdf_u;
         std::vector<double> bins_u;
         std::pair<double, double> minmax_u =  var_u_in.MinMax();
-
         auto mm = std::minmax_element (u.begin(),u.end());
-        std::cout << "  rank " << rank << " U metadata [min,max] = [" << minmax_u.first << "," << minmax_u.second << "]" << std::endl;
-        std::cout << "  rank " << rank << " U actual   [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
+        double localmin = *mm.first; 
+        double localmax = *mm.second; 
+        double globalmin, globalmax;
+        MPI_Allreduce(&localmin, &globalmin, 1, MPI_DOUBLE, MPI_MIN, comm);
+        MPI_Allreduce(&localmax, &globalmax, 1, MPI_DOUBLE, MPI_MAX, comm);
+        //std::cout << "  rank " << rank << " U metadata [min,max] = [" << minmax_u.first << "," << minmax_u.second << "]" << std::endl;
+        //std::cout << "  rank " << rank << " U local    [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
+        //std::cout << "  rank " << rank << " U global   [min,max] = [" << globalmin << "," << globalmax << "]" << std::endl;
 
-        compute_pdf(u, shape, start1, count1, nbins, minmax_u.first, minmax_u.second, pdf_u, bins_u);
+        compute_pdf(u, shape, start1, count1, nbins, globalmin, globalmax, pdf_u, bins_u);
 
         std::vector<double> pdf_v;
         std::vector<double> bins_v;
         std::pair<double, double> minmax_v =  var_v_in.MinMax();
-
         mm = std::minmax_element (v.begin(),v.end());
-        std::cout << "  rank " << rank << " V metadata [min,max] = [" << minmax_v.first << "," << minmax_v.second << "]" << std::endl;
-        std::cout << "  rank " << rank << " V actual   [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
+        localmin = *mm.first; 
+        localmax = *mm.second; 
+        MPI_Allreduce(&localmin, &globalmin, 1, MPI_DOUBLE, MPI_MIN, comm);
+        MPI_Allreduce(&localmax, &globalmax, 1, MPI_DOUBLE, MPI_MAX, comm);
+        //std::cout << "  rank " << rank << " V metadata [min,max] = [" << minmax_v.first << "," << minmax_v.second << "]" << std::endl;
+        //std::cout << "  rank " << rank << " V local    [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
+        //std::cout << "  rank " << rank << " V global   [min,max] = [" << globalmin << "," << globalmax << "]" << std::endl;
 
-        compute_pdf(v, shape, start1, count1, nbins, minmax_v.first, minmax_v.second, pdf_v, bins_v);
+        compute_pdf(v, shape, start1, count1, nbins, globalmin, globalmax, pdf_v, bins_v);
 
         // write U, V, and their norms out
         writer.BeginStep ();
