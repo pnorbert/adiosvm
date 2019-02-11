@@ -78,8 +78,8 @@ if __name__ == "__main__":
 
     # Read through the steps, one at a time
     for fr_step in fr:
-        cur_step = fr_step.currentstep()
-        vars_info = fr_step.availablevariables()
+        cur_step = fr_step.current_step()
+        vars_info = fr_step.available_variables()
         # print (vars_info)
         pdfvar = args.varname+"/pdf"
         binvar = args.varname+"/bins"

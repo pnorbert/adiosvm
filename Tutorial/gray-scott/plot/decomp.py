@@ -68,7 +68,7 @@ class MPISetup(object):
         size = np.zeros(3, dtype=np.int64)
 
 #print("dir fp {0}".format(dir(fp)))
-        var = fp.availablevariables()
+        var = fp.available_variables()
 #        print("var {0}".format(var))
 #        print('key')
 #        print('type {0}'.format(type(var)))

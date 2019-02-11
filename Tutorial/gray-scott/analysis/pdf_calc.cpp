@@ -16,12 +16,12 @@
 #include <string>
 #include <thread>
 
+#include "adios2.h"
 
 
 bool epsilon(double d) { return (d < 1.0e-20); }
 bool epsilon(float d) { return (d < 1.0e-20); }
 
-//#include "adios2.h"
 /*
  * Function to compute the PDF of a 2D slice
  */

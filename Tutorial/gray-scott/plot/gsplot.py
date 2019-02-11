@@ -109,10 +109,10 @@ if __name__ == "__main__":
 
     # Read through the steps, one at a time
     for fr_step in fr:
-#        if fr_step.currentstep()
+#        if fr_step.current_step()
         start, size, fullshape = mpi.Partition_3D_3D(fr, args)
-        cur_step= fr_step.currentstep()
-        vars_info = fr.availablevariables()
+        cur_step= fr_step.current_step()
+        vars_info = fr.available_variables()
 #        print (vars_info)
         shape3_str = vars_info[args.varname]["Shape"].split(',')
         shape3 = list(map(int,shape3_str))
