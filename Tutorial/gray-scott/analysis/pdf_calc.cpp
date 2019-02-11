@@ -43,7 +43,7 @@ void compute_pdf(const std::vector<T> &data,
     pdf.resize( count * nbins );
     bins.resize (nbins);
     
-    size_t start_data = start * slice_size;
+    size_t start_data = 0;
     size_t start_pdf = 0;
 
     T binWidth = (max - min)/nbins;
@@ -80,6 +80,12 @@ void compute_pdf(const std::vector<T> &data,
         // into pdf[ start_pdf .. start_pdf+nbins-1 ]
         for (auto j = 0; j < slice_size; ++j )
         {
+            if (data[start_data+j] > max || data[start_data+j] < min) 
+            {
+                std::cout << " data[" << start_data+j << "] = " 
+                    <<  data[start_data+j] << " is out of [min,max] = ["
+                    << min << "," << max << "]" << std::endl;
+            }
             size_t bin = static_cast<size_t>(std::floor((data[start_data+j] - min)/binWidth));
             if (bin == nbins)
             {
@@ -230,6 +236,9 @@ int main(int argc, char *argv[])
             count1 = shape[0] - count1 * (comm_size - 1);
         }
 
+        std::cout << "  rank " << rank << " slice start={" <<  start1 
+            << ",0,0} count={" << count1  << "," << shape[1] << "," << shape[2]
+            << "}" << std::endl;
 
         // Set selection
         var_u_in.SetSelection(adios2::Box<adios2::Dims>(
@@ -286,11 +295,20 @@ int main(int argc, char *argv[])
         std::vector<double> bins_u;
         std::pair<double, double> minmax_u =  var_u_in.MinMax();
 
+        auto mm = std::minmax_element (u.begin(),u.end());
+        std::cout << "  rank " << rank << " U metadata [min,max] = [" << minmax_u.first << "," << minmax_u.second << "]" << std::endl;
+        std::cout << "  rank " << rank << " U actual   [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
+
         compute_pdf(u, shape, start1, count1, nbins, minmax_u.first, minmax_u.second, pdf_u, bins_u);
 
         std::vector<double> pdf_v;
         std::vector<double> bins_v;
         std::pair<double, double> minmax_v =  var_v_in.MinMax();
+
+        mm = std::minmax_element (v.begin(),v.end());
+        std::cout << "  rank " << rank << " V metadata [min,max] = [" << minmax_v.first << "," << minmax_v.second << "]" << std::endl;
+        std::cout << "  rank " << rank << " V actual   [min,max] = [" << *mm.first << "," << *mm.second << "]" << std::endl;
+
         compute_pdf(v, shape, start1, count1, nbins, minmax_v.first, minmax_v.second, pdf_v, bins_v);
 
         // write U, V, and their norms out
