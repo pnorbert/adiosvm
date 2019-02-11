@@ -15,7 +15,7 @@ class MPISetup(object):
 
     readargs = []
     size = 1
-    rank = {'world': 0,
+    rank = {'app': 0,
             'x': 0,
             'y': 0}
 
@@ -32,18 +32,18 @@ class MPISetup(object):
 
             self.comm_app = MPI.COMM_WORLD.Split(appID, MPI.COMM_WORLD.Get_rank()) 
             self.size = self.comm_app.Get_size()
-            self.rank['world'] = self.comm_app.Get_rank()
+            self.rank['app'] = self.comm_app.Get_rank()
             if (self.nx * self.ny * self.nz == 1):
                 self.nx = self.size
             if self.size != (self.nx * self.ny * self.nz):
                 raise ValueError("nx * ny * nz != num processes")
 
             if (self.ny > 1) and (self.nx > 1) and (self.nz > 1):
-                comm_x = self.comm_app.Split(self.rank['world'] % self.nx, self.rank['world'])
+                comm_x = self.comm_app.Split(self.rank['app'] % self.nx, self.rank['app'])
             else:
-                comm_x = self.comm_app.Split(self.rank['world'] / self.nx, self.rank['world'])
-            comm_y = self.comm_app.Split(self.rank['world']/self.ny, self.rank['world'])
-            comm_z = self.comm_app.Split(self.rank['world']/self.nz, self.rank['world'])
+                comm_x = self.comm_app.Split(self.rank['app'] / self.nx, self.rank['app'])
+            comm_y = self.comm_app.Split(self.rank['app']/self.ny, self.rank['app'])
+            comm_z = self.comm_app.Split(self.rank['app']/self.nz, self.rank['app'])
             
 
             self.rank['x'] = comm_x.Get_rank()
@@ -105,7 +105,7 @@ class MPISetup(object):
         for i in range(len(dshape)):
             datashape[i] = int(dshape[i])
 
-        start[0], size[0] = Locate(self.rank['world'], self.size, datashape[0])
+        start[0], size[0] = Locate(self.rank['app'], self.size, datashape[0])
         start[1], size[1] = (0, datashape[1])
         start[2], size[2] = (0, datashape[2])
         
@@ -124,7 +124,7 @@ class MPISetup(object):
         for i in range(len(dshape)):
             datashape[i] = int(dshape[i])
 
-        start[0], size[0] = Locate(self.rank['world'], self.size, datashape[0])
+        start[0], size[0] = Locate(self.rank['app'], self.size, datashape[0])
         start[1], size[1] = (0, datashape[1])
         
         return start, size, datashape

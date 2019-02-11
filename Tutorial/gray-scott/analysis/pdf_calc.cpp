@@ -118,7 +118,7 @@ void printUsage()
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
-    int rank, comm_size, wrank, step_num = 0;
+    int rank, comm_size, wrank;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
 
@@ -186,15 +186,21 @@ int main(int argc, char *argv[])
     // adios2 io object and engine init
     adios2::ADIOS ad ("adios2.xml", comm, adios2::DebugON);
 
-    // IO object and engine for reading
+    // IO objects for reading and writing
     adios2::IO reader_io = ad.DeclareIO("SimulationOutput");
-    adios2::Engine reader = reader_io.Open(in_filename, adios2::Mode::Read, comm);
-
-    // IO object and engine for writing
     adios2::IO writer_io = ad.DeclareIO("AnalysisOutput");
+    if (!rank) 
+    {
+        std::cout << "PDF analysis reads from Simulation using engine type:  " << reader_io.EngineType() << std::endl;
+        std::cout << "PDF analysis writes using engine type:                 " << writer_io.EngineType() << std::endl;
+    }
+
+    // Engines for reading and writing
+    adios2::Engine reader = reader_io.Open(in_filename, adios2::Mode::Read, comm);
     adios2::Engine writer = writer_io.Open(out_filename, adios2::Mode::Write, comm);
 
     // read data per timestep
+    int stepAnalysis = 0;
     while(true) {
 
         // Begin step
@@ -210,9 +216,14 @@ int main(int argc, char *argv[])
             break;
         }
  
-        step_num = reader.CurrentStep();
-        if (rank == 0)
-            std::cout << "Step: " << step_num << std::endl;
+        int stepSimulation = reader.CurrentStep();
+        if (!rank)
+        {
+            std::cout << "PDF Analysis step " << stepAnalysis
+                << " processing simulation step "
+                << stepSimulation << std::endl;
+        }
+
 
         // Inquire variable and set the selection at the first step only
         // This assumes that the variable dimensions do not change across timesteps
@@ -316,6 +327,7 @@ int main(int argc, char *argv[])
             writer.Put<double> (var_v_out, v.data());
         }
         writer.EndStep ();
+        ++stepAnalysis;
     }
 
     // cleanup

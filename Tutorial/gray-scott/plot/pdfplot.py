@@ -70,13 +70,14 @@ if __name__ == "__main__":
 
     # Setup up 2D communicators if MPI is installed
     mpi = decomp.MPISetup(args, 4)
-    myrank = mpi.rank['world']
+    myrank = mpi.rank['app']
     
     # Read the data from this object
     fr = adios2.open(args.instream, "r", mpi.comm_app,"adios2.xml", "VizInput")
 
 
     # Read through the steps, one at a time
+    plot_step = 0
     for fr_step in fr:
         cur_step = fr_step.current_step()
         vars_info = fr_step.available_variables()
@@ -86,9 +87,9 @@ if __name__ == "__main__":
         shape2_str = vars_info[pdfvar]["Shape"].split(',')
         shape2 = list(map(int,shape2_str))
         if myrank == 0:
-            print("Step: {0}".format(cur_step))
-            if cur_step == 0:
-                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
+            print("PDF Plot step     {0} processing analysis step   {1}".format(plot_step,cur_step))
+#            if cur_step == 0:
+#                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
         
         start = np.zeros(2, dtype=np.int64)
         count = np.zeros(2, dtype=np.int64)
@@ -98,12 +99,13 @@ if __name__ == "__main__":
         start_bins = np.array([0], dtype=np.int64)
         count_bins = np.array([shape2[1]], dtype=np.int64)
         
-        print("Rank {0} reads {1}  slices from offset {2}".format(myrank, count[0], start[0]))
+#        print("Rank {0} reads {1}  slices from offset {2}".format(myrank, count[0], start[0]))
 
         pdf = fr_step.read(pdfvar, start, count)
         bins = fr_step.read(binvar, start_bins, count_bins)
 
         PlotPDF (pdf, bins, args, start, count, cur_step, fontsize)
+        plot_step = plot_step + 1 
         
        
     fr.close()

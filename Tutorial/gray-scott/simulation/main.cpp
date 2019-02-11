@@ -8,7 +8,7 @@
 
 void print_io_settings(const adios2::IO &io)
 {
-    std::cout << "engine type:      " << io.EngineType() << std::endl;
+    std::cout << "Simulation writes data using engine type:              " << io.EngineType() << std::endl;
 }
 
 void print_settings(const Settings &s)
@@ -76,8 +76,8 @@ int main(int argc, char **argv)
     adios2::IO io = adios.DeclareIO("SimulationOutput");
 
     if (rank == 0) {
-        std::cout << "========================================" << std::endl;
         print_io_settings(io);
+        std::cout << "========================================" << std::endl;
         print_settings(settings);
         print_simulator_settings(sim);
         std::cout << "========================================" << std::endl;
@@ -107,7 +107,9 @@ int main(int argc, char **argv)
 
         if (i % settings.plotgap == 0) {
             if (rank == 0) {
-                std::cout << "Writing step: " << i << std::endl;
+                std::cout << "Simulation at step " << i 
+                          << " writing output step     " << i/settings.plotgap 
+                          << std::endl;
             }
             std::vector<double> u = sim.u_noghost();
             std::vector<double> v = sim.v_noghost();

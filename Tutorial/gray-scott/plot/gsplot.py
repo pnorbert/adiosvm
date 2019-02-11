@@ -56,7 +56,6 @@ def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     plt.ion()
-    print ("Step: {0}".format(step))
     if (args.outfile == "screen"):
         plt.show()
         plt.pause(displaysec)
@@ -66,7 +65,7 @@ def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
             global ioWriter
             global var
             global writer
-            adios = adios2.ADIOS(mpi.comm_world)
+            adios = adios2.ADIOS(mpi.comm_app)
             ioWriter = adios.DeclareIO("VizOutput")
             var = ioWriter.DefineVariable(args.varname, data.shape, [0,0], data.shape, adios2.ConstantDims, data)
             writer = ioWriter.Open(args.outfile, adios2.Mode.Write)
@@ -108,10 +107,12 @@ if __name__ == "__main__":
  
 
     # Read through the steps, one at a time
+    plot_step = 0
     for fr_step in fr:
 #        if fr_step.current_step()
         start, size, fullshape = mpi.Partition_3D_3D(fr, args)
         cur_step= fr_step.current_step()
+        print("GS  Plot step     {0} processing analysis step   {1}".format(plot_step,cur_step))
         vars_info = fr.available_variables()
 #        print (vars_info)
         shape3_str = vars_info[args.varname]["Shape"].split(',')
@@ -127,6 +128,7 @@ if __name__ == "__main__":
         if args.plane in ('yz', 'all'):
             data = read_data (args, fr_step, [int(shape3[0]/2),0,0], [1,shape3[1],shape3[2]])
             Plot2D ('yz',  data, args, fullshape, cur_step, fontsize)
+        plot_step = plot_step + 1;
 
     fr.close()
 
