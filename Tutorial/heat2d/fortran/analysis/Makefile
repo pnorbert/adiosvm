@@ -1,8 +1,8 @@
 include ../make.settings
 
 
-override ADIOS2_FINC=-I${ADIOS2_DIR}/include/fortran
-override ADIOS2_FLIB=`${ADIOS2_DIR}/bin/adios2-config --libs` -ladios2_f
+override ADIOS2_FINC=`${ADIOS2_DIR}/bin/adios2-config --fortran-flags`
+override ADIOS2_FLIB=`${ADIOS2_DIR}/bin/adios2-config --fortran-libs`
 
 default: 
 	@echo "Make targets: adios2_stream  adios2_file  hdf5_file"

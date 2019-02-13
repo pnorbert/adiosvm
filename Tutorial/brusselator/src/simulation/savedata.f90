@@ -40,7 +40,7 @@ MODULE BRUSSELATOR_IO
 
 #ifdef ADIOS2
         ! Init adios2
-        call adios2_init_config (adios2_handle, "adios2_config.xml", comm, &
+        call adios2_init_config (adios2_handle, "adios2.xml", comm, &
             adios2_debug_mode_on, ierr)
 
         ! Init IO object

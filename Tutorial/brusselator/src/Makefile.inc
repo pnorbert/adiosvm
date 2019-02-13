@@ -4,16 +4,19 @@ CXX=mpic++
 FFTW_DIR?=/usr
 ADIOS2_DIR?=/opt/adios2
 
-ADIOS2_LIB =-L${ADIOS2_DIR}/lib -ladios2_f -ladios2 -ladios2_sst -ladios2_evpath -ladios2_ffs -ladios2_dill -ladios2_atl
+override ADIOS2_FFLAGS=`${ADIOS2_DIR}/bin/adios2-config --fortran-flags`
+override ADIOS2_FLIB=`${ADIOS2_DIR}/bin/adios2-config --fortran-libs`
+override ADIOS2_CXXFLAGS=`${ADIOS2_DIR}/bin/adios2-config --cxx-flags`
+override ADIOS2_CXXLIB=`${ADIOS2_DIR}/bin/adios2-config --cxx-libs`
 
 FFLAGS=-cpp -O3 -DADIOS2
 CXXFLAGS=-O3 -std=c++11
 CFLAGS=-O3
 
-INCLUDES = -I${FFTW_DIR}/include -I${decompdir}/include -I${ADIOS2_DIR}/include/fortran
+INCLUDES = -I${FFTW_DIR}/include -I${decompdir}/include ${ADIOS2_FFLAGS}
 FFTW_LIB = -L${FFTW_DIR}/lib -lfftw3
 DECOMPLIB = -L${decompdir}/lib -l2decomp_fft
-LIBS = ${DECOMPLIB} ${ADIOS2_LIB} ${FFTW_LIB}
+LIBS = ${DECOMPLIB} ${ADIOS2_FLIB} ${FFTW_LIB}
 
 
 #====================================================

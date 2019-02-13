@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     adios2::Variable<double> var_u_real_out, var_u_imag_out, var_v_real_out, var_v_imag_out;
 
     // adios2 io object and engine init
-    adios2::ADIOS ad ("adios2_config.xml", comm, adios2::DebugON);
+    adios2::ADIOS ad ("adios2.xml", comm, adios2::DebugON);
 
     // IO object and engine for reading
     adios2::IO reader_io = ad.DeclareIO("SimulationOutput");

@@ -105,7 +105,7 @@ if __name__ == "__main__":
     mpi = decomp.MPISetup(args)
 
     # Read the data from this object
-    fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2_config.xml", "VizInput")
+    fr = adios2.open(args.instream, "r", MPI.COMM_WORLD,"adios2.xml", "VizInput")
     vars_info = fr.availablevariables()
 
     print("vars_info {0}".format(vars_info))

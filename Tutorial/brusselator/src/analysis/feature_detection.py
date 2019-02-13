@@ -115,7 +115,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Read the data from this object
-    fr = adios2.open(args.instream, "r", MPI.COMM_WORLD, "adios2_config.xml", "FeatureInput")
+    fr = adios2.open(args.instream, "r", MPI.COMM_WORLD, "adios2.xml", "FeatureInput")
 
     global step
     step = 0
