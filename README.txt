@@ -245,21 +245,20 @@ II. Preparations to install ADIOS
 6. Python/Numpy support
 
    To build Adios python wrapper, install following packages by:
-   $ sudo apt-get install python python-dev
-   $ sudo apt-get install python-numpy
+   $ sudo apt-get install python3 python3-dev
 
    Note: To use a parallel version, we need mpi4py. 
 
-   $ sudo apt-get install python-pip python-tk
-   $ sudo -H pip install mpi4py matplotlib
+   $ sudo apt-get install python3-pip python3-tk
+   $ sudo -H pip3 install numpy mpi4py matplotlib
    
    Alternatively, we can install from a source code too:
 
    $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-2.0.0.tar.gz
    $ tar xvf mpi4py-2.0.0.tar.gz
    $ cd mpi4py-2.0.0
-   $ python setup.py build
-   $ sudo python setup.py install
+   $ python3 setup.py build
+   $ sudo python3 setup.py install
 
 
 9. Fastbit indexing support (needed for queries) for ADIOS 1.x
@@ -317,7 +316,7 @@ III. ADIOS Installation
            -DADIOS2_USE_MPI=ON \
            -DADIOS2_USE_Fortran=ON \
            -DADIOS2_USE_Python=ON \
-           -DPYTHON_EXECUTABLE=/usr/bin/python2 \
+           -DPYTHON_EXECUTABLE=/usr/bin/python3 \
            -DADIOS2_USE_DataMan=ON \
            -DADIOS2_USE_HDF5=ON  \
            -DHDF5_ROOT=/opt/hdf5-parallel \
@@ -388,26 +387,25 @@ IV. ADIOS 1.x for compression and queries
 5. Build and install python wrapper
 
    To build Adios python wrapper, install following packages by:
-   $ sudo apt-get install python python-dev
-   $ sudo apt-get install python-numpy
+   $ sudo apt-get install python3 python3-dev python3-tk
 
    Note: To use a parallel version, we need mpi4py. 
 
-   $ sudo apt-get install python-pip
-   $ sudo -H pip install mpi4py
+   $ sudo apt-get install python3-pip
+   $ sudo -H pip3 install numpy mpi4py matplotlib
    
    Alternatively, we can install from a source code too:
 
    $ wget https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-2.0.0.tar.gz
    $ tar xvf mpi4py-2.0.0.tar.gz
    $ cd mpi4py-2.0.0
-   $ python setup.py build
-   $ sudo python setup.py install
+   $ python3 setup.py build
+   $ sudo python3 setup.py install
 
    Then, we are ready to install adios and adios_mpi python module. An
-   easy way is to use "pip".
+   easy way is to use "pip3".
    
-   $ sudo -H "PATH=$PATH" pip install --upgrade \
+   $ sudo -H "PATH=$PATH" pip3 install --upgrade \
      --global-option build_ext --global-option -lrt adios adios_mpi
 
    If there is any error, we can build from source. Go to the
@@ -415,21 +413,21 @@ IV. ADIOS 1.x for compression and queries
    $ cd wrapper/numpy
 
    Type the following to build Adios python wrapper:
-   $ python setup.py build_ext 
+   $ python3 setup.py build_ext 
    If not working, add " -lrt"
 
    The following command is to install:
-   $ sudo "PATH=$PATH" python setup.py install
+   $ sudo "PATH=$PATH" python3 setup.py install
 
    Same for adios_mpi module:
-   $ python setup_mpi.py build_ext -lrt
-   $ sudo "PATH=$PATH" python setup_mpi.py install
+   $ python3 setup_mpi.py build_ext -lrt
+   $ sudo "PATH=$PATH" python3 setup_mpi.py install
 
    Test:
    A quick test can be done:
    $ cd wrapper/numpy/tests
-   $ python test_adios.py
-   $ mpirun -n 4 python test_adios_mpi.py
+   $ python3 test_adios.py
+   $ mpirun -n 4 python3 test_adios_mpi.py
 
 
 V. ADIOS Tutorial code
