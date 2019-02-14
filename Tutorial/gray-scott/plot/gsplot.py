@@ -74,7 +74,7 @@ def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
         writer.Put(var, data, adios2.Mode.Sync)
         writer.EndStep()
     else:
-        imgfile = args.outfile+"{0:0>3}".format(step)+"_" + plane_direction + ".png"
+        imgfile = args.outfile+"{0:0>5}".format(step)+"_" + plane_direction + ".png"
         fig.savefig(imgfile)
 
     plt.clf()
@@ -97,6 +97,7 @@ if __name__ == "__main__":
 
     # Setup up 2D communicators if MPI is installed
     mpi = decomp.MPISetup(args, 3)
+    myrank = mpi.rank['app']
 
     # Read the data from this object
     fr = adios2.open(args.instream, "r", mpi.comm_app,"adios2.xml", "VizInput")
@@ -112,22 +113,28 @@ if __name__ == "__main__":
 #        if fr_step.current_step()
         start, size, fullshape = mpi.Partition_3D_3D(fr, args)
         cur_step= fr_step.current_step()
-        print("GS  Plot step     {0} processing analysis step   {1}".format(plot_step,cur_step))
         vars_info = fr.available_variables()
 #        print (vars_info)
         shape3_str = vars_info[args.varname]["Shape"].split(',')
         shape3 = list(map(int,shape3_str))
+        sim_step = fr_step.read("step")
+
+        if myrank == 0:
+            print("GS Plot step {0} processing simulation output step {1} or computation step {2}".format(plot_step,cur_step, sim_step[0]), flush=True)
+#            if cur_step == 0:
+#                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
+
         if args.plane in ('xy', 'all'):
             data = read_data (args, fr_step, [0,0,int(shape3[2]/2)], [shape3[0],shape3[1],1])
-            Plot2D ('xy', data, args, fullshape, cur_step, fontsize)
+            Plot2D ('xy', data, args, fullshape, sim_step[0], fontsize)
         
         if args.plane in ('xz', 'all'):
             data = read_data (args, fr_step, [0,int(shape3[1]/2),0], [shape3[0],1,shape3[2]])
-            Plot2D ('xz', data, args, fullshape, cur_step, fontsize)
+            Plot2D ('xz', data, args, fullshape, sim_step[0], fontsize)
         
         if args.plane in ('yz', 'all'):
             data = read_data (args, fr_step, [int(shape3[0]/2),0,0], [1,shape3[1],shape3[2]])
-            Plot2D ('yz',  data, args, fullshape, cur_step, fontsize)
+            Plot2D ('yz',  data, args, fullshape, sim_step[0], fontsize)
         plot_step = plot_step + 1;
 
     fr.close()

@@ -100,6 +100,8 @@ int main(int argc, char **argv)
         {sim.pz * sim.size_z, sim.py * sim.size_y, sim.px * sim.size_x},
         {sim.size_z, sim.size_y, sim.size_x});
 
+    adios2::Variable<int> varStep = io.DefineVariable<int>("step");
+
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
 
     for (int i = 0; i < settings.steps; i++) {
@@ -115,6 +117,10 @@ int main(int argc, char **argv)
             std::vector<double> v = sim.v_noghost();
 
             writer.BeginStep();
+            if (!rank)
+            {
+                writer.Put<int>(varStep, &i);
+            }
             writer.Put<double>(varU, u.data());
             writer.Put<double>(varV, v.data());
             writer.EndStep();

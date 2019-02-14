@@ -47,7 +47,7 @@ def PlotPDF(pdf, bins, args, start, count, step, fontsize):
         plt.show()
         plt.pause(displaysec)
     else:
-        imgfile = args.outfile+"{0:0>3}".format(step)+"_" + str(globalSliceIdx) + ".png"
+        imgfile = args.outfile+"{0:0>5}".format(step)+"_" + str(globalSliceIdx) + ".png"
         fig.savefig(imgfile)
 
     plt.clf()
@@ -86,10 +86,6 @@ if __name__ == "__main__":
         binvar = args.varname+"/bins"
         shape2_str = vars_info[pdfvar]["Shape"].split(',')
         shape2 = list(map(int,shape2_str))
-        if myrank == 0:
-            print("PDF Plot step     {0} processing analysis step   {1}".format(plot_step,cur_step))
-#            if cur_step == 0:
-#                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
         
         start = np.zeros(2, dtype=np.int64)
         count = np.zeros(2, dtype=np.int64)
@@ -103,8 +99,14 @@ if __name__ == "__main__":
 
         pdf = fr_step.read(pdfvar, start, count)
         bins = fr_step.read(binvar, start_bins, count_bins)
+        sim_step = fr_step.read("step")
 
-        PlotPDF (pdf, bins, args, start, count, cur_step, fontsize)
+        if myrank == 0:
+            print("PDF Plot step {0} processing analysis step {1} simulation step {2}".format(plot_step,cur_step, sim_step[0]), flush=True)
+#            if cur_step == 0:
+#                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
+
+        PlotPDF (pdf, bins, args, start, count, sim_step[0], fontsize)
         plot_step = plot_step + 1 
         
        

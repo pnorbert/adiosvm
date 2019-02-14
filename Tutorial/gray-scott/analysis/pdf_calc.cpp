@@ -171,6 +171,7 @@ int main(int argc, char *argv[])
     
     std::vector<double> u;
     std::vector<double> v;
+    int simStep;
 
     std::vector<double> pdf_u;
     std::vector<double> pdf_v;
@@ -179,8 +180,10 @@ int main(int argc, char *argv[])
     
     // adios2 variable declarations
     adios2::Variable<double> var_u_in, var_v_in;
+    adios2::Variable<int> var_step_in;
     adios2::Variable<double> var_u_pdf, var_v_pdf;
     adios2::Variable<double> var_u_bins, var_v_bins;
+    adios2::Variable<int> var_step_out;
     adios2::Variable<double> var_u_out, var_v_out;
 
     // adios2 io object and engine init
@@ -216,14 +219,7 @@ int main(int argc, char *argv[])
             break;
         }
  
-        int stepSimulation = reader.CurrentStep();
-        if (!rank)
-        {
-            std::cout << "PDF Analysis step " << stepAnalysis
-                << " processing simulation step "
-                << stepSimulation << std::endl;
-        }
-
+        int stepSimOut = reader.CurrentStep();
 
         // Inquire variable and set the selection at the first step only
         // This assumes that the variable dimensions do not change across timesteps
@@ -231,6 +227,9 @@ int main(int argc, char *argv[])
         // Inquire variable
         var_u_in = reader_io.InquireVariable<double>("U");
         var_v_in = reader_io.InquireVariable<double>("V");
+        var_step_in = reader_io.InquireVariable<int>("step");
+
+        
 
         std::pair<double, double> minmax_u =  var_u_in.MinMax();
         std::pair<double, double> minmax_v =  var_v_in.MinMax();
@@ -279,6 +278,7 @@ int main(int argc, char *argv[])
                         { nbins }, { 0 }, { nbins } );
                 var_v_bins = writer_io.DefineVariable<double> ("V/bins",
                         { nbins }, { 0 }, { nbins } );
+                var_step_out = writer_io.DefineVariable<int> ("step");
             }
 
 
@@ -300,9 +300,20 @@ int main(int argc, char *argv[])
         // Read adios2 data
         reader.Get<double>(var_u_in, u);
         reader.Get<double>(var_v_in, v);
+        if (!rank)
+        {
+            reader.Get<int>(var_step_in, &simStep);
+        }
 
         // End adios2 step
         reader.EndStep();
+
+        if (!rank)
+        {
+            std::cout << "PDF Analysis step " << stepAnalysis
+                << " processing sim output step "
+                << stepSimOut << " sim compute step " << simStep << std::endl;
+        }
 
         // Compute PDF
         std::vector<double> pdf_u;
@@ -321,6 +332,7 @@ int main(int argc, char *argv[])
         {
             writer.Put<double> (var_u_bins, bins_u.data());
             writer.Put<double> (var_v_bins, bins_v.data());
+            writer.Put<int> (var_step_out, simStep);
         }
         if (write_inputvars) {
             writer.Put<double> (var_u_out, u.data());
