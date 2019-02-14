@@ -64,17 +64,17 @@ $ python3 plot/gsplot.py -i gs.bp
 
 ```
 $ mpirun -n 8 build/gray-scott simulation/settings.json
-$ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100 
+$ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100
 $ bpls -l pdf.bp
   double   U/bins  15*{100} = 0.0889799 / 1.03432
   double   U/pdf   15*{64, 100} = 0 / 2079
   double   V/bins  15*{100} = 0 / 0.650473
   double   V/pdf   15*{64, 100} = 0 / 4096
 
-$ python3 plot/pdfplot.py -i pdf.bp 
+$ python3 plot/pdfplot.py -i pdf.bp
 OR
 $ mpirun -n 8 python3 plot/pdfplot.py -i pdf.bp -o u
-This is a parallel script, each process plots one PDF. 
+This is a parallel script, each process plots one PDF.
 Each process plots the middle slice of their subarray U/pdf[x:y,:]
 
 ```
@@ -119,9 +119,15 @@ In adios2.xml, change all IO groups' engine to SST.
 Launch the pipeline in 4 separate terminals:
 ```
 $ mpirun -n 4 build/gray-scott simulation/settings.json
-$ mpirun -n 1 build/pdf_calc gs.bp pdf.bp 100 
-$ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp 
-$ mpirun -n 1 python3 plot/gsplot.py -i gs.bp 
+<<<<<<< HEAD
+$ mpirun -n 1 build/pdf_calc gs.bp pdf.bp 100
+$ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp
+$ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
+=======
+$ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100
+$ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp
+$ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
+>>>>>>> Use FindADIOS2
 
 ```
 
@@ -130,6 +136,6 @@ MPMD mode run in a single terminal:
 $ mpirun -n 4 build/gray-scott simulation/settings.json : \
          -n 1 build/pdf_calc gs.bp pdf.bp 100 :           \
          -n 1 python3 plot/pdfplot.py -i pdf.bp :         \
-         -n 1 python3 plot/gsplot.py -i gs.bp 
+         -n 1 python3 plot/gsplot.py -i gs.bp
 ```
 
