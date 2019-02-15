@@ -3,77 +3,83 @@
 
 #include <adios2.h>
 
-#include <vtkm/Math.h>
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/DataSetBuilderUniform.h>
-#include <vtkm/cont/DataSetFieldAdd.h>
-#include <vtkm/filter/MarchingCubes.h>
-#include <vtkm/io/writer/VTKDataSetWriter.h>
+#include <vtkImageData.h>
+#include <vtkImageImport.h>
+#include <vtkMarchingCubes.h>
+#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkXMLPolyDataWriter.h>
 
-vtkm::cont::DataSet compute_isosurface(const adios2::Variable<double> &var,
-                                       const std::vector<double> &buf,
-                                       double isovalue)
+vtkSmartPointer<vtkPolyData>
+compute_isosurface(const adios2::Variable<double> &var,
+                   const std::vector<double> &buf, double isovalue)
 {
-    const vtkm::Vec<vtkm::Float64, 3> origin(var.Start()[2], var.Start()[1],
-                                             var.Start()[0]);
-    const vtkm::Vec<vtkm::Float64, 3> spacing(1, 1, 1);
-    const vtkm::Id3 dims(var.Count()[2], var.Count()[1], var.Count()[0]);
+    vtkSmartPointer<vtkImageImport> imageImport =
+        vtkSmartPointer<vtkImageImport>::New();
+    imageImport->SetDataSpacing(1, 1, 1);
+    imageImport->SetDataOrigin(var.Start()[2], var.Start()[1], var.Start()[0]);
+    imageImport->SetWholeExtent(0, var.Count()[2] - 1, 0, var.Count()[1] - 1, 0,
+                                var.Count()[0]);
+    imageImport->SetDataExtentToWholeExtent();
+    imageImport->SetDataScalarTypeToDouble();
+    imageImport->SetNumberOfScalarComponents(1);
+    imageImport->SetImportVoidPointer(const_cast<double *>(buf.data()));
+    imageImport->Update();
 
-    const vtkm::cont::DataSetBuilderUniform dsb;
-    vtkm::cont::DataSet input = dsb.Create(dims, origin, spacing);
+    vtkSmartPointer<vtkMarchingCubes> marchingCubes =
+        vtkSmartPointer<vtkMarchingCubes>::New();
+    marchingCubes->SetInputData(imageImport->GetOutput());
+    marchingCubes->ComputeNormalsOn();
+    marchingCubes->SetValue(0, isovalue);
+    marchingCubes->Update();
 
-    const vtkm::Id n_points = dims[0] * dims[1] * dims[2];
-    const vtkm::cont::DataSetFieldAdd dsf;
-    dsf.AddPointField(input, var.Name(), buf.data(), n_points);
-
-    vtkm::filter::MarchingCubes filter;
-    filter.SetIsoValue(0, isovalue);
-    filter.SetActiveField(var.Name());
-
-    return filter.Execute(input);
+    return marchingCubes->GetOutput();
 }
 
-void write_vtk(const std::string &fname, const vtkm::cont::DataSet &ds)
+void write_vtk(const std::string &fname,
+               const vtkSmartPointer<vtkPolyData> polyData)
 {
-    vtkm::io::writer::VTKDataSetWriter writer(fname);
-    writer.WriteDataSet(ds);
+    vtkSmartPointer<vtkXMLPolyDataWriter> writer =
+        vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    writer->SetFileName(fname.c_str());
+    writer->SetInputData(polyData);
+    writer->Write();
 }
 
-void write_adios(adios2::Engine &writer, vtkm::cont::DataSet &ds,
+void write_adios(adios2::Engine &writer,
+                 const vtkSmartPointer<vtkPolyData> polyData,
                  adios2::Variable<double> &varPoint,
                  adios2::Variable<int> &varCell)
 {
-    int cindex = 0;
-    auto cdata = ds.GetCoordinateSystem(cindex).GetData();
-    auto portal = cdata.GetPortalConstControl();
-    size_t nPoints = portal.GetNumberOfValues();
+    size_t nCells = polyData->GetNumberOfPolys();
+    size_t nPoints = polyData->GetNumberOfPoints();
+    size_t iCells = 0;
+
     std::vector<double> points(nPoints * 3);
-
-    for (vtkm::Id i = 0; i < nPoints; i++) {
-        const auto &value = portal.Get(i);
-
-        using ValueType = typename vtkm::Vec<vtkm::FloatDefault, 3>;
-        using VecType = typename vtkm::VecTraits<ValueType>;
-
-        for (vtkm::IdComponent c = 0; c < 3; c++) {
-            points[i * 3 + c] = VecType::GetComponent(value, c);
-        }
-    }
-
-    int csindex = 0;
-    auto cellSet =
-        ds.GetCellSet(csindex).Cast<vtkm::cont::CellSetSingleType<>>();
-    size_t nCells = cellSet.GetNumberOfCells();
     std::vector<int> cells(nCells * 3);
 
-    for (vtkm::Id i = 0; i < nCells; ++i) {
-        vtkm::cont::ArrayHandle<vtkm::Id> ids;
-        vtkm::Id nids = cellSet.GetNumberOfPointsInCell(i);
-        cellSet.GetIndices(i, ids);
-        auto IdPortal = ids.GetPortalConstControl();
+    double coords[3];
 
-        for (vtkm::Id j = 0; j < nids; ++j) {
-            cells[i * 3 + j] = IdPortal.Get(j);
+    vtkSmartPointer<vtkCellArray> cellArray = polyData->GetPolys();
+
+    cellArray->InitTraversal();
+
+    for (int i = 0; i < polyData->GetNumberOfPolys(); i++)
+    {
+        vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
+
+        cellArray->GetNextCell(idList);
+
+        for (int j = 0; j < idList->GetNumberOfIds(); j++) {
+            auto id = idList->GetId(j);
+
+            cells[iCells++] = id;
+
+            polyData->GetPoint(id, coords);
+
+            points[id * 3 + 0] = coords[0];
+            points[id * 3 + 1] = coords[1];
+            points[id * 3 + 2] = coords[2];
         }
     }
 
@@ -147,19 +153,20 @@ int main(int argc, char *argv[])
 
         auto end_read = std::chrono::steady_clock::now();
 
-        auto ds = compute_isosurface(varU, u, isovalue);
+        auto polyData = compute_isosurface(varU, u, isovalue);
 
         auto end_compute = std::chrono::steady_clock::now();
 
-        write_adios(writer, ds, varPoint, varCell);
+        write_adios(writer, polyData, varPoint, varCell);
 
         auto end_step = std::chrono::steady_clock::now();
 
-        std::cout << "Step " << reader.CurrentStep()
-            << " read IO " << diff(start_step, end_read).count() << " [ms]"
-            << " compute " << diff(end_read, end_compute).count() << " [ms]"
-            << " write IO " << diff(end_compute, end_step).count() << " [ms]"
-            << std::endl;
+        std::cout << "Step " << reader.CurrentStep() << " read IO "
+                  << diff(start_step, end_read).count() << " [ms]"
+                  << " compute " << diff(end_read, end_compute).count()
+                  << " [ms]"
+                  << " write IO " << diff(end_compute, end_step).count()
+                  << " [ms]" << std::endl;
     }
 
     auto end_total = std::chrono::steady_clock::now();
