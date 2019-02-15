@@ -19,3 +19,8 @@ target_link_libraries(gray-scott adios2::adios2 MPI::MPI_C)
 
 add_executable(pdf_calc analysis/pdf_calc.cpp)
 target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
+
+find_package(VTK REQUIRED)
+
+add_executable(curvature analysis/curvature.cpp)
+target_link_libraries(curvature adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
