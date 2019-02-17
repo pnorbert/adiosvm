@@ -19,17 +19,19 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     points->SetNumberOfPoints(nPoints);
     for (vtkIdType i = 0; i < nPoints; i++) {
-        double x = bufPoints[i * 3];
+        double x = bufPoints[i * 3 + 0];
         double y = bufPoints[i * 3 + 1];
         double z = bufPoints[i * 3 + 2];
+
         points->SetPoint(i, x, y, z);
     }
 
     vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
     for (vtkIdType i = 0; i < nCells; i++) {
-        vtkIdType a = bufCells[i * 3];
+        vtkIdType a = bufCells[i * 3 + 0];
         vtkIdType b = bufCells[i * 3 + 1];
         vtkIdType c = bufCells[i * 3 + 2];
+
         polys->InsertNextCell(3);
         polys->InsertCellPoint(a);
         polys->InsertCellPoint(b);
@@ -73,7 +75,7 @@ int main(int argc, char *argv[])
 
     const std::string input_fname(argv[1]);
     const std::string output_fname(argv[2]);
-    const int step = std::stoi(argv[3]);
+    const int target_step = std::stoi(argv[3]);
 
     adios2::ADIOS adios(MPI_COMM_WORLD);
 
@@ -85,6 +87,7 @@ int main(int argc, char *argv[])
 
     std::vector<double> points;
     std::vector<int> cells;
+    int step;
 
     while (true) {
         adios2::StepStatus status =
@@ -96,20 +99,23 @@ int main(int argc, char *argv[])
 
         auto varPoint = inIO.InquireVariable<double>("point");
         auto varCell = inIO.InquireVariable<int>("cell");
+        auto varStep = inIO.InquireVariable<int>("step");
 
-        points.resize(varPoint.Shape()[0] * varPoint.Shape()[1]);
-        cells.resize(varCell.Shape()[0] * varCell.Shape()[1]);
+        varPoint.SetSelection(
+            {{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
+        varCell.SetSelection(
+            {{0, 0}, {varCell.Shape()[0], varCell.Shape()[1]}});
 
-        reader.Get<double>(varPoint, points.data());
-        reader.Get<int>(varCell, cells.data());
+        reader.Get<double>(varPoint, points);
+        reader.Get<int>(varCell, cells);
+        reader.Get<int>(varStep, &step);
 
         reader.EndStep();
 
-        std::cout << "Step " << reader.CurrentStep() << " "
-                  << varPoint.Shape()[0] << " points, " << varCell.Shape()[0]
-                  << " cells" << std::endl;
+        std::cout << "Step " << step << " " << varCell.Shape()[0] << " cells "
+                  << varPoint.Shape()[0] << " points" << std::endl;
 
-        if (reader.CurrentStep() == step) {
+        if (step == target_step) {
             vtkSmartPointer<vtkPolyData> polyData = read_mesh(points, cells);
             auto start = std::chrono::steady_clock::now();
             compute_curvature(polyData);
