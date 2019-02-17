@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
     auto varCell = outIO.DefineVariable<int>("cell", {1, 3}, {0, 0}, {1, 3});
 
     std::vector<double> u;
+    int step;
 
     auto start_total = std::chrono::steady_clock::now();
 
@@ -148,7 +149,9 @@ int main(int argc, char *argv[])
         }
 
         const adios2::Variable<double> varU = inIO.InquireVariable<double>("U");
+        const adios2::Variable<int> varStep = inIO.InquireVariable<int>("step");
         reader.Get<double>(varU, u);
+        reader.Get<int>(varStep, step);
         reader.EndStep();
 
         auto end_read = std::chrono::steady_clock::now();
@@ -161,7 +164,7 @@ int main(int argc, char *argv[])
 
         auto end_step = std::chrono::steady_clock::now();
 
-        std::cout << "Step " << reader.CurrentStep() << " read IO "
+        std::cout << "Step " << step << " read IO "
                   << diff(start_step, end_read).count() << " [ms]"
                   << " compute " << diff(end_read, end_compute).count()
                   << " [ms]"
