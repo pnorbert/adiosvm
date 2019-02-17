@@ -22,8 +22,12 @@ target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
 
 find_package(VTK REQUIRED)
 
-add_executable(curvature analysis/curvature.cpp)
-target_link_libraries(curvature adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+if(VTK_FOUND)
 
-add_executable(isosurface analysis/isosurface.cpp)
-target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+    add_executable(isosurface analysis/isosurface.cpp)
+    target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+
+    add_executable(curvature analysis/curvature.cpp)
+    target_link_libraries(curvature adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+
+endif(VTK_FOUND)
