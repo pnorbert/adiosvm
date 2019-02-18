@@ -74,7 +74,8 @@ $ bpls -l pdf.bp
 $ python3 plot/pdfplot.py -i pdf.bp 
 OR
 $ mpirun -n 8 python3 plot/pdfplot.py -i pdf.bp -o u
-This is a parallel script, each process plots one PDF. The first process only plots the firsts slice U/pdf[0,:]
+This is a parallel script, each process plots one PDF. 
+Each process plots the middle slice of their subarray U/pdf[x:y,:]
 
 ```
 

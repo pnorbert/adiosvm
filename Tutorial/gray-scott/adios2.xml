@@ -5,30 +5,45 @@
 
         <engine type="BPFile"/>
         <engine type="HDF5"/>
-        <engine type=""/>
+        <engine type="SST"/>
         <engine type="InSituMPI"/>
 
-        DataMan is more elaborate with a transport and IP address required
-        <io name="heat">
-            <engine type="DataMan">
-                <parameter key="Blocking" value="no"/>
-            </engine>
+        SST can be set up to force blocking the producer on a consumer
+        or to discard unused data. Separately, it can be also set up 
+        so that the producer is waiting for a first connection or 
+        just starts running alone.
 
-            <transport type="WAN">
-                <parameter key="Library" value="ZMQ"/>
-                <parameter key="IPAddress" value="127.0.0.1"/>
-            </transport>
-        </io>
+        Producer start alone, and it does not keep data. 
+        Consumer will get recent data when connects. 
+        If consumer(s) goes away, producer runs alone and 
+           discards data. 
+        <engine type="SST">
+            <parameter key="RendezvousReaderCount" value="0"/>
+            <parameter key="QueueLimit" value="1"/>
+            <parameter key="QueueFullPolicy" value="Discard"/>
+        </engine>
+
+        Producer will wait for 1 consumer to connect before proceeding.
+        Producer will buffer 5 output steps so a consumer may lag behind a bit.
+        If consumer(s) goes away, producer will block indefinitely after 
+          the buffer is full.
+        <engine type="SST">
+            <parameter key="RendezvousReaderCount" value="1"/>
+            <parameter key="QueueLimit" value="5"/>
+            <parameter key="QueueFullPolicy" value="Block"/>
+        </engine>
 
      -->
 
     <!--======================================
-           Configuration for the Brusselator 
+           Configuration for Gray-Scott 
+           and GS Plot
         ======================================-->
 
     <io name="SimulationOutput">
         <engine type="BPFile">
-<!---
+        </engine>
+        <!--
         <variable name="U">
             <operation type="zfp">
                 <parameter key="accuracy" value="0.00001"/>
@@ -39,28 +54,15 @@
                 <parameter key="accuracy" value="0.00001"/>
             </operation>
         </variable>
--->
-        </engine>
+        -->
     </io>
 
     <!--====================================
-           Configuration for the norm calc 
+           Configuration for PDF calc
+           and PDF Plot
         ====================================-->
 
-    <io name="AnalysisOutput">
-        <engine type="BPFile">
-        </engine>
-    </io>
-
-    <!--================================================
-           Configuration for the Python plot 
-           Configuration for the Visualization Input
-           should match the Simulation Output or the 
-           Analysis Output depending on what code you
-           attach to (simulation or analysis)
-        ===============================================-->
-
-        <io name="VizInput">
+    <io name="PDFAnalysisOutput">
         <engine type="BPFile">
         </engine>
     </io>

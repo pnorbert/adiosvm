@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 
     // IO objects for reading and writing
     adios2::IO reader_io = ad.DeclareIO("SimulationOutput");
-    adios2::IO writer_io = ad.DeclareIO("AnalysisOutput");
+    adios2::IO writer_io = ad.DeclareIO("PDFAnalysisOutput");
     if (!rank) 
     {
         std::cout << "PDF analysis reads from Simulation using engine type:  " << reader_io.EngineType() << std::endl;

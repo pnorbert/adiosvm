@@ -1,12 +1,12 @@
 {
-    "L": 64,
+    "L": 48,
     "Du": 0.2,
     "Dv": 0.1,
     "F": 0.02,
     "k": 0.048,
     "dt": 1.0,
-    "plotgap": 100,
-    "steps": 2000,
+    "plotgap": 25,
+    "steps": 6000,
     "noise": 0.01,
     "output": "gs.bp",
     "adios_config": "adios2.xml"
