@@ -28,22 +28,22 @@ io_phdf5.o : io_phdf5.F90
 io_adios2.o : io_adios2.F90 
 	${FC} ${FFLAGS} -c ${ADIOS2_FINC} $<  
 
-%.o : %.F90 
+heat_vars.o : heat_vars.F90 
 	${FC} ${FFLAGS} -c $< 
 
 fort: heat_vars.o io_fort.o heatSimulation.o
 	${FC} ${FFLAGS} -o heatSimulation_fort $^ 
 
-hdf5_a: heat_vars.o io_hdf5_a.o heatSimulation.o
+hdf5_a: heat_vars.o io_hdf5_a.o heatSimulation.F90
 	libtool --mode=link --tag=FC ${FC} ${FFLAGS} -o heatSimulation_hdf5_a $^ ${HDF5_FLIB} 
 
-hdf5_b: heat_vars.o io_hdf5_b.o heatSimulation.o
+hdf5_b: heat_vars.o io_hdf5_b.o heatSimulation.F90
 	libtool --mode=link --tag=FC ${FC} ${FFLAGS} -o heatSimulation_hdf5_b $^ ${HDF5_FLIB} 
 
-phdf5: heat_vars.o io_phdf5.o heatSimulation.o
+phdf5: heat_vars.o io_phdf5.o heatSimulation.F90
 	libtool --mode=link --tag=FC ${FC} ${FFLAGS} -o heatSimulation_phdf5 $^ ${PHDF5_FLIB} 
 
-adios2: heat_vars.o io_adios2.o heatSimulation.o
+adios2: heat_vars.o io_adios2.o heatSimulation.F90
 	${FC} ${FFLAGS} -o heatSimulation_adios2 $^ ${ADIOS2_FLIB} 
 
 clean-code:

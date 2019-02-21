@@ -18,12 +18,6 @@ help: default
 print.o : print.F90
 	${FC} ${FFLAGS} -c $< 
 
-%2.o : %.F90 
-	${FC} ${FFLAGS} -c ${ADIOS2_FINC} $<
-
-%1.o : %.F90 
-	${FC} ${FFLAGS} -c ${ADIOS1_FINC} $<
-
 hdf5_file: print.o heatAnalysis_hdf5_file.F90
 	libtool --mode=link --tag=FC ${FC} ${FFLAGS} ${HDF5_FINC} -o heatAnalysis_hdf5_file $^ ${HDF5_FLIB} 
 
