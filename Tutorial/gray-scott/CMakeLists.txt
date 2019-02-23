@@ -27,7 +27,7 @@ if(VTK_FOUND)
     add_executable(isosurface analysis/isosurface.cpp)
     target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
 
-    add_executable(curvature analysis/curvature.cpp)
-    target_link_libraries(curvature adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+    add_executable(find_blobs analysis/find_blobs.cpp)
+    target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
 
 endif(VTK_FOUND)
