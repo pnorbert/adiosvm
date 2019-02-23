@@ -25,8 +25,7 @@ compute_isosurface(const adios2::Variable<double> &varField,
                    const std::vector<double> &field, double isovalue)
 {
     // Convert vector of field values to vtkImageData
-    vtkSmartPointer<vtkImageImport> importer =
-        vtkSmartPointer<vtkImageImport>::New();
+    auto importer = vtkSmartPointer<vtkImageImport>::New();
     importer->SetDataSpacing(1, 1, 1);
     importer->SetDataOrigin(varField.Start()[2], varField.Start()[1],
                             varField.Start()[0]);
@@ -37,12 +36,10 @@ compute_isosurface(const adios2::Variable<double> &varField,
     importer->SetDataScalarTypeToDouble();
     importer->SetNumberOfScalarComponents(1);
     importer->SetImportVoidPointer(const_cast<double *>(field.data()));
-    importer->Update();
 
     // Run the marching cubes algorithm
-    vtkSmartPointer<vtkMarchingCubes> mcubes =
-        vtkSmartPointer<vtkMarchingCubes>::New();
-    mcubes->SetInputData(importer->GetOutput());
+    auto mcubes = vtkSmartPointer<vtkMarchingCubes>::New();
+    mcubes->SetInputConnection(importer->GetOutputPort());
     mcubes->ComputeNormalsOn();
     mcubes->SetValue(0, isovalue);
     mcubes->Update();
@@ -54,8 +51,7 @@ compute_isosurface(const adios2::Variable<double> &varField,
 void write_vtk(const std::string &fname,
                const vtkSmartPointer<vtkPolyData> polyData)
 {
-    vtkSmartPointer<vtkXMLPolyDataWriter> writer =
-        vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    auto writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
     writer->SetFileName(fname.c_str());
     writer->SetInputData(polyData);
     writer->Write();
@@ -82,7 +78,7 @@ void write_adios(adios2::Engine &writer,
     cellArray->InitTraversal();
 
     for (int i = 0; i < polyData->GetNumberOfPolys(); i++) {
-        vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
+        auto idList = vtkSmartPointer<vtkIdList>::New();
 
         cellArray->GetNextCell(idList);
 

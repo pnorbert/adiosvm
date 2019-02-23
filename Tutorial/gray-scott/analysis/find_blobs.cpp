@@ -19,7 +19,7 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
     int nPoints = bufPoints.size() / 3;
     int nCells = bufCells.size() / 3;
 
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+    auto points = vtkSmartPointer<vtkPoints>::New();
     points->SetNumberOfPoints(nPoints);
     for (vtkIdType i = 0; i < nPoints; i++) {
         double x = bufPoints[i * 3 + 0];
@@ -29,7 +29,7 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
         points->SetPoint(i, x, y, z);
     }
 
-    vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
+    auto polys = vtkSmartPointer<vtkCellArray>::New();
     for (vtkIdType i = 0; i < nCells; i++) {
         vtkIdType a = bufCells[i * 3 + 0];
         vtkIdType b = bufCells[i * 3 + 1];
@@ -41,46 +41,35 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
         polys->InsertCellPoint(c);
     }
 
-    vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+    auto polyData = vtkSmartPointer<vtkPolyData>::New();
     polyData->SetPoints(points);
     polyData->SetPolys(polys);
 
     return polyData;
 }
 
-void compute_curvature(const vtkSmartPointer<vtkPolyData> polyData)
+void find_blobs(const vtkSmartPointer<vtkPolyData> polyData)
 {
-    vtkSmartPointer<vtkConnectivityFilter> connectivityFilter =
-        vtkSmartPointer<vtkConnectivityFilter>::New();
+    auto connectivityFilter = vtkSmartPointer<vtkConnectivityFilter>::New();
     connectivityFilter->SetInputData(polyData);
     connectivityFilter->SetExtractionModeToAllRegions();
     connectivityFilter->ColorRegionsOn();
     connectivityFilter->Update();
 
     int nBlobs = connectivityFilter->GetNumberOfExtractedRegions();
-    vtkSmartPointer<vtkThreshold> threshold =
-        vtkSmartPointer<vtkThreshold>::New();
 
-    vtkSmartPointer<vtkMassProperties> massProperties =
-        vtkSmartPointer<vtkMassProperties>::New();
+    std::cout << "Extracted " << nBlobs << " blobs" << std::endl;
 
-    std::cout << "Extracted "
-              << connectivityFilter->GetNumberOfExtractedRegions() << " blobs"
-              << std::endl;
+    auto threshold = vtkSmartPointer<vtkThreshold>::New();
+    auto massProperties = vtkSmartPointer<vtkMassProperties>::New();
+    auto surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
 
-    vtkSmartPointer<vtkDataSetSurfaceFilter> surfaceFilter =
-        vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+    threshold->SetInputConnection(connectivityFilter->GetOutputPort());
+    surfaceFilter->SetInputConnection(threshold->GetOutputPort());
+    massProperties->SetInputConnection(surfaceFilter->GetOutputPort());
 
     for (int i = 0; i < nBlobs; i++) {
-        threshold->SetInputData(connectivityFilter->GetOutput());
         threshold->ThresholdBetween(i, i);
-        threshold->Update();
-
-        surfaceFilter->SetInputData(threshold->GetOutput());
-        surfaceFilter->Update();
-
-        massProperties->SetInputData(surfaceFilter->GetOutput());
-        massProperties->Update();
 
         std::cout << "surface area of blob " << i << " is "
                   << massProperties->GetSurfaceArea() << std::endl;
@@ -91,23 +80,18 @@ int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
 
-    if (argc < 4) {
+    if (argc < 2) {
         std::cerr << "Too few arguments" << std::endl;
-        std::cout << "Usage: curvature input output step" << std::endl;
+        std::cout << "Usage: find_blobs input" << std::endl;
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
     const std::string input_fname(argv[1]);
-    const std::string output_fname(argv[2]);
-    const int target_step = std::stoi(argv[3]);
 
     adios2::ADIOS adios(MPI_COMM_WORLD);
 
     adios2::IO inIO = adios.DeclareIO("IsosurfaceOutput");
     adios2::Engine reader = inIO.Open(input_fname, adios2::Mode::Read);
-
-    adios2::IO outIO = adios.DeclareIO("CurvatureOutput");
-    adios2::Engine writer = outIO.Open(output_fname, adios2::Mode::Write);
 
     std::vector<double> points;
     std::vector<int> cells;
@@ -141,7 +125,7 @@ int main(int argc, char *argv[])
 
         vtkSmartPointer<vtkPolyData> polyData = read_mesh(points, cells);
         auto start = std::chrono::steady_clock::now();
-        compute_curvature(polyData);
+        find_blobs(polyData);
         auto end = std::chrono::steady_clock::now();
         auto diff = end - start;
         auto duration =
@@ -151,6 +135,5 @@ int main(int argc, char *argv[])
                   << std::endl;
     }
 
-    writer.Close();
     reader.Close();
 }
