@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     const std::string output_fname(argv[2]);
     const double isovalue = std::stod(argv[3]);
 
-    adios2::ADIOS adios("adios2.xml", comm);
+    adios2::ADIOS adios("adios2.xml", comm, adios2::DebugON);
 
     adios2::IO inIO = adios.DeclareIO("SimulationOutput");
     adios2::Engine reader = inIO.Open(input_fname, adios2::Mode::Read);
