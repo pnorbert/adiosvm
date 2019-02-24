@@ -24,10 +24,15 @@ find_package(VTK REQUIRED)
 
 if(VTK_FOUND)
 
+    include(${VTK_USE_FILE})
+
     add_executable(isosurface analysis/isosurface.cpp)
     target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
 
     add_executable(find_blobs analysis/find_blobs.cpp)
     target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+
+    add_executable(render_isosurface plot/render_isosurface.cpp)
+    target_link_libraries(render_isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
 
 endif(VTK_FOUND)
