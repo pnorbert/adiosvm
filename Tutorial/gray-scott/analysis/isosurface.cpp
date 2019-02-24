@@ -16,6 +16,7 @@
 #include <vtkImageData.h>
 #include <vtkImageImport.h>
 #include <vtkMarchingCubes.h>
+#include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
@@ -24,7 +25,7 @@ vtkSmartPointer<vtkPolyData>
 compute_isosurface(const adios2::Variable<double> &varField,
                    const std::vector<double> &field, double isovalue)
 {
-    // Convert vector of field values to vtkImageData
+    // Convert field values to vtkImageData
     auto importer = vtkSmartPointer<vtkImageImport>::New();
     importer->SetDataSpacing(1, 1, 1);
     importer->SetDataOrigin(varField.Start()[2], varField.Start()[1],
@@ -61,6 +62,7 @@ void write_adios(adios2::Engine &writer,
                  const vtkSmartPointer<vtkPolyData> polyData,
                  adios2::Variable<double> &varPoint,
                  adios2::Variable<int> &varCell,
+                 adios2::Variable<double> &varNormal,
                  adios2::Variable<int> &varOutStep, int step, MPI_Comm comm)
 {
     int numCells = polyData->GetNumberOfPolys();
@@ -69,19 +71,22 @@ void write_adios(adios2::Engine &writer,
     std::cout << numCells << " cells " << numPoints << " points" << std::endl;
 
     std::vector<double> points(numPoints * 3);
+    std::vector<double> normals(numPoints * 3);
     std::vector<int> cells(numCells * 3); // Assumes that cells are triangles
 
     double coords[3];
 
-    vtkSmartPointer<vtkCellArray> cellArray = polyData->GetPolys();
+    auto cellArray = polyData->GetPolys();
 
     cellArray->InitTraversal();
 
+    // Iterate through cells
     for (int i = 0; i < polyData->GetNumberOfPolys(); i++) {
         auto idList = vtkSmartPointer<vtkIdList>::New();
 
         cellArray->GetNextCell(idList);
 
+        // Iterate through points of a cell
         for (int j = 0; j < idList->GetNumberOfIds(); j++) {
             auto id = idList->GetId(j);
 
@@ -95,6 +100,17 @@ void write_adios(adios2::Engine &writer,
         }
     }
 
+    auto normalArray = polyData->GetPointData()->GetNormals();
+
+    // Extract normals
+    for (int i = 0; i < normalArray->GetNumberOfTuples(); i++) {
+        normalArray->GetTuple(i, coords);
+
+        normals[i * 3 + 0] = coords[0];
+        normals[i * 3 + 1] = coords[1];
+        normals[i * 3 + 2] = coords[2];
+    }
+
     int totalPoints, offsetPoints;
     MPI_Allreduce(&numPoints, &totalPoints, 1, MPI_INT, MPI_SUM, comm);
     MPI_Scan(&numPoints, &offsetPoints, 1, MPI_INT, MPI_SUM, comm);
@@ -105,8 +121,12 @@ void write_adios(adios2::Engine &writer,
     varPoint.SetSelection({{static_cast<size_t>(offsetPoints - numPoints), 0},
                            {static_cast<size_t>(numPoints), 3}});
 
+    varNormal.SetShape(varPoint.Shape());
+    varNormal.SetSelection({varPoint.Start(), varPoint.Count()});
+
     if (numPoints) {
         writer.Put(varPoint, points.data());
+        writer.Put(varNormal, normals.data());
     }
 
     int totalCells, offsetCells;
@@ -190,6 +210,7 @@ int main(int argc, char *argv[])
     auto varPoint =
         outIO.DefineVariable<double>("point", {1, 3}, {0, 0}, {1, 3});
     auto varCell = outIO.DefineVariable<int>("cell", {1, 3}, {0, 0}, {1, 3});
+    auto varNormal = outIO.DefineVariable<double>("normal", {1, 3}, {0, 0}, {1, 3});
     auto varOutStep = outIO.DefineVariable<int>("step");
 
     std::vector<double> u;
@@ -235,9 +256,9 @@ int main(int argc, char *argv[])
 
         ss << "iso-" << rank << "-" << step << ".vtp";
 
-        write_adios(writer, polyData, varPoint, varCell, varOutStep, step,
-                    comm);
-        write_vtk(ss.str(), polyData);
+        write_adios(writer, polyData, varPoint, varCell, varNormal, varOutStep,
+                    step, comm);
+        // write_vtk(ss.str(), polyData);
 
         auto end_step = std::chrono::steady_clock::now();
 

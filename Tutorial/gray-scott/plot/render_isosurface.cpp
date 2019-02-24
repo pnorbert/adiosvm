@@ -1,21 +1,31 @@
+/*
+ * Visualization code for the Gray-Scott simulation.
+ * Reads iso-surface mesh data and visualizes it using VTK.
+ *
+ * Keichi Takahashi <takahashi.keichi@ais.cmc.osaka-u.ac.jp>
+ *
+ */
+
 #include <chrono>
 #include <iostream>
 
 #include <adios2.h>
 
-#include <vtkCellArray.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
-
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>
+#include <vtkCellArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkInteractorStyleSwitch.h>
+#include <vtkPoints.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRenderView.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 
 typedef struct {
     vtkRenderView *renderView;
@@ -25,7 +35,8 @@ typedef struct {
 } Context;
 
 vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
-                                       const std::vector<int> &bufCells)
+                                       const std::vector<int> &bufCells,
+                                       const std::vector<double> &bufNormals)
 {
     int nPoints = bufPoints.size() / 3;
     int nCells = bufCells.size() / 3;
@@ -52,9 +63,20 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
         polys->InsertCellPoint(c);
     }
 
+    auto normals = vtkSmartPointer<vtkDoubleArray>::New();
+    normals->SetNumberOfComponents(3);
+    for (vtkIdType i = 0; i < nPoints; i++) {
+        double x = bufNormals[i * 3 + 0];
+        double y = bufNormals[i * 3 + 1];
+        double z = bufNormals[i * 3 + 2];
+
+        normals->InsertNextTuple3(x, y, z);
+    }
+
     auto polyData = vtkSmartPointer<vtkPolyData>::New();
     polyData->SetPoints(points);
     polyData->SetPolys(polys);
+    polyData->GetPointData()->SetNormals(normals);
 
     return polyData;
 }
@@ -66,6 +88,7 @@ void func(vtkObject *object, unsigned long eid, void *clientdata,
 
     std::vector<double> points;
     std::vector<int> cells;
+    std::vector<double> normals;
     int step;
 
     adios2::StepStatus status =
@@ -77,13 +100,17 @@ void func(vtkObject *object, unsigned long eid, void *clientdata,
 
     auto varPoint = context->inIO->InquireVariable<double>("point");
     auto varCell = context->inIO->InquireVariable<int>("cell");
+    auto varNormal = context->inIO->InquireVariable<double>("normal");
     auto varStep = context->inIO->InquireVariable<int>("step");
 
     varPoint.SetSelection({{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
+    varNormal.SetSelection(
+        {{0, 0}, {varNormal.Shape()[0], varNormal.Shape()[1]}});
     varCell.SetSelection({{0, 0}, {varCell.Shape()[0], varCell.Shape()[1]}});
 
     context->reader->Get<double>(varPoint, points);
     context->reader->Get<int>(varCell, cells);
+    context->reader->Get<double>(varNormal, normals);
     context->reader->Get<int>(varStep, &step);
 
     context->reader->EndStep();
@@ -91,7 +118,7 @@ void func(vtkObject *object, unsigned long eid, void *clientdata,
     std::cout << "Step " << step << " " << varCell.Shape()[0] << " cells "
               << varPoint.Shape()[0] << " points" << std::endl;
 
-    vtkSmartPointer<vtkPolyData> polyData = read_mesh(points, cells);
+    vtkSmartPointer<vtkPolyData> polyData = read_mesh(points, cells, normals);
 
     context->mapper->SetInputData(polyData);
     context->renderView->ResetCamera();
@@ -118,6 +145,7 @@ int main(int argc, char *argv[])
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
     auto actor = vtkSmartPointer<vtkActor>::New();
+    actor->GetProperty()->SetOpacity(0.6);
     actor->SetMapper(mapper);
 
     auto renderView = vtkSmartPointer<vtkRenderView>::New();

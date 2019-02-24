@@ -1,3 +1,13 @@
+/*
+ * Analysis code for the Gray-Scott simulation.
+ * Reads iso-surface mesh data and detects connected components.
+ * Counts the total number of connected components and measures the surface
+ * area of each component.
+ *
+ * Keichi Takahashi <takahashi.keichi@ais.cmc.osaka-u.ac.jp>
+ *
+ */
+
 #include <chrono>
 #include <iostream>
 
