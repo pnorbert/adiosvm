@@ -1,6 +1,5 @@
 include ../make.settings
 
-override ADIOS2_FINC=-I${ADIOS2_DIR}/include/fortran
 override ADIOS2_FINC=`${ADIOS2_DIR}/bin/adios2-config --fortran-flags`
 override ADIOS2_FLIB=`${ADIOS2_DIR}/bin/adios2-config --fortran-libs`
 
