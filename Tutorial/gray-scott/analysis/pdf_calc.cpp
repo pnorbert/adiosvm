@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
         // Read adios2 data
         reader.Get<double>(var_u_in, u);
         reader.Get<double>(var_v_in, v);
-        if (!rank)
+        if (shouldIWrite)
         {
             reader.Get<int>(var_step_in, &simStep);
         }
