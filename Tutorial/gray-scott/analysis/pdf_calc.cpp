@@ -202,6 +202,8 @@ int main(int argc, char *argv[])
     adios2::Engine reader = reader_io.Open(in_filename, adios2::Mode::Read, comm);
     adios2::Engine writer = writer_io.Open(out_filename, adios2::Mode::Write, comm);
 
+    bool shouldIWrite = (!rank || reader_io.EngineType() == "HDF5");
+
     // read data per timestep
     int stepAnalysis = 0;
     while(true) {
@@ -272,7 +274,7 @@ int main(int argc, char *argv[])
                     { start1, 0},
                     { count1, nbins } );
 
-            if (!rank)
+            if (shouldIWrite)
             {
                 var_u_bins = writer_io.DefineVariable<double> ("U/bins",
                         { nbins }, { 0 }, { nbins } );
@@ -315,6 +317,15 @@ int main(int argc, char *argv[])
                 << stepSimOut << " sim compute step " << simStep << std::endl;
         }
 
+        // HDF5 engine does not provide min/max. Let's calculate it
+        if (reader_io.EngineType() == "HDF5")
+        {
+            auto mmu = std::minmax_element(u.begin(), u.end());
+            minmax_u = std::make_pair(*mmu.first, *mmu.second);
+            auto mmv = std::minmax_element(v.begin(), v.end());
+            minmax_v = std::make_pair(*mmv.first, *mmv.second);
+        }
+
         // Compute PDF
         std::vector<double> pdf_u;
         std::vector<double> bins_u;
@@ -328,7 +339,7 @@ int main(int argc, char *argv[])
         writer.BeginStep ();
         writer.Put<double> (var_u_pdf, pdf_u.data());
         writer.Put<double> (var_v_pdf, pdf_v.data());
-        if (!rank)
+        if (shouldIWrite)
         {
             writer.Put<double> (var_u_bins, bins_u.data());
             writer.Put<double> (var_v_bins, bins_v.data());

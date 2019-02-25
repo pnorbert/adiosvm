@@ -117,10 +117,7 @@ int main(int argc, char **argv)
             std::vector<double> v = sim.v_noghost();
 
             writer.BeginStep();
-            if (!rank)
-            {
-                writer.Put<int>(varStep, &i);
-            }
+            writer.Put<int>(varStep, &i);
             writer.Put<double>(varU, u.data());
             writer.Put<double>(varV, v.data());
             writer.EndStep();
