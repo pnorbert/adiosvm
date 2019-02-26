@@ -3,7 +3,7 @@
 
 
     <!--======================================
-           Configuration for Gray-Scott 
+           Configuration for Gray-Scott
            and GS Plot
         ======================================-->
 
@@ -40,7 +40,17 @@
         </engine>
     </io>
 
-    <!-- example engines 
+    <!--====================================
+           Configuration for isosurface,
+           find_blobs and render_isosurface
+        ====================================-->
+
+    <io name="IsosurfaceOutput">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+    <!-- example engines
 
         <engine type="BPFile"/>
         <engine type="HDF5"/>
@@ -49,14 +59,14 @@
 
         === SST ===
         SST can be set up to force blocking the producer on a consumer
-        or to discard unused data. Separately, it can be also set up 
-        so that the producer is waiting for a first connection or 
+        or to discard unused data. Separately, it can be also set up
+        so that the producer is waiting for a first connection or
         just starts running alone.
 
-        Producer start alone, and it does not keep data. 
-        Consumer will get recent data when connects. 
-        If consumer(s) goes away, producer runs alone and 
-           discards data. 
+        Producer start alone, and it does not keep data.
+        Consumer will get recent data when connects.
+        If consumer(s) goes away, producer runs alone and
+           discards data.
         <engine type="SST">
             <parameter key="RendezvousReaderCount" value="0"/>
             <parameter key="QueueLimit" value="1"/>
@@ -65,7 +75,7 @@
 
         Producer will wait for 1 consumer to connect before proceeding.
         Producer will buffer 5 output steps so a consumer may lag behind a bit.
-        If consumer(s) goes away, producer will block indefinitely after 
+        If consumer(s) goes away, producer will block indefinitely after
           the buffer is full.
         <engine type="SST">
             <parameter key="RendezvousReaderCount" value="1"/>
@@ -77,7 +87,7 @@
         BPFile has a 'SubStreams' parameter to control how many files
         are created under the output folder. By default, each process
         writes its own file (N-to-N pattern), which is fast but is
-        not scalable to tens of thousands of processes. The number of 
+        not scalable to tens of thousands of processes. The number of
         substreams should be chosen for the capability of the underlying
         filesystem (e.g. twice the number of OST servers on a Lustre file system).
         <engine type="BPFile">
@@ -89,7 +99,6 @@
         See Readme.md
         Note: This engine does not support the high-level Python API in the plot
         scripts, so it can only be used to couple the simulation and PDF calculation.
-
      -->
 </adios-config>
 
