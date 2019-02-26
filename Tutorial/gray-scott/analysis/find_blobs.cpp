@@ -96,6 +96,17 @@ int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
 
+    int rank, procs, wrank;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
+
+    const unsigned int color = 6;
+    MPI_Comm comm;
+    MPI_Comm_split(MPI_COMM_WORLD, color, wrank, &comm);
+
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &procs);
+
     if (argc < 2) {
         std::cerr << "Too few arguments" << std::endl;
         std::cout << "Usage: find_blobs input" << std::endl;
@@ -104,7 +115,7 @@ int main(int argc, char *argv[])
 
     const std::string input_fname(argv[1]);
 
-    adios2::ADIOS adios("adios2.xml", MPI_COMM_WORLD, adios2::DebugON);
+    adios2::ADIOS adios("adios2.xml", comm, adios2::DebugON);
 
     adios2::IO inIO = adios.DeclareIO("IsosurfaceOutput");
     adios2::Engine reader = inIO.Open(input_fname, adios2::Mode::Read);
