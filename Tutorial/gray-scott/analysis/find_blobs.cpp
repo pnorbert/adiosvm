@@ -74,7 +74,7 @@ void find_blobs(const vtkSmartPointer<vtkPolyData> polyData)
 
     int nBlobs = connectivityFilter->GetNumberOfExtractedRegions();
 
-    std::cout << "Extracted " << nBlobs << " blobs" << std::endl;
+    std::cout << "Found " << nBlobs << " blobs" << std::endl;
 
     auto threshold = vtkSmartPointer<vtkThreshold>::New();
     auto massProperties = vtkSmartPointer<vtkMassProperties>::New();
@@ -87,7 +87,7 @@ void find_blobs(const vtkSmartPointer<vtkPolyData> polyData)
     for (int i = 0; i < nBlobs; i++) {
         threshold->ThresholdBetween(i, i);
 
-        std::cout << "surface area of blob " << i << " is "
+        std::cout << "Surface area of blob #" << i << " is "
                   << massProperties->GetSurfaceArea() << std::endl;
     }
 }
@@ -108,8 +108,18 @@ int main(int argc, char *argv[])
     MPI_Comm_size(comm, &procs);
 
     if (argc < 2) {
-        std::cerr << "Too few arguments" << std::endl;
-        std::cout << "Usage: find_blobs input" << std::endl;
+        if (rank == 0) {
+            std::cerr << "Too few arguments" << std::endl;
+            std::cout << "Usage: find_blobs input" << std::endl;
+        }
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
+
+    if (procs != 1) {
+        if (rank == 0) {
+            std::cerr << "find_blobs only supports serial execution"
+                      << std::endl;
+        }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
@@ -150,8 +160,7 @@ int main(int argc, char *argv[])
 
         reader.EndStep();
 
-        std::cout << "Step " << step << " " << varCell.Shape()[0] << " cells "
-                  << varPoint.Shape()[0] << " points" << std::endl;
+        std::cout << "find_blobs at step " << step << std::endl;
 
         auto polyData = read_mesh(points, cells, normals);
         auto start = std::chrono::steady_clock::now();
@@ -161,8 +170,8 @@ int main(int argc, char *argv[])
         auto duration =
             std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 
-        std::cout << "Found blobs in " << duration.count() << " [ms]"
-                  << std::endl;
+        // std::cout << "Found blobs in " << duration.count() << " [ms]"
+        //           << std::endl;
     }
 
     reader.Close();

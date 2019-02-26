@@ -184,13 +184,13 @@ int main(int argc, char **argv)
 
             auto end_step = std::chrono::steady_clock::now();
 
-            if (rank == 0) {
-                std::cout << "Step " << i << " compute "
-                          << diff(start_step, end_compute).count()
-                          << " [ms] write IO "
-                          << diff(end_compute, end_step).count() << " [ms]"
-                          << std::endl;
-            }
+            // if (rank == 0) {
+            //     std::cout << "Step " << i << " compute "
+            //               << diff(start_step, end_compute).count()
+            //               << " [ms] write IO "
+            //               << diff(end_compute, end_step).count() << " [ms]"
+            //               << std::endl;
+            // }
 
             start_step = std::chrono::steady_clock::now();
         }
@@ -198,10 +198,10 @@ int main(int argc, char **argv)
 
     auto end_total = std::chrono::steady_clock::now();
 
-    if (rank == 0) {
-        std::cout << "Total runtime: " << diff(start_total, end_total).count()
-                  << " [ms]" << std::endl;
-    }
+    // if (rank == 0) {
+    //     std::cout << "Total runtime: " << diff(start_total, end_total).count()
+    //               << " [ms]" << std::endl;
+    // }
 
     writer.Close();
 

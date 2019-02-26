@@ -107,8 +107,7 @@ void timer_func(vtkObject *object, unsigned long eid, void *clientdata,
 
     context->reader->EndStep();
 
-    std::cout << "Step " << step << " " << varCell.Shape()[0] << " cells "
-              << varPoint.Shape()[0] << " points" << std::endl;
+    std::cout << "render_isosurface at step " << step << std::endl;
 
     vtkSmartPointer<vtkPolyData> polyData = read_mesh(points, cells, normals);
 
@@ -133,8 +132,18 @@ int main(int argc, char *argv[])
     MPI_Comm_size(comm, &procs);
 
     if (argc < 2) {
-        std::cerr << "Too few arguments" << std::endl;
-        std::cout << "Usage: render_isosurface input" << std::endl;
+        if (rank == 0) {
+            std::cerr << "Too few arguments" << std::endl;
+            std::cout << "Usage: render_isosurface input" << std::endl;
+        }
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
+
+    if (procs != 1) {
+        if (rank == 0) {
+            std::cerr << "render_isosurface only supports serial execution"
+                      << std::endl;
+        }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
@@ -151,7 +160,6 @@ int main(int argc, char *argv[])
     actor->SetMapper(mapper);
 
     auto renderView = vtkSmartPointer<vtkRenderView>::New();
-
     renderView->GetRenderer()->AddActor(actor);
     renderView->Update();
 
@@ -159,11 +167,8 @@ int main(int argc, char *argv[])
     style->SetCurrentStyleToTrackballCamera();
 
     auto interactor = renderView->GetInteractor();
-
     interactor->Initialize();
-
     interactor->SetInteractorStyle(style);
-
     interactor->CreateRepeatingTimer(100);
 
     Context context = {
@@ -176,11 +181,9 @@ int main(int argc, char *argv[])
     auto timerCallback = vtkSmartPointer<vtkCallbackCommand>::New();
     timerCallback->SetCallback(timer_func);
     timerCallback->SetClientData(&context);
-
     interactor->AddObserver(vtkCommand::TimerEvent, timerCallback);
 
     renderView->Render();
-
     interactor->Start();
 
     reader.Close();

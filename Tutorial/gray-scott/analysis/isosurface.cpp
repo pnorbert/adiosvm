@@ -1,7 +1,7 @@
 /*
  * Analysis code for the Gray-Scott simulation.
  * Reads variable U and and extracts the iso-surface using VTK.
- * Writes the extracted iso-surface using ADIOS or VTK.
+ * Writes the extracted iso-surface using ADIOS.
  *
  * Keichi Takahashi <takahashi.keichi@ais.cmc.osaka-u.ac.jp>
  *
@@ -68,7 +68,8 @@ void write_adios(adios2::Engine &writer,
     int numCells = polyData->GetNumberOfPolys();
     int numPoints = polyData->GetNumberOfPoints();
 
-    std::cout << numCells << " cells " << numPoints << " points" << std::endl;
+    std::cout << "isosurface at step " << step << " writing out " << numCells
+              << " cells and " << numPoints << " points" << std::endl;
 
     std::vector<double> points(numPoints * 3);
     std::vector<double> normals(numPoints * 3);
@@ -190,8 +191,10 @@ int main(int argc, char *argv[])
     size_t pz = coords[2];
 
     if (argc < 4) {
-        std::cerr << "Too few arguments" << std::endl;
-        std::cout << "Usage: isosurface input output isovalue" << std::endl;
+        if (rank == 0) {
+            std::cerr << "Too few arguments" << std::endl;
+            std::cout << "Usage: isosurface input output isovalue" << std::endl;
+        }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
@@ -210,7 +213,8 @@ int main(int argc, char *argv[])
     auto varPoint =
         outIO.DefineVariable<double>("point", {1, 3}, {0, 0}, {1, 3});
     auto varCell = outIO.DefineVariable<int>("cell", {1, 3}, {0, 0}, {1, 3});
-    auto varNormal = outIO.DefineVariable<double>("normal", {1, 3}, {0, 0}, {1, 3});
+    auto varNormal =
+        outIO.DefineVariable<double>("normal", {1, 3}, {0, 0}, {1, 3});
     auto varOutStep = outIO.DefineVariable<int>("step");
 
     std::vector<double> u;
@@ -252,28 +256,23 @@ int main(int argc, char *argv[])
 
         auto end_compute = std::chrono::steady_clock::now();
 
-        std::stringstream ss;
-
-        ss << "iso-" << rank << "-" << step << ".vtp";
-
         write_adios(writer, polyData, varPoint, varCell, varNormal, varOutStep,
                     step, comm);
-        // write_vtk(ss.str(), polyData);
 
         auto end_step = std::chrono::steady_clock::now();
 
-        std::cout << "Step " << step << " read IO "
-                  << diff(start_step, end_read).count() << " [ms]"
-                  << " compute " << diff(end_read, end_compute).count()
-                  << " [ms]"
-                  << " write IO " << diff(end_compute, end_step).count()
-                  << " [ms]" << std::endl;
+        // std::cout << "Step " << step << " read IO "
+        //           << diff(start_step, end_read).count() << " [ms]"
+        //           << " compute " << diff(end_read, end_compute).count()
+        //           << " [ms]"
+        //           << " write IO " << diff(end_compute, end_step).count()
+        //           << " [ms]" << std::endl;
     }
 
     auto end_total = std::chrono::steady_clock::now();
 
-    std::cout << "Total runtime: " << diff(start_total, end_total).count()
-              << " [ms]" << std::endl;
+    // std::cout << "Total runtime: " << diff(start_total, end_total).count()
+    //           << " [ms]" << std::endl;
 
     writer.Close();
     reader.Close();
