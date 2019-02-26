@@ -16,7 +16,9 @@
 #include <vtkCellArray.h>
 #include <vtkConnectivityFilter.h>
 #include <vtkDataSetSurfaceFilter.h>
+#include <vtkDoubleArray.h>
 #include <vtkMassProperties.h>
+#include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
@@ -24,7 +26,8 @@
 #include <vtkUnstructuredGrid.h>
 
 vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
-                                       const std::vector<int> &bufCells)
+                                       const std::vector<int> &bufCells,
+                                       const std::vector<double> &bufNormals)
 {
     int nPoints = bufPoints.size() / 3;
     int nCells = bufCells.size() / 3;
@@ -32,11 +35,7 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
     auto points = vtkSmartPointer<vtkPoints>::New();
     points->SetNumberOfPoints(nPoints);
     for (vtkIdType i = 0; i < nPoints; i++) {
-        double x = bufPoints[i * 3 + 0];
-        double y = bufPoints[i * 3 + 1];
-        double z = bufPoints[i * 3 + 2];
-
-        points->SetPoint(i, x, y, z);
+        points->SetPoint(i, &bufPoints[i * 3]);
     }
 
     auto polys = vtkSmartPointer<vtkCellArray>::New();
@@ -51,9 +50,16 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
         polys->InsertCellPoint(c);
     }
 
+    auto normals = vtkSmartPointer<vtkDoubleArray>::New();
+    normals->SetNumberOfComponents(3);
+    for (vtkIdType i = 0; i < nPoints; i++) {
+        normals->InsertNextTuple(&bufNormals[i * 3]);
+    }
+
     auto polyData = vtkSmartPointer<vtkPolyData>::New();
     polyData->SetPoints(points);
     polyData->SetPolys(polys);
+    polyData->GetPointData()->SetNormals(normals);
 
     return polyData;
 }
@@ -105,6 +111,7 @@ int main(int argc, char *argv[])
 
     std::vector<double> points;
     std::vector<int> cells;
+    std::vector<double> normals;
     int step;
 
     while (true) {
@@ -117,6 +124,7 @@ int main(int argc, char *argv[])
 
         auto varPoint = inIO.InquireVariable<double>("point");
         auto varCell = inIO.InquireVariable<int>("cell");
+        auto varNormal = inIO.InquireVariable<double>("normal");
         auto varStep = inIO.InquireVariable<int>("step");
 
         varPoint.SetSelection(
@@ -126,6 +134,7 @@ int main(int argc, char *argv[])
 
         reader.Get<double>(varPoint, points);
         reader.Get<int>(varCell, cells);
+        reader.Get<double>(varNormal, normals);
         reader.Get<int>(varStep, &step);
 
         reader.EndStep();
@@ -133,7 +142,7 @@ int main(int argc, char *argv[])
         std::cout << "Step " << step << " " << varCell.Shape()[0] << " cells "
                   << varPoint.Shape()[0] << " points" << std::endl;
 
-        vtkSmartPointer<vtkPolyData> polyData = read_mesh(points, cells);
+        auto polyData = read_mesh(points, cells, normals);
         auto start = std::chrono::steady_clock::now();
         find_blobs(polyData);
         auto end = std::chrono::steady_clock::now();

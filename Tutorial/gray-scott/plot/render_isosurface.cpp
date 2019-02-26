@@ -16,8 +16,8 @@
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkInteractorStyleSwitch.h>
-#include <vtkPoints.h>
 #include <vtkPointData.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
@@ -44,11 +44,7 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
     auto points = vtkSmartPointer<vtkPoints>::New();
     points->SetNumberOfPoints(nPoints);
     for (vtkIdType i = 0; i < nPoints; i++) {
-        double x = bufPoints[i * 3 + 0];
-        double y = bufPoints[i * 3 + 1];
-        double z = bufPoints[i * 3 + 2];
-
-        points->SetPoint(i, x, y, z);
+        points->SetPoint(i, &bufPoints[i * 3]);
     }
 
     auto polys = vtkSmartPointer<vtkCellArray>::New();
@@ -66,11 +62,7 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
     auto normals = vtkSmartPointer<vtkDoubleArray>::New();
     normals->SetNumberOfComponents(3);
     for (vtkIdType i = 0; i < nPoints; i++) {
-        double x = bufNormals[i * 3 + 0];
-        double y = bufNormals[i * 3 + 1];
-        double z = bufNormals[i * 3 + 2];
-
-        normals->InsertNextTuple3(x, y, z);
+        normals->InsertNextTuple(&bufNormals[i * 3]);
     }
 
     auto polyData = vtkSmartPointer<vtkPolyData>::New();
@@ -81,8 +73,8 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
     return polyData;
 }
 
-void func(vtkObject *object, unsigned long eid, void *clientdata,
-          void *calldata)
+void timer_func(vtkObject *object, unsigned long eid, void *clientdata,
+                void *calldata)
 {
     Context *context = static_cast<Context *>(clientdata);
 
@@ -145,7 +137,6 @@ int main(int argc, char *argv[])
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 
     auto actor = vtkSmartPointer<vtkActor>::New();
-    actor->GetProperty()->SetOpacity(0.6);
     actor->SetMapper(mapper);
 
     auto renderView = vtkSmartPointer<vtkRenderView>::New();
@@ -172,13 +163,12 @@ int main(int argc, char *argv[])
     };
 
     auto timerCallback = vtkSmartPointer<vtkCallbackCommand>::New();
-    timerCallback->SetCallback(func);
+    timerCallback->SetCallback(timer_func);
     timerCallback->SetClientData(&context);
 
     interactor->AddObserver(vtkCommand::TimerEvent, timerCallback);
 
     renderView->Render();
-    renderView->GetRenderWindow()->SetSize(500, 500);
 
     interactor->Start();
 
