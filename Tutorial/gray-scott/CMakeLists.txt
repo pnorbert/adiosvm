@@ -20,7 +20,25 @@ target_link_libraries(gray-scott adios2::adios2 MPI::MPI_C)
 add_executable(pdf_calc analysis/pdf_calc.cpp)
 target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
 
-find_package(VTK)
+find_package(VTK COMPONENTS
+  vtkCommonCore
+  vtkCommonDataModel
+  vtkCommonExecutionModel
+  vtkCommonMisc
+  vtkFiltersCore
+  vtkFiltersGeneral
+  vtkFiltersGeometry
+  vtkIOImage
+  vtkIOXML
+  vtkInteractionStyle
+  vtkInteractionWidgets
+  vtkRenderingContext2D
+  vtkRenderingCore
+  vtkRenderingOpenGL2
+  vtkViewsCore
+  vtkViewsInfovis
+  vtkkwiml
+)
 
 if(VTK_FOUND)
 
