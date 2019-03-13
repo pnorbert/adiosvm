@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 """
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             start, size, fullshape = mpi.Partition(fr, args)
             firststep = False
 
-        inpstep = fr.currentstep()
+        inpstep = fr.current_step()
         data = fr.read(args.varname, start, size)
 
         # Print a couple simple diagnostics

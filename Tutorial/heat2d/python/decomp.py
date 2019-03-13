@@ -61,7 +61,7 @@ class MPISetup(object):
         start = np.zeros(2, dtype=np.int64)
         size = np.zeros(2, dtype=np.int64)
 
-        var = fp.availablevariables()
+        var = fp.available_variables()
         print("Available variables: ")
         for name, info in var.items():
             print("variable_name: " + name)
