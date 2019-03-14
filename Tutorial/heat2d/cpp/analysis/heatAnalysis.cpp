@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
         adios2::IO outIO = ad.DeclareIO("AnalysisOutput");
         if (!rank)
         {
-            std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
-            std::cout << "Using " << outIO.m_EngineType << " engine for output" << std::endl;
+            std::cout << "Using " << inIO.EngineType() << " engine for input" << std::endl;
+            std::cout << "Using " << outIO.EngineType() << " engine for output" << std::endl;
         }
 
 
