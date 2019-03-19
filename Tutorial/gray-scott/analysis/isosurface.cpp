@@ -222,6 +222,9 @@ int main(int argc, char *argv[])
 
     auto start_total = std::chrono::steady_clock::now();
 
+    std::ofstream log("isosurface.log");
+    log << "step\tread_iso\tcompute_iso\twrite_iso" << std::endl;
+
     while (true) {
         auto start_step = std::chrono::steady_clock::now();
 
@@ -261,13 +264,12 @@ int main(int argc, char *argv[])
 
         auto end_step = std::chrono::steady_clock::now();
 
-        // std::cout << "Step " << step << " read IO "
-        //           << diff(start_step, end_read).count() << " [ms]"
-        //           << " compute " << diff(end_read, end_compute).count()
-        //           << " [ms]"
-        //           << " write IO " << diff(end_compute, end_step).count()
-        //           << " [ms]" << std::endl;
+        log << step << "\t" << diff(start_step, end_read).count() << "\t"
+            << diff(end_read, end_compute).count() << "\t"
+            << diff(end_compute, end_step).count() << std::endl;
     }
+
+    log.close();
 
     auto end_total = std::chrono::steady_clock::now();
 

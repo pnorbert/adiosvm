@@ -1,4 +1,5 @@
 #include <chrono>
+#include <fstream>
 #include <iostream>
 #include <mpi.h>
 #include <vector>
@@ -49,7 +50,8 @@ void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
 
 void print_io_settings(const adios2::IO &io)
 {
-    std::cout << "Simulation writes data using engine type:              " << io.EngineType() << std::endl;
+    std::cout << "Simulation writes data using engine type:              "
+              << io.EngineType() << std::endl;
 }
 
 void print_settings(const Settings &s)
@@ -162,13 +164,16 @@ int main(int argc, char **argv)
     auto start_total = std::chrono::steady_clock::now();
     auto start_step = std::chrono::steady_clock::now();
 
+    std::ofstream log("gray-scott.log");
+    log << "step\tcompute_gs\twrite_gs" << std::endl;
+
     for (int i = 0; i < settings.steps; i++) {
         sim.iterate();
 
         if (i % settings.plotgap == 0) {
             if (rank == 0) {
                 std::cout << "Simulation at step " << i
-                          << " writing output step     " << i/settings.plotgap
+                          << " writing output step     " << i / settings.plotgap
                           << std::endl;
             }
             auto end_compute = std::chrono::steady_clock::now();
@@ -184,22 +189,22 @@ int main(int argc, char **argv)
 
             auto end_step = std::chrono::steady_clock::now();
 
-            // if (rank == 0) {
-            //     std::cout << "Step " << i << " compute "
-            //               << diff(start_step, end_compute).count()
-            //               << " [ms] write IO "
-            //               << diff(end_compute, end_step).count() << " [ms]"
-            //               << std::endl;
-            // }
+            if (rank == 0) {
+                log << i << "\t" << diff(start_step, end_compute).count()
+                    << "\t" << diff(end_compute, end_step).count() << std::endl;
+            }
 
             start_step = std::chrono::steady_clock::now();
         }
     }
 
+    log.close();
+
     auto end_total = std::chrono::steady_clock::now();
 
     // if (rank == 0) {
-    //     std::cout << "Total runtime: " << diff(start_total, end_total).count()
+    //     std::cout << "Total runtime: " << diff(start_total,
+    //     end_total).count()
     //               << " [ms]" << std::endl;
     // }
 

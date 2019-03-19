@@ -46,7 +46,7 @@
         ====================================-->
 
     <io name="IsosurfaceOutput">
-        <engine type="BPFile">
+        <engine type="SST">
         </engine>
     </io>
 

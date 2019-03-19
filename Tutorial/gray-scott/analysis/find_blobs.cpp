@@ -92,6 +92,15 @@ void find_blobs(const vtkSmartPointer<vtkPolyData> polyData)
     }
 }
 
+std::chrono::milliseconds
+diff(const std::chrono::steady_clock::time_point &start,
+     const std::chrono::steady_clock::time_point &end)
+{
+    auto diff = end - start;
+
+    return std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+}
+
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
@@ -135,6 +144,9 @@ int main(int argc, char *argv[])
     std::vector<double> normals;
     int step;
 
+    std::ofstream log("find_blobs.log");
+    log << "step\tcompute_blobs" << std::endl;
+
     while (true) {
         adios2::StepStatus status =
             reader.BeginStep(adios2::StepMode::NextAvailable);
@@ -166,13 +178,11 @@ int main(int argc, char *argv[])
         auto start = std::chrono::steady_clock::now();
         find_blobs(polyData);
         auto end = std::chrono::steady_clock::now();
-        auto diff = end - start;
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 
-        // std::cout << "Found blobs in " << duration.count() << " [ms]"
-        //           << std::endl;
+        log << step << "\t" << diff(start, end).count() << std::endl;
     }
+
+    log.close();
 
     reader.Close();
 }
