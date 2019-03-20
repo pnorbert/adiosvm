@@ -50,6 +50,9 @@ if(VTK_FOUND)
     add_executable(find_blobs analysis/find_blobs.cpp)
     target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
 
+    add_executable(compute_curvature analysis/curvature.cpp)
+    target_link_libraries(compute_curvature adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
+
     add_executable(render_isosurface plot/render_isosurface.cpp)
     target_link_libraries(render_isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
 
