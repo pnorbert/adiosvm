@@ -92,6 +92,24 @@ void find_blobs(const vtkSmartPointer<vtkPolyData> polyData)
     }
 }
 
+void find_largest_blob(const vtkSmartPointer<vtkPolyData> polyData)
+{
+    auto connectivityFilter = vtkSmartPointer<vtkConnectivityFilter>::New();
+    connectivityFilter->SetInputData(polyData);
+    connectivityFilter->SetExtractionModeToLargestRegion();
+    connectivityFilter->Update();
+
+    auto massProperties = vtkSmartPointer<vtkMassProperties>::New();
+    auto surfaceFilter = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
+
+    surfaceFilter->SetInputConnection(connectivityFilter->GetOutputPort());
+    massProperties->SetInputConnection(surfaceFilter->GetOutputPort());
+
+    std::cout << "Surface area of largest blob is "
+              << massProperties->GetSurfaceArea() << std::endl;
+}
+
+
 std::chrono::milliseconds
 diff(const std::chrono::steady_clock::time_point &start,
      const std::chrono::steady_clock::time_point &end)
@@ -176,7 +194,8 @@ int main(int argc, char *argv[])
 
         auto polyData = read_mesh(points, cells, normals);
         auto start = std::chrono::steady_clock::now();
-        find_blobs(polyData);
+        // find_blobs(polyData);
+        find_largest_blob(polyData);
         auto end = std::chrono::steady_clock::now();
 
         log << step << "\t" << diff(start, end).count() << std::endl;
