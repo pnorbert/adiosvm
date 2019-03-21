@@ -118,17 +118,17 @@ void write_adios(adios2::Engine &writer,
 
     writer.BeginStep();
 
-    varPoint.SetShape({static_cast<size_t>(totalPoints), 3});
+    varPoint.SetShape({static_cast<size_t>(totalPoints),
+                       static_cast<size_t>(totalPoints > 0 ? 3 : 0)});
     varPoint.SetSelection({{static_cast<size_t>(offsetPoints - numPoints), 0},
-                           {static_cast<size_t>(numPoints), 3}});
+                           {static_cast<size_t>(numPoints),
+                            static_cast<size_t>(numPoints > 0 ? 3 : 0)}});
 
     varNormal.SetShape(varPoint.Shape());
     varNormal.SetSelection({varPoint.Start(), varPoint.Count()});
 
-    if (numPoints) {
-        writer.Put(varPoint, points.data());
-        writer.Put(varNormal, normals.data());
-    }
+    writer.Put(varPoint, points.data());
+    writer.Put(varNormal, normals.data());
 
     int totalCells, offsetCells;
     MPI_Allreduce(&numCells, &totalCells, 1, MPI_INT, MPI_SUM, comm);
@@ -138,13 +138,13 @@ void write_adios(adios2::Engine &writer,
         cells[i] += (offsetPoints - numPoints);
     }
 
-    varCell.SetShape({static_cast<size_t>(totalCells), 3});
+    varCell.SetShape({static_cast<size_t>(totalCells),
+                      static_cast<size_t>(totalCells > 0 ? 3 : 0)});
     varCell.SetSelection({{static_cast<size_t>(offsetCells - numCells), 0},
-                          {static_cast<size_t>(numCells), 3}});
+                          {static_cast<size_t>(numCells),
+                           static_cast<size_t>(numCells > 0 ? 3 : 0)}});
 
-    if (numCells) {
-        writer.Put(varCell, cells.data());
-    }
+    writer.Put(varCell, cells.data());
 
     writer.Put(varOutStep, step);
 

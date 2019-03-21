@@ -95,14 +95,19 @@ void timer_func(vtkObject *object, unsigned long eid, void *clientdata,
     auto varNormal = context->inIO->InquireVariable<double>("normal");
     auto varStep = context->inIO->InquireVariable<int>("step");
 
-    varPoint.SetSelection({{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
-    varNormal.SetSelection(
-        {{0, 0}, {varNormal.Shape()[0], varNormal.Shape()[1]}});
-    varCell.SetSelection({{0, 0}, {varCell.Shape()[0], varCell.Shape()[1]}});
+    if (varPoint.Shape().size() > 0 || varCell.Shape().size() > 0) {
+        varPoint.SetSelection(
+            {{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
+        varCell.SetSelection(
+            {{0, 0}, {varCell.Shape()[0], varCell.Shape()[1]}});
+        varNormal.SetSelection(
+            {{0, 0}, {varNormal.Shape()[0], varNormal.Shape()[1]}});
 
-    context->reader->Get<double>(varPoint, points);
-    context->reader->Get<int>(varCell, cells);
-    context->reader->Get<double>(varNormal, normals);
+        context->reader->Get<double>(varPoint, points);
+        context->reader->Get<int>(varCell, cells);
+        context->reader->Get<double>(varNormal, normals);
+    }
+
     context->reader->Get<int>(varStep, &step);
 
     context->reader->EndStep();

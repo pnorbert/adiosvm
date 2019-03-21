@@ -109,7 +109,6 @@ void find_largest_blob(const vtkSmartPointer<vtkPolyData> polyData)
               << massProperties->GetSurfaceArea() << std::endl;
 }
 
-
 std::chrono::milliseconds
 diff(const std::chrono::steady_clock::time_point &start,
      const std::chrono::steady_clock::time_point &end)
@@ -178,14 +177,19 @@ int main(int argc, char *argv[])
         auto varNormal = inIO.InquireVariable<double>("normal");
         auto varStep = inIO.InquireVariable<int>("step");
 
-        varPoint.SetSelection(
-            {{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
-        varCell.SetSelection(
-            {{0, 0}, {varCell.Shape()[0], varCell.Shape()[1]}});
+        if (varPoint.Shape().size() > 0 || varCell.Shape().size() > 0) {
+            varPoint.SetSelection(
+                {{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
+            varCell.SetSelection(
+                {{0, 0}, {varCell.Shape()[0], varCell.Shape()[1]}});
+            varNormal.SetSelection(
+                {{0, 0}, {varNormal.Shape()[0], varNormal.Shape()[1]}});
 
-        reader.Get<double>(varPoint, points);
-        reader.Get<int>(varCell, cells);
-        reader.Get<double>(varNormal, normals);
+            reader.Get<double>(varPoint, points);
+            reader.Get<int>(varCell, cells);
+            reader.Get<double>(varNormal, normals);
+        }
+
         reader.Get<int>(varStep, &step);
 
         reader.EndStep();
