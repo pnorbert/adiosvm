@@ -1216,28 +1216,28 @@
                 <Field name="rangeScale" type="int">0</Field>
             </Object>
             <Object name="View2DAttributes">
-                <Field name="windowCoords" type="doubleArray" length="4">0 1 0 1 </Field>
+                <Field name="windowCoords" type="doubleArray" length="4">-7.83333333333333 39.1666666666667 -4.20798898071625 42.7920110192837 </Field>
                 <Field name="viewportCoords" type="doubleArray" length="4">0.2 0.95 0.15 0.95 </Field>
                 <Field name="fullFrameActivationMode" type="string">Auto</Field>
                 <Field name="fullFrameAutoThreshold" type="double">100</Field>
                 <Field name="xScale" type="int">0</Field>
                 <Field name="yScale" type="int">0</Field>
-                <Field name="windowValid" type="bool">false</Field>
+                <Field name="windowValid" type="bool">true</Field>
             </Object>
             <Object name="View3DAttributes">
-                <Field name="viewNormal" type="doubleArray" length="3">-0.526591908549915 0.454899374606446 0.718169562730434 </Field>
-                <Field name="focus" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
-                <Field name="viewUp" type="doubleArray" length="3">-0.0241978279752861 0.83642498601108 -0.547546991497208 </Field>
+                <Field name="viewNormal" type="doubleArray" length="3">-0.325018065644873 0.476045973868821 -0.817155730425817 </Field>
+                <Field name="focus" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
+                <Field name="viewUp" type="doubleArray" length="3">0.465968025635104 0.832513787268989 0.299657459598068 </Field>
                 <Field name="viewAngle" type="double">30</Field>
-                <Field name="parallelScale" type="double">54.5596004384196</Field>
-                <Field name="nearPlane" type="double">-109.119200876839</Field>
-                <Field name="farPlane" type="double">109.119200876839</Field>
+                <Field name="parallelScale" type="double">40.7031939778686</Field>
+                <Field name="nearPlane" type="double">-81.4063879557372</Field>
+                <Field name="farPlane" type="double">81.4063879557372</Field>
                 <Field name="imagePan" type="doubleArray" length="2">0 0 </Field>
                 <Field name="imageZoom" type="double">1</Field>
                 <Field name="perspective" type="bool">true</Field>
                 <Field name="eyeAngle" type="double">2</Field>
                 <Field name="centerOfRotationSet" type="bool">false</Field>
-                <Field name="centerOfRotation" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
+                <Field name="centerOfRotation" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
                 <Field name="axis3DScaleFlag" type="bool">false</Field>
                 <Field name="axis3DScales" type="doubleArray" length="3">1 1 1 </Field>
                 <Field name="shear" type="doubleArray" length="3">0 0 1 </Field>
@@ -4558,8 +4558,8 @@
                 <Field name="viewExtentsType" type="string">AVT_ORIGINAL_EXTENTS</Field>
                 <Object name="Windows">
                     <Object name="ViewerWindow">
-                        <Field name="windowSize" type="intArray" length="2">1191 1114 </Field>
-                        <Field name="windowImageSize" type="intArray" length="2">1191 1044 </Field>
+                        <Field name="windowSize" type="intArray" length="2">1048 994 </Field>
+                        <Field name="windowImageSize" type="intArray" length="2">1048 924 </Field>
                         <Field name="windowLocation" type="intArray" length="2">400 26 </Field>
                         <Field name="maintainView" type="bool">false</Field>
                         <Field name="cameraView" type="bool">false</Field>
@@ -5164,28 +5164,28 @@
                             <Field name="rangeScale" type="int">0</Field>
                         </Object>
                         <Object name="View2DAttributes">
-                            <Field name="windowCoords" type="doubleArray" length="4">0 1 0 1 </Field>
+                            <Field name="windowCoords" type="doubleArray" length="4">-7.83333333333333 39.1666666666667 -4.20798898071625 42.7920110192837 </Field>
                             <Field name="viewportCoords" type="doubleArray" length="4">0.2 0.95 0.15 0.95 </Field>
                             <Field name="fullFrameActivationMode" type="string">Auto</Field>
                             <Field name="fullFrameAutoThreshold" type="double">100</Field>
                             <Field name="xScale" type="int">0</Field>
                             <Field name="yScale" type="int">0</Field>
-                            <Field name="windowValid" type="bool">false</Field>
+                            <Field name="windowValid" type="bool">true</Field>
                         </Object>
                         <Object name="View3DAttributes">
-                            <Field name="viewNormal" type="doubleArray" length="3">-0.526591908549915 0.454899374606446 0.718169562730434 </Field>
-                            <Field name="focus" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
-                            <Field name="viewUp" type="doubleArray" length="3">-0.0241978279752861 0.83642498601108 -0.547546991497208 </Field>
+                            <Field name="viewNormal" type="doubleArray" length="3">-0.674099616119369 0.416662999322556 -0.609902986173417 </Field>
+                            <Field name="focus" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
+                            <Field name="viewUp" type="doubleArray" length="3">0.407175946783017 0.898539149740341 0.163814360619754 </Field>
                             <Field name="viewAngle" type="double">30</Field>
-                            <Field name="parallelScale" type="double">54.5596004384196</Field>
-                            <Field name="nearPlane" type="double">-109.119200876839</Field>
-                            <Field name="farPlane" type="double">109.119200876839</Field>
+                            <Field name="parallelScale" type="double">40.7031939778686</Field>
+                            <Field name="nearPlane" type="double">-81.4063879557372</Field>
+                            <Field name="farPlane" type="double">81.4063879557372</Field>
                             <Field name="imagePan" type="doubleArray" length="2">0 0 </Field>
                             <Field name="imageZoom" type="double">1</Field>
                             <Field name="perspective" type="bool">true</Field>
                             <Field name="eyeAngle" type="double">2</Field>
                             <Field name="centerOfRotationSet" type="bool">false</Field>
-                            <Field name="centerOfRotation" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
+                            <Field name="centerOfRotation" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
                             <Field name="axis3DScaleFlag" type="bool">false</Field>
                             <Field name="axis3DScales" type="doubleArray" length="3">1 1 1 </Field>
                             <Field name="shear" type="doubleArray" length="3">0 0 1 </Field>
@@ -5198,7 +5198,7 @@
                         </Object>
                         <Object name="AnnotationObjectList">
                             <Object name="AnnotationObject">
-                                <Field name="objectName" type="string">Plot0000</Field>
+                                <Field name="objectName" type="string">Plot0002</Field>
                                 <Field name="objectType" type="string">LegendAttributes</Field>
                                 <Field name="visible" type="bool">true</Field>
                                 <Field name="active" type="bool">true</Field>
@@ -5231,7 +5231,7 @@
                                     <Field name="fontHeight" type="double">0.015</Field>
                                     <Field name="legendType" type="int">1</Field>
                                     <Field name="numTicks" type="int">5</Field>
-                                    <Field name="suppliedValuesStrings" type="stringVector">("0.437721", "0.738188")</Field>
+                                    <Field name="suppliedValuesStrings" type="stringVector">("0.488517", "0.749259")</Field>
                                 </Object>
                             </Object>
                         </Object>
@@ -5245,11 +5245,11 @@
                         </Object>
                         <Object name="ViewerPlotList">
                             <Object name="timeSliders">
-                                <Field name="SOURCE00" type="int">14</Field>
+                                <Field name="SOURCE00" type="int">0</Field>
                             </Object>
                             <Field name="activeTimeSlider" type="string">SOURCE00</Field>
                             <Object name="plot00">
-                                <Field name="plotName" type="string">Plot0000</Field>
+                                <Field name="plotName" type="string">Plot0002</Field>
                                 <Field name="pluginID" type="string">Contour_1.0</Field>
                                 <Field name="sourceID" type="string">SOURCE00</Field>
                                 <Field name="variableName" type="string">U</Field>
@@ -5258,7 +5258,7 @@
                                 <Field name="realized" type="bool">true</Field>
                                 <Object name="ViewerPlot">
                                     <Field name="plotDescription" type="string"></Field>
-                                    <Field name="cacheIndex" type="int">14</Field>
+                                    <Field name="cacheIndex" type="int">0</Field>
                                     <Field name="spatialExtentsType" type="string">AVT_ORIGINAL_EXTENTS</Field>
                                     <Field name="bgColor" type="doubleArray" length="3">1 1 1 </Field>
                                     <Field name="fgColor" type="doubleArray" length="3">0 0 0 </Field>
@@ -5291,7 +5291,7 @@
                                         <Field name="minFlag" type="bool">false</Field>
                                         <Field name="maxFlag" type="bool">false</Field>
                                         <Field name="min" type="double">0</Field>
-                                        <Field name="max" type="double">0.5</Field>
+                                        <Field name="max" type="double">1</Field>
                                         <Field name="scaling" type="string">Linear</Field>
                                         <Field name="wireframe" type="bool">false</Field>
                                         <Field name="invertColorTable" type="bool">false</Field>
@@ -5327,7 +5327,7 @@
                                                     <Field name="minFlag" type="bool">false</Field>
                                                     <Field name="maxFlag" type="bool">false</Field>
                                                     <Field name="min" type="double">0</Field>
-                                                    <Field name="max" type="double">0.5</Field>
+                                                    <Field name="max" type="double">1</Field>
                                                     <Field name="scaling" type="string">Linear</Field>
                                                     <Field name="wireframe" type="bool">false</Field>
                                                     <Field name="invertColorTable" type="bool">false</Field>
@@ -5337,13 +5337,13 @@
                                     </Object>
                                     <Object name="databaseKeyframes">
                                         <Object name="AttributeSubjectMap">
-                                            <Field name="indices" type="intVector">0 59 </Field>
+                                            <Field name="indices" type="intVector">0 64 </Field>
                                             <Object name="attributes">
                                                 <Object name="DatabaseAttributes">
                                                     <Field name="state" type="int">0</Field>
                                                 </Object>
                                                 <Object name="DatabaseAttributes">
-                                                    <Field name="state" type="int">59</Field>
+                                                    <Field name="state" type="int">64</Field>
                                                 </Object>
                                             </Object>
                                         </Object>

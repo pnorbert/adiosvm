@@ -37,18 +37,51 @@
         <Object name="MainWin">
             <Field name="x" type="int">0</Field>
             <Field name="y" type="int">26</Field>
-            <Field name="width" type="int">398</Field>
-            <Field name="height" type="int">1937</Field>
-            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.5441989 0.4535912 </Field>
+            <Field name="width" type="int">399</Field>
+            <Field name="height" type="int">1020</Field>
+            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.5419933 0.4535274 </Field>
         </Object>
         <Object name="Contour plot attributes">
-            <Field name="x" type="int">2037</Field>
-            <Field name="y" type="int">52</Field>
+            <Field name="x" type="int">2116</Field>
+            <Field name="y" type="int">26</Field>
             <Field name="width" type="int">498</Field>
             <Field name="height" type="int">832</Field>
             <Field name="visible" type="bool">false</Field>
             <Field name="posted" type="bool">false</Field>
         </Object>
+        <Object name="Clip operator attributes">
+            <Field name="x" type="int">2250</Field>
+            <Field name="y" type="int">246</Field>
+            <Field name="width" type="int">364</Field>
+            <Field name="height" type="int">554</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="EllipsoidSlice operator attributes">
+            <Field name="x" type="int">2250</Field>
+            <Field name="y" type="int">246</Field>
+            <Field name="width" type="int">364</Field>
+            <Field name="height" type="int">164</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="Isosurface operator attributes">
+            <Field name="x" type="int">2108</Field>
+            <Field name="y" type="int">26</Field>
+            <Field name="width" type="int">506</Field>
+            <Field name="height" type="int">203</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="ThreeSlice operator attributes">
+            <Field name="x" type="int">2250</Field>
+            <Field name="y" type="int">26</Field>
+            <Field name="width" type="int">364</Field>
+            <Field name="height" type="int">190</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Field name="plotDatabases" type="stringVector">"localhost:/home/adios/adiosvm/Tutorial/gray-scott/gs.bp" </Field>
         <Object name="TimeFormat">
             <Field name="displayMode" type="string">Cycles</Field>
             <Field name="precision" type="int">5</Field>

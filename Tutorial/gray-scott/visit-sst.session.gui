@@ -27,26 +27,57 @@
             <Field name="defaultOrientation" type="int">0</Field>
         </Object>
         <Field name="postWhenShown" type="bool">false</Field>
-        <Object name="Output">
-            <Field name="x" type="int">2236</Field>
-            <Field name="y" type="int">1743</Field>
-            <Field name="width" type="int">300</Field>
-            <Field name="height" type="int">250</Field>
+        <Object name="Information">
+            <Field name="x" type="int">1053</Field>
+            <Field name="y" type="int">845</Field>
+            <Field name="width" type="int">507</Field>
+            <Field name="height" type="int">298</Field>
             <Field name="visible" type="bool">false</Field>
-            <Field name="posted" type="bool">false</Field>
         </Object>
         <Object name="MainWin">
             <Field name="x" type="int">0</Field>
             <Field name="y" type="int">26</Field>
-            <Field name="width" type="int">398</Field>
-            <Field name="height" type="int">1139</Field>
-            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.6976284 0.298419 </Field>
+            <Field name="width" type="int">399</Field>
+            <Field name="height" type="int">1020</Field>
+            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.5419933 0.4535274 </Field>
         </Object>
         <Object name="Contour plot attributes">
-            <Field name="x" type="int">2038</Field>
-            <Field name="y" type="int">104</Field>
+            <Field name="x" type="int">2116</Field>
+            <Field name="y" type="int">26</Field>
             <Field name="width" type="int">498</Field>
             <Field name="height" type="int">832</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="Clip operator attributes">
+            <Field name="x" type="int">2250</Field>
+            <Field name="y" type="int">246</Field>
+            <Field name="width" type="int">364</Field>
+            <Field name="height" type="int">554</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="EllipsoidSlice operator attributes">
+            <Field name="x" type="int">2250</Field>
+            <Field name="y" type="int">246</Field>
+            <Field name="width" type="int">364</Field>
+            <Field name="height" type="int">164</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="Isosurface operator attributes">
+            <Field name="x" type="int">2108</Field>
+            <Field name="y" type="int">26</Field>
+            <Field name="width" type="int">506</Field>
+            <Field name="height" type="int">203</Field>
+            <Field name="visible" type="bool">false</Field>
+            <Field name="posted" type="bool">false</Field>
+        </Object>
+        <Object name="ThreeSlice operator attributes">
+            <Field name="x" type="int">2250</Field>
+            <Field name="y" type="int">26</Field>
+            <Field name="width" type="int">364</Field>
+            <Field name="height" type="int">190</Field>
             <Field name="visible" type="bool">false</Field>
             <Field name="posted" type="bool">false</Field>
         </Object>
