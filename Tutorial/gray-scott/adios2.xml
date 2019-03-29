@@ -8,6 +8,7 @@
         <engine type="SST"/>
         <engine type="InSituMPI"/>
 
+        === SST ===
         SST can be set up to force blocking the producer on a consumer
         or to discard unused data. Separately, it can be also set up 
         so that the producer is waiting for a first connection or 
@@ -33,6 +34,17 @@
             <parameter key="QueueFullPolicy" value="Block"/>
         </engine>
 
+        === BPFile ===
+        BPFile has a 'SubStreams' parameter to control how many files
+        are created under the output folder. By default, each process
+        writes its own file (N-to-N pattern), which is fast but is
+        not scalable to tens of thousands of processes. The number of 
+        substreams should be chosen for the capability of the underlying
+        filesystem (e.g. twice the number of OST servers on a Lustre file system).
+        <engine type="BPFile">
+            <parameter key="SubStreams" value="4"/>
+        </engine>
+
      -->
 
     <!--======================================
@@ -42,6 +54,7 @@
 
     <io name="SimulationOutput">
         <engine type="BPFile">
+            <parameter key="SubStreams" value="2"/>
             <parameter key="RendezvousReaderCount" value="0"/>
             <parameter key="QueueLimit" value="1"/>
             <parameter key="QueueFullPolicy" value="Discard"/>
