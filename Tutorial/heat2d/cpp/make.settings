@@ -13,7 +13,7 @@
 #
 # ADIOS v2 installation
 #
-override ADIOS2_DIR=/opt/adios2
+ADIOS2_DIR=/opt/adios2
 
 #
 # C++ settings
