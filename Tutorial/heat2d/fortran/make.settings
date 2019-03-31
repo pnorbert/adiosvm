@@ -4,7 +4,7 @@
 #
 
 ## Location of the ADIOS 2.x libraries
-override ADIOS2_DIR=/opt/adios2
+ADIOS2_DIR=/opt/adios2
 
 ## Location of the ADIOS 1.x libraries
 override ADIOS1_DIR=/opt/adios1
