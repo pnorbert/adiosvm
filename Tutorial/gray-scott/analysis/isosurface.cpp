@@ -67,9 +67,9 @@ void write_adios(adios2::Engine &writer,
 {
     int numCells = polyData->GetNumberOfPolys();
     int numPoints = polyData->GetNumberOfPoints();
+    int rank;
 
-    std::cout << "isosurface at step " << step << " writing out " << numCells
-              << " cells and " << numPoints << " points" << std::endl;
+    MPI_Comm_rank(comm, &rank);
 
     std::vector<double> points(numPoints * 3);
     std::vector<double> normals(numPoints * 3);
@@ -127,8 +127,10 @@ void write_adios(adios2::Engine &writer,
     varNormal.SetShape(varPoint.Shape());
     varNormal.SetSelection({varPoint.Start(), varPoint.Count()});
 
-    writer.Put(varPoint, points.data());
-    writer.Put(varNormal, normals.data());
+    if (numPoints) {
+        writer.Put(varPoint, points.data());
+        writer.Put(varNormal, normals.data());
+    }
 
     int totalCells, offsetCells;
     MPI_Allreduce(&numCells, &totalCells, 1, MPI_INT, MPI_SUM, comm);
@@ -144,7 +146,15 @@ void write_adios(adios2::Engine &writer,
                           {static_cast<size_t>(numCells),
                            static_cast<size_t>(numCells > 0 ? 3 : 0)}});
 
-    writer.Put(varCell, cells.data());
+    if (numCells) {
+        writer.Put(varCell, cells.data());
+    }
+
+    if (!rank) {
+        std::cout << "isosurface at step " << step << " writing out "
+                  << totalCells << " cells and " << totalPoints << " points"
+                  << std::endl;
+    }
 
     writer.Put(varOutStep, step);
 
@@ -240,11 +250,25 @@ int main(int argc, char *argv[])
 
         adios2::Dims shape = varU.Shape();
 
-        size_t size_x = shape[0] / npx;
-        size_t size_y = shape[1] / npy;
-        size_t size_z = shape[2] / npz;
+        size_t size_x = (shape[0] + npx - 1) / npx;
+        size_t size_y = (shape[1] + npy - 1) / npy;
+        size_t size_z = (shape[2] + npz - 1) / npz;
 
-        varU.SetSelection({{px * size_x, py * size_y, pz * size_z},
+        size_t offset_x = size_x * px;
+        size_t offset_y = size_y * py;
+        size_t offset_z = size_z * pz;
+
+        if (px == npx - 1) {
+            size_x -= size_x * npx - shape[0];
+        }
+        if (py == npy - 1) {
+            size_y -= size_y * npy - shape[1];
+        }
+        if (pz == npz - 1) {
+            size_z -= size_z * npz - shape[2];
+        }
+
+        varU.SetSelection({{offset_x, offset_y, offset_z},
                            {size_x + (px != npx - 1 ? 1 : 0),
                             size_y + (py != npy - 1 ? 1 : 0),
                             size_z + (pz != npz - 1 ? 1 : 0)}});

@@ -111,14 +111,6 @@ int main(int argc, char **argv)
 
     Settings settings = Settings::from_json(argv[1]);
 
-    if (settings.L % procs != 0) {
-        if (rank == 0) {
-            std::cerr << "L must be divisible by the number of processes"
-                      << std::endl;
-        }
-        MPI_Abort(MPI_COMM_WORLD, -1);
-    }
-
     GrayScott sim(settings, comm);
 
     sim.init();
@@ -147,15 +139,15 @@ int main(int argc, char **argv)
         define_bpvtk_attribute(settings, io);
     }
 
-    adios2::Variable<double> varU = io.DefineVariable<double>(
-        "U", {sim.npz * sim.size_z, sim.npy * sim.size_y, sim.npx * sim.size_x},
-        {sim.pz * sim.size_z, sim.py * sim.size_y, sim.px * sim.size_x},
-        {sim.size_z, sim.size_y, sim.size_x});
+    adios2::Variable<double> varU =
+        io.DefineVariable<double>("U", {settings.L, settings.L, settings.L},
+                                  {sim.offset_z, sim.offset_y, sim.offset_x},
+                                  {sim.size_z, sim.size_y, sim.size_x});
 
-    adios2::Variable<double> varV = io.DefineVariable<double>(
-        "V", {sim.npz * sim.size_z, sim.npy * sim.size_y, sim.npx * sim.size_x},
-        {sim.pz * sim.size_z, sim.py * sim.size_y, sim.px * sim.size_x},
-        {sim.size_z, sim.size_y, sim.size_x});
+    adios2::Variable<double> varV =
+        io.DefineVariable<double>("V", {settings.L, settings.L, settings.L},
+                                  {sim.offset_z, sim.offset_y, sim.offset_x},
+                                  {sim.size_z, sim.size_y, sim.size_x});
 
     adios2::Variable<int> varStep = io.DefineVariable<int>("step");
 

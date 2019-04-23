@@ -6,7 +6,7 @@
 class Settings
 {
 public:
-    int L;
+    size_t L;
     int steps;
     int plotgap;
     double F;
