@@ -17,6 +17,7 @@ public:
     double noise;
     std::string output;
     std::string adios_config;
+    std::string mesh_type;
 
     Settings();
     static Settings from_json(const std::string &fname);
