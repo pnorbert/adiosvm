@@ -14,8 +14,8 @@ if [ "x$cmd" == "xcode" -o "x$cmd" == "xall" ]; then
 fi
 if [ "x$cmd" == "xdata" -o "x$cmd" == "xall" ]; then
     echo "== cleanup data"
-    rm -rf *.bp *.bp.dir 
-    rm -rf *.h5 *.sst *_insitumpi_*
+    rm -rf *.bp *.bp.dir *.h5
+    rm -rf *.sst *.ssc *_insitumpi_*
     rm -rf *.png *.pnm *.jpg
     fail=no
 fi
