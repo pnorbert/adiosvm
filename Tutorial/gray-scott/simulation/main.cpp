@@ -22,6 +22,9 @@ void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
               <CellData Scalars="U">
                   <DataArray Name="U" />
                   <DataArray Name="V" />
+                  <DataArray Name="TIME"> 
+                    step 
+                  </DataArray>
               </CellData>
             </Piece>
           </ImageData>
@@ -34,7 +37,12 @@ void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
 	{
 		lf_VTKImage(s,io);
 	}
-	// TODO extend to other formats
+	else if( s.mesh_type == "structured")
+	{
+		throw std::invalid_argument("ERROR: mesh_type=structured not yet "
+				"   supported in settings.json, use mesh_type=image instead\n");
+	}
+	// TODO extend to other formats e.g. structured
 }
 
 
