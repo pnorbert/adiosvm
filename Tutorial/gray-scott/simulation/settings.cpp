@@ -31,6 +31,7 @@ void from_json(const nlohmann::json &j, Settings &s)
     j.at("noise").get_to(s.noise);
     j.at("output").get_to(s.output);
     j.at("adios_config").get_to(s.adios_config);
+    j.at("mesh_type").get_to(s.mesh_type);
 }
 
 Settings::Settings()
@@ -46,6 +47,7 @@ Settings::Settings()
     noise = 0.0;
     output = "foo.bp";
     adios_config = "adios2.xml";
+    mesh_type = "image";
 }
 
 Settings Settings::from_json(const std::string &fname)

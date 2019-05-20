@@ -6,6 +6,46 @@
 
 #include "gray-scott.h"
 
+void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
+{
+    auto lf_VTKImage = [](const Settings &s, adios2::IO& io){
+
+        const std::string extent = "0 " + std::to_string(s.L) + " " +
+                                   "0 " + std::to_string(s.L) + " " +
+                                   "0 " + std::to_string(s.L);
+
+        const std::string imageData = R"(
+        <?xml version="1.0"?>
+        <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
+          <ImageData WholeExtent=")" + extent + R"(" Origin="0 0 0" Spacing="1 1 1">
+            <Piece Extent=")" + extent + R"(">
+              <CellData Scalars="U">
+                  <DataArray Name="U" />
+                  <DataArray Name="V" />
+                  <DataArray Name="TIME">
+                    step
+                  </DataArray>
+              </CellData>
+            </Piece>
+          </ImageData>
+        </VTKFile>)";
+
+        io.DefineAttribute<std::string>("vtk.xml", imageData);
+    };
+
+    if(s.mesh_type == "image")
+    {
+        lf_VTKImage(s,io);
+    }
+    else if( s.mesh_type == "structured")
+    {
+        throw std::invalid_argument("ERROR: mesh_type=structured not yet "
+                "   supported in settings.json, use mesh_type=image instead\n");
+    }
+    // TODO extend to other formats e.g. structured
+}
+
+
 void print_io_settings(const adios2::IO &io)
 {
     std::cout << "Simulation writes data using engine type:              " << io.EngineType() << std::endl;
@@ -89,6 +129,11 @@ int main(int argc, char **argv)
     io.DefineAttribute<double>("Du", settings.Du);
     io.DefineAttribute<double>("Dv", settings.Dv);
     io.DefineAttribute<double>("noise", settings.noise);
+    //define VTK visualization schema as an attribute
+    if(!settings.mesh_type.empty())
+    {
+        define_bpvtk_attribute(settings, io);
+    }
 
     adios2::Variable<double> varU = io.DefineVariable<double>(
         "U", {sim.npz * sim.size_z, sim.npy * sim.size_y, sim.npx * sim.size_x},

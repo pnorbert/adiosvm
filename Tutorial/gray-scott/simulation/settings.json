@@ -9,5 +9,6 @@
     "steps": 600,
     "noise": 0.01,
     "output": "gs.bp",
-    "adios_config": "adios2.xml"
+    "adios_config": "adios2.xml",
+    "mesh_type": "image"
 }
