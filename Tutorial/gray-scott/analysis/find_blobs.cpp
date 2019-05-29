@@ -4,7 +4,7 @@
  * Counts the total number of connected components and measures the surface
  * area of each component.
  *
- * Keichi Takahashi <takahashi.keichi@ais.cmc.osaka-u.ac.jp>
+ * Keichi Takahashi <keichi@is.naist.jp>
  *
  */
 

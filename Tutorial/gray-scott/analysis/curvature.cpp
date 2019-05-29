@@ -1,3 +1,11 @@
+/*
+ * Analysis code for the Gray-Scott simulation.
+ * Computes mean curvature at each point on an isosurface.
+ *
+ * Keichi Takahashi <keichi@is.naist.jp>
+ *
+ */
+
 #include <chrono>
 #include <fstream>
 #include <iostream>

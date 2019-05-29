@@ -194,12 +194,6 @@ int main(int argc, char **argv)
 
     auto end_total = std::chrono::steady_clock::now();
 
-    // if (rank == 0) {
-    //     std::cout << "Total runtime: " << diff(start_total,
-    //     end_total).count()
-    //               << " [ms]" << std::endl;
-    // }
-
     writer.Close();
 
     MPI_Finalize();

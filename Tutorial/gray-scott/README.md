@@ -119,16 +119,9 @@ In adios2.xml, change all IO groups' engine to SST.
 Launch the pipeline in 4 separate terminals:
 ```
 $ mpirun -n 4 build/gray-scott simulation/settings.json
-<<<<<<< HEAD
 $ mpirun -n 1 build/pdf_calc gs.bp pdf.bp 100
 $ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp
 $ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
-=======
-$ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100
-$ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp
-$ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
->>>>>>> Use FindADIOS2
-
 ```
 
 MPMD mode run in a single terminal:

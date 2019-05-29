@@ -3,7 +3,7 @@
  * Reads variable U and and extracts the iso-surface using VTK.
  * Writes the extracted iso-surface using ADIOS.
  *
- * Keichi Takahashi <takahashi.keichi@ais.cmc.osaka-u.ac.jp>
+ * Keichi Takahashi <keichi@is.naist.jp>
  *
  */
 
