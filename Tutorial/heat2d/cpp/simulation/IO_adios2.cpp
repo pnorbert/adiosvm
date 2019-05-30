@@ -57,6 +57,25 @@ IO::IO(const Settings &s, MPI_Comm comm)
     io.DefineAttribute<std::string>("unit", 
             "C", varT.Name());
 
+    // homogeneous last coordinate 2D -> 3D
+    const std::string extent = "0 " + std::to_string(s.gndx + 1) + " " +
+                               "0 " + std::to_string(s.gndy + 1) + " " +
+                               "0 1";
+
+    const std::string imageData = R"(
+        <?xml version="1.0"?>
+        <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
+          <ImageData WholeExtent=")" + extent + R"(" Origin="0 0 0" Spacing="1 1 1">
+            <Piece Extent=")" + extent + R"(">
+              <CellData Scalars="T">
+                  <DataArray Name="T" />
+              </CellData>
+            </Piece>
+          </ImageData>
+        </VTKFile>)";
+
+    io.DefineAttribute<std::string>("vtk.xml", imageData);
+
     writer = io.Open(s.outputfile, adios2::Mode::Write, comm);
 
     // Some optimization:
