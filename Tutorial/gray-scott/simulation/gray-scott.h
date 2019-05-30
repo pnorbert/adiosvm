@@ -28,6 +28,9 @@ public:
     std::vector<double> u_noghost() const;
     std::vector<double> v_noghost() const;
 
+    void u_noghost(double* u_no_ghost) const;
+    void v_noghost(double* v_no_ghost) const;
+
 protected:
     Settings settings;
 
@@ -75,6 +78,10 @@ protected:
     // Return a copy of data with ghosts removed
     std::vector<double> data_noghost(const std::vector<double> &data) const;
 
+    // pointer version
+    void data_noghost(const std::vector<double>& data, double* no_ghost) const;
+
+
     // Check if point is included in my subdomain
     inline bool is_inside(int x, int y, int z) const
     {
@@ -101,6 +108,11 @@ protected:
     {
         return z + y * (size_z + 2) + x * (size_y + 2) * (size_z + 2);
     }
+
+private:
+
+    void data_no_ghost_common(const std::vector<double>& data, double* data_no_ghost) const;
+
 };
 
 #endif

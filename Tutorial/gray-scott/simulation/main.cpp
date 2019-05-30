@@ -170,14 +170,32 @@ int main(int argc, char **argv)
             }
             auto end_compute = std::chrono::steady_clock::now();
 
-            std::vector<double> u = sim.u_noghost();
-            std::vector<double> v = sim.v_noghost();
 
-            writer.BeginStep();
-            writer.Put<int>(varStep, &i);
-            writer.Put<double>(varU, u.data());
-            writer.Put<double>(varV, v.data());
-            writer.EndStep();
+            if(settings.adios_span)
+            {
+            	writer.BeginStep();
+            	writer.Put<int>(varStep, &i);
+
+            	// provide memory directly from adios buffer
+            	adios2::Variable<double>::Span u_span = writer.Put<double>(varU);
+            	adios2::Variable<double>::Span v_span = writer.Put<double>(varV);
+
+            	// populate spans
+            	sim.u_noghost(u_span.data());
+            	sim.v_noghost(v_span.data());
+
+            	writer.EndStep();
+            }
+            else
+            {
+            	std::vector<double> u = sim.u_noghost();
+            	std::vector<double> v = sim.v_noghost();
+            	writer.BeginStep();
+            	writer.Put<int>(varStep, &i);
+            	writer.Put<double>(varU, u.data());
+            	writer.Put<double>(varV, v.data());
+            	writer.EndStep();
+            }
 
             auto end_step = std::chrono::steady_clock::now();
 

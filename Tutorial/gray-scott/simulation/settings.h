@@ -17,6 +17,7 @@ public:
     double noise;
     std::string output;
     std::string adios_config;
+    bool adios_span;
     std::string mesh_type;
 
     Settings();
