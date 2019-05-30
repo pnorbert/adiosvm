@@ -11,12 +11,17 @@
 *.so
 *.so.*
 *.dylib
+*.mod
 
 # Executables
 *.exe
 *.out
 *.app
 *.pyc
+
+# BP files
+*.bp
+*.bp.dir
 
 
 # http://www.gnu.org/software/autoconf
@@ -68,3 +73,5 @@ TAGS
 .ptp-sync-folder
 .pydevproject
 
+# VIM
+*.sw?
