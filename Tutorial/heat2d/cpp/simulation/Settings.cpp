@@ -50,6 +50,20 @@ Settings::Settings(int argc, char *argv[], int rank, int nproc) : rank{rank}
     steps = convertToUint("steps", argv[6]);
     iterations = convertToUint("iterations", argv[7]);
 
+    if(argc == 9)
+    {
+    	const std::string spanOption(argv[8]);
+    	if(spanOption == "span")
+    	{
+    		span = true;
+    	}
+    	else
+    	{
+    		throw std::invalid_argument("Invalid option: " + spanOption +
+    				                  " last optional argument should be span");
+    	}
+    }
+
     if (npx * npy != this->nproc)
     {
         throw std::invalid_argument("N*M must equal the number of processes");

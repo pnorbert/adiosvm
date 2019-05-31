@@ -22,7 +22,7 @@ Example
 
 1. Simulation: produce an output
 
-Simulation usage:  heatSimulation  output  N  M   nx  ny   steps iterations
+Simulation usage:  heatSimulation  output  N  M   nx  ny   steps iterations span
   output: name of output data file/stream
   N:      number of processes in X dimension
   M:      number of processes in Y dimension
@@ -30,6 +30,7 @@ Simulation usage:  heatSimulation  output  N  M   nx  ny   steps iterations
   ny:     local array size in Y dimension per processor
   steps:  the total number of steps to output
   iterations: one step consist of this many iterations
+  span:   optional flag to use adios buffer to reduce memory footprint
 
 The executables needs an XML config file named "adios2.xml" to select the Engine used for the output. 
 The engines are: BPFile, ADIOS1, HDF5, SST, DataMan, InSituMPI

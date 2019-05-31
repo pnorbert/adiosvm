@@ -26,6 +26,7 @@ public:
     unsigned int ndy;        // Local array size in y dimension per process
     unsigned int steps;      // Number of output steps
     unsigned int iterations; // Number of computing iterations between steps
+    bool span = false;
 
     // calculated values from those arguments and number of processes
     unsigned int gndx; // Global array size in slow dimension

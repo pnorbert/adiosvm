@@ -93,12 +93,26 @@ IO::~IO()
 void IO::write(int step, const HeatTransfer &ht, const Settings &s,
                MPI_Comm comm)
 {
-    writer.BeginStep();
-    // using Put() you promise the pointer to the data will be intact
-    // until the end of the output step.
-    // We need to have the vector object here not to destruct here until the end
-    // of function.
-    std::vector<double> v = ht.data_noghost();
-    writer.Put<double>(varT, v.data());
-    writer.EndStep();
+	//reduce memory footprint, adios will provide memory from its buffer
+	if(s.span)
+	{
+		writer.BeginStep();
+		// pre-allocate memory in adios2 buffer and provide a span
+		adios2::Variable<double>::Span spanT = writer.Put<double>(varT);
+		// populate the span
+		ht.data_noghost(spanT.data());
+		// collect span data and get min/max
+		writer.EndStep();
+	}
+	else
+	{
+        writer.BeginStep();
+		// using Put() you promise the pointer to the data will be intact
+		// until the end of the output step.
+		// We need to have the vector object here not to destruct here until the end
+		// of function.
+		std::vector<double> v = ht.data_noghost();
+		writer.Put<double>(varT, v.data());
+		writer.EndStep();
+	}
 }
