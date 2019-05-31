@@ -15,7 +15,9 @@ void to_json(nlohmann::json &j, const Settings &s)
                        {"Dv", s.Dv},
                        {"noise", s.noise},
                        {"output", s.output},
-                       {"adios_config", s.adios_config}};
+                       {"adios_config", s.adios_config},
+                       {"adios_span", s.adios_span},
+					   {"mesh_type", s.mesh_type}};
 }
 
 void from_json(const nlohmann::json &j, Settings &s)
@@ -31,7 +33,9 @@ void from_json(const nlohmann::json &j, Settings &s)
     j.at("noise").get_to(s.noise);
     j.at("output").get_to(s.output);
     j.at("adios_config").get_to(s.adios_config);
+    j.at("adios_span").get_to(s.adios_span);
     j.at("mesh_type").get_to(s.mesh_type);
+
 }
 
 Settings::Settings()
@@ -47,6 +51,7 @@ Settings::Settings()
     noise = 0.0;
     output = "foo.bp";
     adios_config = "adios2.xml";
+    adios_span   = false;
     mesh_type = "image";
 }
 
