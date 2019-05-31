@@ -273,3 +273,13 @@ std::vector<double> HeatTransfer::data_noghost() const
     }
     return d;
 }
+
+void HeatTransfer::data_noghost(double* d) const
+{
+	for (unsigned int i = 1; i <= m_s.ndx; ++i)
+	{
+	    std::memcpy(&d[(i - 1) * m_s.ndy], m_TCurrent[i] + 1,
+	                    m_s.ndy * sizeof(double));
+	}
+}
+

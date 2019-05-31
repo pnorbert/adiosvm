@@ -36,6 +36,9 @@ public:
     // return (1D) pointer to current T data without ghost cells, ndx*ndy
     // elements
     std::vector<double> data_noghost() const;
+    // return (1D) pointer to current T data without ghost cells, ndx*ndy
+    // elements, version that takes a pre-allocated memory space
+    void data_noghost(double* d) const;
 
     void printT(std::string message,
                 MPI_Comm comm) const; // debug: print local TCurrent on stdout
