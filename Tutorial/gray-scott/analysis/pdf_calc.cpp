@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     
     std::vector<double> u;
     std::vector<double> v;
-    int simStep;
+    int simStep = -5;
 
     std::vector<double> pdf_u;
     std::vector<double> pdf_v;
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
         }
 
         // HDF5 engine does not provide min/max. Let's calculate it
-        if (reader_io.EngineType() == "HDF5")
+//        if (reader_io.EngineType() == "HDF5")
         {
             auto mmu = std::minmax_element(u.begin(), u.end());
             minmax_u = std::make_pair(*mmu.first, *mmu.second);

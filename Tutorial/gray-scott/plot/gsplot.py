@@ -39,11 +39,11 @@ def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
     # Plotting part
     displaysec = args.displaysec
     gs = gridspec.GridSpec(1, 1)
-    fig = plt.figure(1, figsize=(5,5))
+    fig = plt.figure(1, figsize=(10,10))
     ax = fig.add_subplot(gs[0, 0])
     colorax = ax.imshow(data, origin='lower', interpolation='quadric',extent=[0, fullshape[1], 0, fullshape[0]], cmap=plt.get_cmap('gist_ncar'))
     cbar = fig.colorbar(colorax, orientation='horizontal')
-    cbar.ax.tick_params(labelsize=fontsize-8)
+    cbar.ax.tick_params(labelsize=fontsize-4)
 
     for i in range(args.ny):
         y = fullshape[0] / args.ny * i
@@ -92,7 +92,7 @@ def read_data(args, fr, start_coord, size_dims):
 
 if __name__ == "__main__":
     # fontsize on plot
-    fontsize = 16
+    fontsize = 32
 
     args = SetupArgs()
 #    print(args)
