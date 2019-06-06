@@ -1,11 +1,11 @@
 # gray-scott
 
-This is a 3D 7-point stencil code to simulate the following Gray-Scott
-reaction diffusion model:
+This is a 3D 7-point stencil code to simulate the following [Gray-Scott
+reaction diffusion model](https://doi.org/10.1126/science.261.5118.189):
 
 ```
-u_t = Du * u_xx - u * v^2 + F * (1 - u)
-v_t = Dv * v_xx + v * v^2 - (F + k) * v
+u_t = Du * (u_xx + u_yy + u_zz) - u * v^2 + F * (1 - u)
+v_t = Dv * (v_xx + v_yy + v_zz) + u * v^2 - (F + k) * v
 ```
 
 ## How to build
