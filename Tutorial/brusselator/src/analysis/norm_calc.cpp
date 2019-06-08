@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     while(true) {
 
         // Begin step
-        adios2::StepStatus read_status = reader_engine.BeginStep(adios2::StepMode::NextAvailable, 10.0f);
+        adios2::StepStatus read_status = reader_engine.BeginStep(adios2::StepMode::Read, 10.0f);
         if (read_status == adios2::StepStatus::NotReady)
         {
             // std::cout << "Stream not ready yet. Waiting...\n";

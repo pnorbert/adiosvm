@@ -83,8 +83,7 @@ void timer_func(vtkObject *object, unsigned long eid, void *clientdata,
     std::vector<double> normals;
     int step;
 
-    adios2::StepStatus status =
-        context->reader->BeginStep(adios2::StepMode::NextAvailable);
+    adios2::StepStatus status = context->reader->BeginStep();
 
     if (status != adios2::StepStatus::OK) {
         return;

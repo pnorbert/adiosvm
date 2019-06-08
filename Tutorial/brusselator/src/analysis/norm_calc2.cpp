@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     while(true) {
 
         // Begin step
-        adios2::StepStatus read_status  = reader_engine.BeginStep (adios2::StepMode::NextAvailable, 0.0f);
+        adios2::StepStatus read_status  = reader_engine.BeginStep ();
         if (read_status != adios2::StepStatus::OK)
             break;
 

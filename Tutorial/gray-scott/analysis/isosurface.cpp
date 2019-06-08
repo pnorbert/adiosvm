@@ -238,8 +238,7 @@ int main(int argc, char *argv[])
     while (true) {
         auto start_step = std::chrono::steady_clock::now();
 
-        adios2::StepStatus status =
-            reader.BeginStep(adios2::StepMode::NextAvailable);
+        adios2::StepStatus status = reader.BeginStep();
 
         if (status != adios2::StepStatus::OK) {
             break;
