@@ -165,8 +165,7 @@ int main(int argc, char *argv[])
     log << "step\tcompute_blobs" << std::endl;
 
     while (true) {
-        adios2::StepStatus status =
-            reader.BeginStep(adios2::StepMode::NextAvailable);
+        adios2::StepStatus status = reader.BeginStep();
 
         if (status != adios2::StepStatus::OK) {
             break;

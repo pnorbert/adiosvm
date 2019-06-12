@@ -84,7 +84,7 @@ subroutine io_write(tstep,curr)
 
     call MPI_BARRIER(app_comm, adios2_err)
 
-    call adios2_begin_step( bp_writer, adios2_step_mode_append, 0., &
+    call adios2_begin_step( bp_writer, adios2_step_mode_append, -1., &
                             istatus, adios2_err)
 
     ! We need the temporary array survive until EndStep, 
