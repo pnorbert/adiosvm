@@ -59,7 +59,7 @@ program reader
 
     ts = 0;
     do 
-        call adios2_begin_step(fh, adios2_step_mode_next_available, -1.0, istatus, ierr)
+        call adios2_begin_step(fh, istatus, ierr)
         if (ierr /= 0) then
             print '(" Failure when trying to get next step: ",a)', streamname
             exit
