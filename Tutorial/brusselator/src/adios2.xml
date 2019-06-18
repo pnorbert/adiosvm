@@ -61,7 +61,7 @@
                 <parameter key="accuracy" value="0.00001"/>
             </operation>
         </variable>
-        --->
+        -->
     </io>
     <!--====================================
            Configuration for the norm calc2
