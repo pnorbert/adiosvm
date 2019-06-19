@@ -42,7 +42,7 @@ will perform the calculation
 $ bpls -l heat.bp 
   double   T     6*{768, 1024} = 0 / 200
 
-$ ./plot_heat.sh heat.bp
+$ python3 ../python/heat_plot.py -i heat.bp -o T
 $ eog . 
 
 
