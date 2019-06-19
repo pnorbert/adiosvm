@@ -81,7 +81,7 @@ IO::IO(const Settings &s, MPI_Comm comm)
     // Some optimization:
     // we promise here that we don't change the variables over steps
     // (the list of variables, their dimensions, and their selections)
-    io.LockDefinitions();
+    writer.LockWriterDefinitions();
 }
 
 IO::~IO()
