@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
                 outIO.DefineAttribute<std::string>("description", 
                         "Temperature difference between two steps calculated in analysis", "dT");
 
-                outIO.LockDefinitions();
+                writer.LockWriterDefinitions();
 
                 MPI_Barrier(mpiReaderComm); // sync processes just for stdout
             }
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 
             if (firstStep)
             {
-                inIO.LockDefinitions(); // a promise here that we don't change the read pattern over steps
+                reader.LockReaderSelections(); // a promise here that we don't change the read pattern over steps
             }
 
             // Arrays are read by scheduling one or more of them

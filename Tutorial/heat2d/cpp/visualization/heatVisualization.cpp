@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
                 if (firstStep)
                 {
-                    inIO.LockDefinitions(); // a promise here that we don't change the read pattern over steps
+                    reader.LockReaderSelections(); // a promise here that we don't change the read pattern over steps
                 }
 
                 reader.EndStep();
