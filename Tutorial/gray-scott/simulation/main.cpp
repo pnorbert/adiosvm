@@ -8,19 +8,20 @@
 
 #include "gray-scott.h"
 
-void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
+void define_bpvtk_attribute(const Settings &s, adios2::IO &io)
 {
-    auto lf_VTKImage = [](const Settings &s, adios2::IO& io){
-
-        const std::string extent = "0 " + std::to_string(s.L + 1) + " " +
-                                   "0 " + std::to_string(s.L + 1) + " " +
-                                   "0 " + std::to_string(s.L + 1);
+    auto lf_VTKImage = [](const Settings &s, adios2::IO &io) {
+        const std::string extent = "0 " + std::to_string(s.L + 1) + " " + "0 " +
+                                   std::to_string(s.L + 1) + " " + "0 " +
+                                   std::to_string(s.L + 1);
 
         const std::string imageData = R"(
         <?xml version="1.0"?>
         <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-          <ImageData WholeExtent=")" + extent + R"(" Origin="0 0 0" Spacing="1 1 1">
-            <Piece Extent=")" + extent + R"(">
+          <ImageData WholeExtent=")" + extent +
+                                      R"(" Origin="0 0 0" Spacing="1 1 1">
+            <Piece Extent=")" + extent +
+                                      R"(">
               <CellData Scalars="U">
                   <DataArray Name="U" />
                   <DataArray Name="V" />
@@ -35,18 +36,15 @@ void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
         io.DefineAttribute<std::string>("vtk.xml", imageData);
     };
 
-    if(s.mesh_type == "image")
-    {
-        lf_VTKImage(s,io);
-    }
-    else if( s.mesh_type == "structured")
-    {
-        throw std::invalid_argument("ERROR: mesh_type=structured not yet "
-                "   supported in settings.json, use mesh_type=image instead\n");
+    if (s.mesh_type == "image") {
+        lf_VTKImage(s, io);
+    } else if (s.mesh_type == "structured") {
+        throw std::invalid_argument(
+            "ERROR: mesh_type=structured not yet "
+            "   supported in settings.json, use mesh_type=image instead\n");
     }
     // TODO extend to other formats e.g. structured
 }
-
 
 void print_io_settings(const adios2::IO &io)
 {
@@ -104,7 +102,7 @@ int main(int argc, char **argv)
     if (argc < 2) {
         if (rank == 0) {
             std::cerr << "Too few arguments" << std::endl;
-            std::cerr << "Usage: grayscott settings.json" << std::endl;
+            std::cerr << "Usage: gray-scott settings.json" << std::endl;
         }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
@@ -133,9 +131,8 @@ int main(int argc, char **argv)
     io.DefineAttribute<double>("Du", settings.Du);
     io.DefineAttribute<double>("Dv", settings.Dv);
     io.DefineAttribute<double>("noise", settings.noise);
-    //define VTK visualization schema as an attribute
-    if(!settings.mesh_type.empty())
-    {
+    // define VTK visualization schema as an attribute
+    if (!settings.mesh_type.empty()) {
         define_bpvtk_attribute(settings, io);
     }
 
@@ -170,31 +167,29 @@ int main(int argc, char **argv)
             }
             auto end_compute = std::chrono::steady_clock::now();
 
+            if (settings.adios_span) {
+                writer.BeginStep();
+                writer.Put<int>(varStep, &i);
 
-            if(settings.adios_span)
-            {
-            	writer.BeginStep();
-            	writer.Put<int>(varStep, &i);
+                // provide memory directly from adios buffer
+                adios2::Variable<double>::Span u_span =
+                    writer.Put<double>(varU);
+                adios2::Variable<double>::Span v_span =
+                    writer.Put<double>(varV);
 
-            	// provide memory directly from adios buffer
-            	adios2::Variable<double>::Span u_span = writer.Put<double>(varU);
-            	adios2::Variable<double>::Span v_span = writer.Put<double>(varV);
+                // populate spans
+                sim.u_noghost(u_span.data());
+                sim.v_noghost(v_span.data());
 
-            	// populate spans
-            	sim.u_noghost(u_span.data());
-            	sim.v_noghost(v_span.data());
-
-            	writer.EndStep();
-            }
-            else
-            {
-            	std::vector<double> u = sim.u_noghost();
-            	std::vector<double> v = sim.v_noghost();
-            	writer.BeginStep();
-            	writer.Put<int>(varStep, &i);
-            	writer.Put<double>(varU, u.data());
-            	writer.Put<double>(varV, v.data());
-            	writer.EndStep();
+                writer.EndStep();
+            } else {
+                std::vector<double> u = sim.u_noghost();
+                std::vector<double> v = sim.v_noghost();
+                writer.BeginStep();
+                writer.Put<int>(varStep, &i);
+                writer.Put<double>(varU, u.data());
+                writer.Put<double>(varV, v.data());
+                writer.EndStep();
             }
 
             auto end_step = std::chrono::steady_clock::now();

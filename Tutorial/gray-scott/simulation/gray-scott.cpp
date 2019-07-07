@@ -35,25 +35,26 @@ std::vector<double> GrayScott::u_noghost() const { return data_noghost(u); }
 
 std::vector<double> GrayScott::v_noghost() const { return data_noghost(v); }
 
-void GrayScott::u_noghost(double* u_no_ghost) const
+void GrayScott::u_noghost(double *u_no_ghost) const
 {
-	data_noghost(u, u_no_ghost);
+    data_noghost(u, u_no_ghost);
 }
 
-void GrayScott::v_noghost(double* v_no_ghost) const
+void GrayScott::v_noghost(double *v_no_ghost) const
 {
-	data_noghost(v, v_no_ghost);
+    data_noghost(v, v_no_ghost);
 }
 
 std::vector<double>
 GrayScott::data_noghost(const std::vector<double> &data) const
 {
     std::vector<double> buf(size_x * size_y * size_z);
-    data_no_ghost_common(data, buf.data() );
+    data_no_ghost_common(data, buf.data());
     return buf;
 }
 
-void GrayScott::data_noghost(const std::vector<double>& data, double* data_no_ghost) const
+void GrayScott::data_noghost(const std::vector<double> &data,
+                             double *data_no_ghost) const
 {
     data_no_ghost_common(data, data_no_ghost);
 }
@@ -235,14 +236,15 @@ void GrayScott::exchange(std::vector<double> &u, std::vector<double> &v) const
     exchange_yz(v);
 }
 
-void GrayScott::data_no_ghost_common(const std::vector<double>& data, double* data_no_ghost) const
+void GrayScott::data_no_ghost_common(const std::vector<double> &data,
+                                     double *data_no_ghost) const
 {
-	for (int x = 1; x < size_x + 1; x++) {
-	    for (int y = 1; y < size_y + 1; y++) {
-	        for (int z = 1; z < size_z + 1; z++) {
-	            data_no_ghost[(x - 1) + (y - 1) * size_x + (z - 1) * size_x * size_y] =
-	            data[l2i(x, y, z)];
-	        }
-	    }
-	}
+    for (int x = 1; x < size_x + 1; x++) {
+        for (int y = 1; y < size_y + 1; y++) {
+            for (int z = 1; z < size_z + 1; z++) {
+                data_no_ghost[(x - 1) + (y - 1) * size_x +
+                              (z - 1) * size_x * size_y] = data[l2i(x, y, z)];
+            }
+        }
+    }
 }
