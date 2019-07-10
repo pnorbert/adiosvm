@@ -1,11 +1,12 @@
-#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <mpi.h>
+#include <sstream>
 #include <vector>
 
 #include <adios2.h>
+#include <mpi.h>
 
+#include "../common/timer.hpp"
 #include "gray-scott.h"
 
 void define_bpvtk_attribute(const Settings &s, adios2::IO &io)
@@ -76,15 +77,6 @@ void print_simulator_settings(const GrayScott &s)
               << s.size_z << std::endl;
 }
 
-std::chrono::milliseconds
-diff(const std::chrono::steady_clock::time_point &start,
-     const std::chrono::steady_clock::time_point &end)
-{
-    auto diff = end - start;
-
-    return std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-}
-
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -150,62 +142,74 @@ int main(int argc, char **argv)
 
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
 
-    auto start_total = std::chrono::steady_clock::now();
-    auto start_step = std::chrono::steady_clock::now();
+    Timer timer_total;
+    Timer timer_compute;
+    Timer timer_write;
 
-    std::ofstream log("gray-scott.log");
+    std::ostringstream log_fname;
+    log_fname << "gray_scott_pe_" << rank << ".log";
+
+    std::ofstream log(log_fname.str());
     log << "step\tcompute_gs\twrite_gs" << std::endl;
 
     for (int i = 0; i < settings.steps; i++) {
+        MPI_Barrier(comm);
+        timer_total.start();
+        timer_compute.start();
+
         sim.iterate();
 
-        if (i % settings.plotgap == 0) {
-            if (rank == 0) {
-                std::cout << "Simulation at step " << i
-                          << " writing output step     " << i / settings.plotgap
-                          << std::endl;
-            }
-            auto end_compute = std::chrono::steady_clock::now();
-
-            if (settings.adios_span) {
-                writer.BeginStep();
-                writer.Put<int>(varStep, &i);
-
-                // provide memory directly from adios buffer
-                adios2::Variable<double>::Span u_span =
-                    writer.Put<double>(varU);
-                adios2::Variable<double>::Span v_span =
-                    writer.Put<double>(varV);
-
-                // populate spans
-                sim.u_noghost(u_span.data());
-                sim.v_noghost(v_span.data());
-
-                writer.EndStep();
-            } else {
-                std::vector<double> u = sim.u_noghost();
-                std::vector<double> v = sim.v_noghost();
-                writer.BeginStep();
-                writer.Put<int>(varStep, &i);
-                writer.Put<double>(varU, u.data());
-                writer.Put<double>(varV, v.data());
-                writer.EndStep();
-            }
-
-            auto end_step = std::chrono::steady_clock::now();
-
-            if (rank == 0) {
-                log << i << "\t" << diff(start_step, end_compute).count()
-                    << "\t" << diff(end_compute, end_step).count() << std::endl;
-            }
-
-            start_step = std::chrono::steady_clock::now();
+        if (i % settings.plotgap != 0) {
+            continue;
         }
+
+        double time_compute = timer_compute.stop();
+        MPI_Barrier(comm);
+
+        if (rank == 0) {
+            std::cout << "Simulation at step " << i
+                      << " writing output step     " << i / settings.plotgap
+                      << std::endl;
+        }
+
+        MPI_Barrier(comm);
+        timer_write.start();
+
+        if (settings.adios_span) {
+            writer.BeginStep();
+            writer.Put<int>(varStep, &i);
+
+            // provide memory directly from adios buffer
+            adios2::Variable<double>::Span u_span = writer.Put<double>(varU);
+            adios2::Variable<double>::Span v_span = writer.Put<double>(varV);
+
+            // populate spans
+            sim.u_noghost(u_span.data());
+            sim.v_noghost(v_span.data());
+
+            writer.EndStep();
+        } else {
+            std::vector<double> u = sim.u_noghost();
+            std::vector<double> v = sim.v_noghost();
+            writer.BeginStep();
+            writer.Put<int>(varStep, &i);
+            writer.Put<double>(varU, u.data());
+            writer.Put<double>(varV, v.data());
+            writer.EndStep();
+        }
+
+        double time_write = timer_write.stop();
+        double time_step = timer_total.stop();
+        MPI_Barrier(comm);
+
+        log << i << "\t" << time_step << "\t" << time_compute << "\t"
+            << time_write << std::endl;
     }
 
-    log.close();
+    log << "total\t" << timer_total.elapsed() << "\t" << timer_compute.elapsed()
+        << "\t" << timer_write.elapsed() << std::endl;
 
-    auto end_total = std::chrono::steady_clock::now();
+    log.close();
 
     writer.Close();
 
