@@ -7,7 +7,6 @@
  *
  */
 
-#include <chrono>
 #include <iostream>
 #include <sstream>
 
@@ -20,6 +19,8 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
+
+#include "../common/timer.hpp"
 
 vtkSmartPointer<vtkPolyData>
 compute_isosurface(const adios2::Variable<double> &varField,
@@ -161,15 +162,6 @@ void write_adios(adios2::Engine &writer,
     writer.EndStep();
 }
 
-std::chrono::milliseconds
-diff(const std::chrono::steady_clock::time_point &start,
-     const std::chrono::steady_clock::time_point &end)
-{
-    auto diff = end - start;
-
-    return std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-}
-
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
@@ -230,13 +222,25 @@ int main(int argc, char *argv[])
     std::vector<double> u;
     int step;
 
-    auto start_total = std::chrono::steady_clock::now();
+#ifdef ENABLE_TIMERS
+    Timer timer_total;
+    Timer timer_read;
+    Timer timer_compute;
+    Timer timer_write;
 
-    std::ofstream log("isosurface.log");
-    log << "step\tread_iso\tcompute_iso\twrite_iso" << std::endl;
+    std::ostringstream log_fname;
+    log_fname << "isosurface_pe_" << rank << ".log";
+
+    std::ofstream log(log_fname.str());
+    log << "step\ttotal_iso\tread_iso\tcompute_iso\twrite_iso" << std::endl;
+#endif
 
     while (true) {
-        auto start_step = std::chrono::steady_clock::now();
+#ifdef ENABLE_TIMERS
+        MPI_Barrier(comm);
+        timer_total.start();
+        timer_read.start();
+#endif
 
         adios2::StepStatus status = reader.BeginStep();
 
@@ -276,28 +280,40 @@ int main(int argc, char *argv[])
         reader.Get<int>(varStep, step);
         reader.EndStep();
 
-        auto end_read = std::chrono::steady_clock::now();
+#ifdef ENABLE_TIMERS
+        double time_read = timer_read.stop();
+        MPI_Barrier(comm);
+        timer_compute.start();
+#endif
 
         auto polyData = compute_isosurface(varU, u, isovalue);
 
-        auto end_compute = std::chrono::steady_clock::now();
+#ifdef ENABLE_TIMERS
+        double time_compute = timer_compute.stop();
+        MPI_Barrier(comm);
+        timer_write.start();
+#endif
 
         write_adios(writer, polyData, varPoint, varCell, varNormal, varOutStep,
                     step, comm);
 
-        auto end_step = std::chrono::steady_clock::now();
+#ifdef ENABLE_TIMERS
+        double time_write = timer_write.stop();
+        double time_step = timer_total.stop();
+        MPI_Barrier(comm);
 
-        log << step << "\t" << diff(start_step, end_read).count() << "\t"
-            << diff(end_read, end_compute).count() << "\t"
-            << diff(end_compute, end_step).count() << std::endl;
+        log << step << "\t" << time_step << "\t" << time_read << "\t"
+            << time_compute << "\t" << time_write << std::endl;
+#endif
     }
 
+#ifdef ENABLE_TIMERS
+    log << "total\t" << timer_total.elapsed() << "\t" << timer_read.elapsed()
+        << "\t" << timer_compute.elapsed() << "\t" << timer_write.elapsed()
+        << std::endl;
+
     log.close();
-
-    auto end_total = std::chrono::steady_clock::now();
-
-    // std::cout << "Total runtime: " << diff(start_total, end_total).count()
-    //           << " [ms]" << std::endl;
+#endif
 
     writer.Close();
     reader.Close();

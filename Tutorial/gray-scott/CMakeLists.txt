@@ -27,11 +27,12 @@ target_link_libraries(gray-scott adios2::adios2 MPI::MPI_C)
 add_executable(pdf_calc analysis/pdf_calc.cpp)
 target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
 
+option(VTK "Build VTK apps")
 if (VTK_ROOT)
-  set(VTK "ON")
+  set(VTK ON)
 endif(VTK_ROOT)
 
-if (VTK STREQUAL ON)
+if (VTK)
   message(STATUS "Finding VTK")
 
   find_package(VTK COMPONENTS
@@ -76,4 +77,4 @@ if (VTK STREQUAL ON)
   else()
     message(STATUS "VTK was NOT found, do not build apps using VTK")
   endif(VTK_FOUND)
-endif(VTK STREQUAL ON)
+endif(VTK)

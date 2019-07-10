@@ -8,7 +8,6 @@
  *
  */
 
-#include <chrono>
 #include <iostream>
 
 #include <adios2.h>
@@ -24,6 +23,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
+
+#include "../common/timer.hpp"
 
 vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
                                        const std::vector<int> &bufCells,
@@ -109,15 +110,6 @@ void find_largest_blob(const vtkSmartPointer<vtkPolyData> polyData)
               << massProperties->GetSurfaceArea() << std::endl;
 }
 
-std::chrono::milliseconds
-diff(const std::chrono::steady_clock::time_point &start,
-     const std::chrono::steady_clock::time_point &end)
-{
-    auto diff = end - start;
-
-    return std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-}
-
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
@@ -161,10 +153,25 @@ int main(int argc, char *argv[])
     std::vector<double> normals;
     int step;
 
-    std::ofstream log("find_blobs.log");
-    log << "step\tcompute_blobs" << std::endl;
+#ifdef ENABLE_TIMERS
+    Timer timer_total;
+    Timer timer_compute;
+    Timer timer_read;
+
+    std::ostringstream log_fname;
+    log_fname << "find_blobs_pe_" << rank << ".log";
+
+    std::ofstream log(log_fname.str());
+    log << "step\ttotal_blobs\tread_blobs\tcompute_blobs" << std::endl;
+#endif
 
     while (true) {
+#ifdef ENABLE_TIMERS
+        MPI_Barrier(comm);
+        timer_total.start();
+        timer_read.start();
+#endif
+
         adios2::StepStatus status = reader.BeginStep();
 
         if (status != adios2::StepStatus::OK) {
@@ -193,18 +200,34 @@ int main(int argc, char *argv[])
 
         reader.EndStep();
 
+#ifdef ENABLE_TIMERS
+        double time_read = timer_read.stop();
+        MPI_Barrier(comm);
+        timer_compute.start();
+#endif
+
         std::cout << "find_blobs at step " << step << std::endl;
 
         auto polyData = read_mesh(points, cells, normals);
-        auto start = std::chrono::steady_clock::now();
         // find_blobs(polyData);
         find_largest_blob(polyData);
-        auto end = std::chrono::steady_clock::now();
 
-        log << step << "\t" << diff(start, end).count() << std::endl;
+#ifdef ENABLE_TIMERS
+        double time_compute = timer_compute.stop();
+        double time_step = timer_total.stop();
+        MPI_Barrier(comm);
+
+        log << step << "\t" << time_step << "\t" << time_read << "\t"
+            << time_compute << std::endl;
+#endif
     }
 
+#ifdef ENABLE_TIMERS
+    log << "total\t" << timer_total.elapsed() << "\t" << timer_read.elapsed()
+        << "\t" << timer_compute.elapsed() << std::endl;
+
     log.close();
+#endif
 
     reader.Close();
 }

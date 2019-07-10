@@ -151,7 +151,7 @@ int main(int argc, char **argv)
     log_fname << "gray_scott_pe_" << rank << ".log";
 
     std::ofstream log(log_fname.str());
-    log << "step\tcompute_gs\twrite_gs" << std::endl;
+    log << "step\ttotal_gs\tcompute_gs\twrite_gs" << std::endl;
 #endif
 
     for (int i = 0; i < settings.steps; i++) {
@@ -170,6 +170,7 @@ int main(int argc, char **argv)
 #ifdef ENABLE_TIMERS
         double time_compute = timer_compute.stop();
         MPI_Barrier(comm);
+        timer_write.start();
 #endif
 
         if (rank == 0) {
@@ -177,11 +178,6 @@ int main(int argc, char **argv)
                       << " writing output step     " << i / settings.plotgap
                       << std::endl;
         }
-
-#ifdef ENABLE_TIMERS
-        MPI_Barrier(comm);
-        timer_write.start();
-#endif
 
         if (settings.adios_span) {
             writer.BeginStep();
