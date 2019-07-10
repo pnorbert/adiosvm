@@ -142,6 +142,7 @@ int main(int argc, char **argv)
 
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
 
+#ifdef ENABLE_TIMERS
     Timer timer_total;
     Timer timer_compute;
     Timer timer_write;
@@ -151,11 +152,14 @@ int main(int argc, char **argv)
 
     std::ofstream log(log_fname.str());
     log << "step\tcompute_gs\twrite_gs" << std::endl;
+#endif
 
     for (int i = 0; i < settings.steps; i++) {
+#ifdef ENABLE_TIMERS
         MPI_Barrier(comm);
         timer_total.start();
         timer_compute.start();
+#endif
 
         sim.iterate();
 
@@ -163,8 +167,10 @@ int main(int argc, char **argv)
             continue;
         }
 
+#ifdef ENABLE_TIMERS
         double time_compute = timer_compute.stop();
         MPI_Barrier(comm);
+#endif
 
         if (rank == 0) {
             std::cout << "Simulation at step " << i
@@ -172,8 +178,10 @@ int main(int argc, char **argv)
                       << std::endl;
         }
 
+#ifdef ENABLE_TIMERS
         MPI_Barrier(comm);
         timer_write.start();
+#endif
 
         if (settings.adios_span) {
             writer.BeginStep();
@@ -198,18 +206,22 @@ int main(int argc, char **argv)
             writer.EndStep();
         }
 
+#ifdef ENABLE_TIMERS
         double time_write = timer_write.stop();
         double time_step = timer_total.stop();
         MPI_Barrier(comm);
 
         log << i << "\t" << time_step << "\t" << time_compute << "\t"
             << time_write << std::endl;
+#endif
     }
 
+#ifdef ENABLE_TIMERS
     log << "total\t" << timer_total.elapsed() << "\t" << timer_compute.elapsed()
         << "\t" << timer_write.elapsed() << std::endl;
 
     log.close();
+#endif
 
     writer.Close();
 
