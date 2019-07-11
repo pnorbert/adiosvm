@@ -17,6 +17,7 @@ if [ "x$cmd" == "xdata" -o "x$cmd" == "xall" ]; then
     rm -rf *.bp *.bp.dir *.h5
     rm -rf *.sst *.ssc *_insitumpi_*
     rm -rf *.png *.pnm *.jpg
+    rm -rf *.log
     fail=no
 fi
 
