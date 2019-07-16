@@ -154,17 +154,16 @@ int main(int argc, char **argv)
     log << "step\ttotal_gs\tcompute_gs\twrite_gs" << std::endl;
 #endif
 
-    for (int i = 0; i < settings.steps; i++) {
+    for (int i = 0; i < settings.steps;) {
 #ifdef ENABLE_TIMERS
         MPI_Barrier(comm);
         timer_total.start();
         timer_compute.start();
 #endif
 
-        sim.iterate();
-
-        if (i % settings.plotgap != 0) {
-            continue;
+        for (int j = 0; j < settings.plotgap; j++) {
+            sim.iterate();
+            i++;
         }
 
 #ifdef ENABLE_TIMERS
