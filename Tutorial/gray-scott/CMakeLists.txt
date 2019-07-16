@@ -11,21 +11,29 @@ project(gray-scott C CXX)
 find_package(MPI REQUIRED)
 find_package(ADIOS2 REQUIRED)
 
+option(USE_TIMERS "Use profiling timers")
+if(USE_TIMERS)
+  message(STATUS "Enabling profiling timers")
+  add_definitions(-DENABLE_TIMERS)
+endif()
+
 # We are not using the C++ API of MPI, this will stop the compiler look for it
 add_definitions(-DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
 
-add_executable(gray-scott simulation/main.cpp simulation/gray-scott.cpp simulation/settings.cpp)
+add_executable(gray-scott simulation/main.cpp simulation/gray-scott.cpp
+  simulation/settings.cpp)
 target_link_libraries(gray-scott adios2::adios2 MPI::MPI_C)
 
 add_executable(pdf_calc analysis/pdf_calc.cpp)
 target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
 
+option(VTK "Build VTK apps")
 if (VTK_ROOT)
-    set(VTK "ON")
-endif (VTK_ROOT)
+  set(VTK ON)
+endif(VTK_ROOT)
 
-if (VTK STREQUAL ON)
-  message(STATUS "Find VTK")
+if (VTK)
+  message(STATUS "Finding VTK")
 
   find_package(VTK COMPONENTS
     vtkCommonCore
@@ -46,26 +54,27 @@ if (VTK STREQUAL ON)
     vtkViewsInfovis
     vtkkwiml
   )
-  
-  
+
   if(VTK_FOUND)
-  
-      message(STATUS "Found VTK: ${VTK_DIR}")
-      include(${VTK_USE_FILE})
-  
-      add_executable(isosurface analysis/isosurface.cpp)
-      target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
-  
-      add_executable(find_blobs analysis/find_blobs.cpp)
-      target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
-  
-      add_executable(compute_curvature analysis/curvature.cpp)
-      target_link_libraries(compute_curvature adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
-  
-      add_executable(render_isosurface plot/render_isosurface.cpp)
-      target_link_libraries(render_isosurface adios2::adios2 ${VTK_LIBRARIES} MPI::MPI_C)
-  
+    message(STATUS "Found VTK: ${VTK_DIR}")
+    include(${VTK_USE_FILE})
+
+    add_executable(isosurface analysis/isosurface.cpp)
+    target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES}
+      MPI::MPI_C)
+
+    add_executable(find_blobs analysis/find_blobs.cpp)
+    target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES}
+      MPI::MPI_C)
+
+    add_executable(compute_curvature analysis/curvature.cpp)
+    target_link_libraries(compute_curvature adios2::adios2 ${VTK_LIBRARIES}
+      MPI::MPI_C)
+
+    add_executable(render_isosurface plot/render_isosurface.cpp)
+    target_link_libraries(render_isosurface adios2::adios2 ${VTK_LIBRARIES}
+      MPI::MPI_C)
   else()
-      message(STATUS "VTK was NOT found, do not build apps using VTK")
+    message(STATUS "VTK was NOT found, do not build apps using VTK")
   endif(VTK_FOUND)
-endif(VTK STREQUAL ON)
+endif(VTK)

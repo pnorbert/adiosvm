@@ -6,7 +6,6 @@
  *
  */
 
-#include <chrono>
 #include <fstream>
 #include <iostream>
 
@@ -20,6 +19,8 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
+
+#include "../common/timer.hpp"
 
 vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
                                        const std::vector<int> &bufCells,
@@ -111,10 +112,25 @@ int main(int argc, char *argv[])
     std::vector<double> normals;
     int step;
 
-    std::ofstream log("compute_curvature.log");
-    log << "step\tcompute_curvature" << std::endl;
+#ifdef ENABLE_TIMERS
+    Timer timer_total;
+    Timer timer_read;
+    Timer timer_compute;
+
+    std::ostringstream log_fname;
+    log_fname << "compute_curvature_pe_" << rank << ".log";
+
+    std::ofstream log(log_fname.str());
+    log << "step\ttotal_curv\tread_curv\tcompute_curv" << std::endl;
+#endif
 
     while (true) {
+#ifdef ENABLE_TIMERS
+        MPI_Barrier(comm);
+        timer_total.start();
+        timer_read.start();
+#endif
+
         adios2::StepStatus status = reader.BeginStep();
 
         if (status != adios2::StepStatus::OK) {
@@ -143,17 +159,36 @@ int main(int argc, char *argv[])
 
         reader.EndStep();
 
+#ifdef ENABLE_TIMERS
+        double time_read = timer_read.stop();
+        MPI_Barrier(comm);
+        timer_compute.start();
+#endif
+
         vtkSmartPointer<vtkPolyData> polyData =
             read_mesh(points, cells, normals);
-        auto start = std::chrono::steady_clock::now();
         compute_curvature(polyData);
-        auto end = std::chrono::steady_clock::now();
-        auto diff = end - start;
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 
-        log << step << "\t" << duration.count() << std::endl;
+        if (!rank) {
+            std::cout << "compute_curvature at step " << step << std::endl;
+        }
+
+#ifdef ENABLE_TIMERS
+        double time_compute = timer_compute.stop();
+        double time_step = timer_total.stop();
+        MPI_Barrier(comm);
+
+        log << step << "\t" << time_step << "\t" << time_read << "\t"
+            << time_compute << std::endl;
+#endif
     }
+
+#ifdef ENABLE_TIMERS
+    log << "total\t" << timer_total.elapsed() << "\t" << timer_read.elapsed()
+        << "\t" << timer_compute.elapsed() << "\t" << std::endl;
+
+    log.close();
+#endif
 
     writer.Close();
     reader.Close();

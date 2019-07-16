@@ -1,26 +1,28 @@
-#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <mpi.h>
+#include <sstream>
 #include <vector>
 
 #include <adios2.h>
+#include <mpi.h>
 
+#include "../common/timer.hpp"
 #include "gray-scott.h"
 
-void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
+void define_bpvtk_attribute(const Settings &s, adios2::IO &io)
 {
-    auto lf_VTKImage = [](const Settings &s, adios2::IO& io){
-
-        const std::string extent = "0 " + std::to_string(s.L + 1) + " " +
-                                   "0 " + std::to_string(s.L + 1) + " " +
-                                   "0 " + std::to_string(s.L + 1);
+    auto lf_VTKImage = [](const Settings &s, adios2::IO &io) {
+        const std::string extent = "0 " + std::to_string(s.L + 1) + " " + "0 " +
+                                   std::to_string(s.L + 1) + " " + "0 " +
+                                   std::to_string(s.L + 1);
 
         const std::string imageData = R"(
         <?xml version="1.0"?>
         <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">
-          <ImageData WholeExtent=")" + extent + R"(" Origin="0 0 0" Spacing="1 1 1">
-            <Piece Extent=")" + extent + R"(">
+          <ImageData WholeExtent=")" + extent +
+                                      R"(" Origin="0 0 0" Spacing="1 1 1">
+            <Piece Extent=")" + extent +
+                                      R"(">
               <CellData Scalars="U">
                   <DataArray Name="U" />
                   <DataArray Name="V" />
@@ -35,18 +37,15 @@ void define_bpvtk_attribute(const Settings &s, adios2::IO& io)
         io.DefineAttribute<std::string>("vtk.xml", imageData);
     };
 
-    if(s.mesh_type == "image")
-    {
-        lf_VTKImage(s,io);
-    }
-    else if( s.mesh_type == "structured")
-    {
-        throw std::invalid_argument("ERROR: mesh_type=structured not yet "
-                "   supported in settings.json, use mesh_type=image instead\n");
+    if (s.mesh_type == "image") {
+        lf_VTKImage(s, io);
+    } else if (s.mesh_type == "structured") {
+        throw std::invalid_argument(
+            "ERROR: mesh_type=structured not yet "
+            "   supported in settings.json, use mesh_type=image instead\n");
     }
     // TODO extend to other formats e.g. structured
 }
-
 
 void print_io_settings(const adios2::IO &io)
 {
@@ -78,15 +77,6 @@ void print_simulator_settings(const GrayScott &s)
               << s.size_z << std::endl;
 }
 
-std::chrono::milliseconds
-diff(const std::chrono::steady_clock::time_point &start,
-     const std::chrono::steady_clock::time_point &end)
-{
-    auto diff = end - start;
-
-    return std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-}
-
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -104,7 +94,7 @@ int main(int argc, char **argv)
     if (argc < 2) {
         if (rank == 0) {
             std::cerr << "Too few arguments" << std::endl;
-            std::cerr << "Usage: grayscott settings.json" << std::endl;
+            std::cerr << "Usage: gray-scott settings.json" << std::endl;
         }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
@@ -133,9 +123,8 @@ int main(int argc, char **argv)
     io.DefineAttribute<double>("Du", settings.Du);
     io.DefineAttribute<double>("Dv", settings.Dv);
     io.DefineAttribute<double>("noise", settings.noise);
-    //define VTK visualization schema as an attribute
-    if(!settings.mesh_type.empty())
-    {
+    // define VTK visualization schema as an attribute
+    if (!settings.mesh_type.empty()) {
         define_bpvtk_attribute(settings, io);
     }
 
@@ -153,64 +142,81 @@ int main(int argc, char **argv)
 
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
 
-    auto start_total = std::chrono::steady_clock::now();
-    auto start_step = std::chrono::steady_clock::now();
+#ifdef ENABLE_TIMERS
+    Timer timer_total;
+    Timer timer_compute;
+    Timer timer_write;
 
-    std::ofstream log("gray-scott.log");
-    log << "step\tcompute_gs\twrite_gs" << std::endl;
+    std::ostringstream log_fname;
+    log_fname << "gray_scott_pe_" << rank << ".log";
 
-    for (int i = 0; i < settings.steps; i++) {
-        sim.iterate();
+    std::ofstream log(log_fname.str());
+    log << "step\ttotal_gs\tcompute_gs\twrite_gs" << std::endl;
+#endif
 
-        if (i % settings.plotgap == 0) {
-            if (rank == 0) {
-                std::cout << "Simulation at step " << i
-                          << " writing output step     " << i / settings.plotgap
-                          << std::endl;
-            }
-            auto end_compute = std::chrono::steady_clock::now();
+    for (int i = 0; i < settings.steps;) {
+#ifdef ENABLE_TIMERS
+        MPI_Barrier(comm);
+        timer_total.start();
+        timer_compute.start();
+#endif
 
-
-            if(settings.adios_span)
-            {
-            	writer.BeginStep();
-            	writer.Put<int>(varStep, &i);
-
-            	// provide memory directly from adios buffer
-            	adios2::Variable<double>::Span u_span = writer.Put<double>(varU);
-            	adios2::Variable<double>::Span v_span = writer.Put<double>(varV);
-
-            	// populate spans
-            	sim.u_noghost(u_span.data());
-            	sim.v_noghost(v_span.data());
-
-            	writer.EndStep();
-            }
-            else
-            {
-            	std::vector<double> u = sim.u_noghost();
-            	std::vector<double> v = sim.v_noghost();
-            	writer.BeginStep();
-            	writer.Put<int>(varStep, &i);
-            	writer.Put<double>(varU, u.data());
-            	writer.Put<double>(varV, v.data());
-            	writer.EndStep();
-            }
-
-            auto end_step = std::chrono::steady_clock::now();
-
-            if (rank == 0) {
-                log << i << "\t" << diff(start_step, end_compute).count()
-                    << "\t" << diff(end_compute, end_step).count() << std::endl;
-            }
-
-            start_step = std::chrono::steady_clock::now();
+        for (int j = 0; j < settings.plotgap; j++) {
+            sim.iterate();
+            i++;
         }
+
+#ifdef ENABLE_TIMERS
+        double time_compute = timer_compute.stop();
+        MPI_Barrier(comm);
+        timer_write.start();
+#endif
+
+        if (rank == 0) {
+            std::cout << "Simulation at step " << i
+                      << " writing output step     " << i / settings.plotgap
+                      << std::endl;
+        }
+
+        if (settings.adios_span) {
+            writer.BeginStep();
+            writer.Put<int>(varStep, &i);
+
+            // provide memory directly from adios buffer
+            adios2::Variable<double>::Span u_span = writer.Put<double>(varU);
+            adios2::Variable<double>::Span v_span = writer.Put<double>(varV);
+
+            // populate spans
+            sim.u_noghost(u_span.data());
+            sim.v_noghost(v_span.data());
+
+            writer.EndStep();
+        } else {
+            std::vector<double> u = sim.u_noghost();
+            std::vector<double> v = sim.v_noghost();
+            writer.BeginStep();
+            writer.Put<int>(varStep, &i);
+            writer.Put<double>(varU, u.data());
+            writer.Put<double>(varV, v.data());
+            writer.EndStep();
+        }
+
+#ifdef ENABLE_TIMERS
+        double time_write = timer_write.stop();
+        double time_step = timer_total.stop();
+        MPI_Barrier(comm);
+
+        log << i << "\t" << time_step << "\t" << time_compute << "\t"
+            << time_write << std::endl;
+#endif
     }
 
-    log.close();
+#ifdef ENABLE_TIMERS
+    log << "total\t" << timer_total.elapsed() << "\t" << timer_compute.elapsed()
+        << "\t" << timer_write.elapsed() << std::endl;
 
-    auto end_total = std::chrono::steady_clock::now();
+    log.close();
+#endif
 
     writer.Close();
 

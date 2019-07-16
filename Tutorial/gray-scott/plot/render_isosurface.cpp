@@ -2,11 +2,10 @@
  * Visualization code for the Gray-Scott simulation.
  * Reads and renders iso-surface mesh data.
  *
- * Keichi Takahashi <takahashi.keichi@ais.cmc.osaka-u.ac.jp>
+ * Keichi Takahashi <keichi@is.naist.jp>
  *
  */
 
-#include <chrono>
 #include <iostream>
 
 #include <adios2.h>
