@@ -33,48 +33,50 @@ if (VTK_ROOT)
 endif(VTK_ROOT)
 
 if (VTK)
-  message(STATUS "Finding VTK")
+  message(STATUS "Configuring VTK apps")
 
   find_package(VTK COMPONENTS
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkCommonMisc
     vtkFiltersCore
-    vtkFiltersGeneral
-    vtkFiltersGeometry
     vtkIOImage
     vtkIOXML
-    vtkInteractionStyle
-    vtkInteractionWidgets
-    vtkRenderingContext2D
-    vtkRenderingCore
-    vtkRenderingOpenGL2
-    vtkViewsCore
-    vtkViewsInfovis
-    vtkkwiml
   )
 
   if(VTK_FOUND)
-    message(STATUS "Found VTK: ${VTK_DIR}")
-    include(${VTK_USE_FILE})
-
     add_executable(isosurface analysis/isosurface.cpp)
     target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
+  endif(VTK_FOUND)
 
+  find_package(VTK COMPONENTS
+    vtkFiltersCore
+    vtkFiltersGeometry
+  )
+
+  if(VTK_FOUND)
     add_executable(find_blobs analysis/find_blobs.cpp)
     target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
+  endif(VTK_FOUND)
 
+  find_package(VTK COMPONENTS
+    vtkFiltersGeneral
+  )
+
+  if(VTK_FOUND)
     add_executable(compute_curvature analysis/curvature.cpp)
     target_link_libraries(compute_curvature adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
+  endif(VTK_FOUND)
 
+
+  find_package(VTK COMPONENTS
+    vtkRenderingOpenGL2
+    vtkViewsInfovis
+  )
+
+  if(VTK_FOUND)
     add_executable(render_isosurface plot/render_isosurface.cpp)
     target_link_libraries(render_isosurface adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
-  else()
-    message(STATUS "VTK was NOT found, do not build apps using VTK")
   endif(VTK_FOUND)
 endif(VTK)
