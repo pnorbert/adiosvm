@@ -11,6 +11,6 @@
     "output": "gs.bp",
     "adios_config": "adios2.xml",
     "adios_span": false,
-    "adios_memory_selection": true,
+    "adios_memory_selection": false,
     "mesh_type": "image"
 }
