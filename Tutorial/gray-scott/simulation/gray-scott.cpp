@@ -31,6 +31,10 @@ void GrayScott::iterate()
     v.swap(v2);
 }
 
+const std::vector<double> &GrayScott::u_ghost() const { return u; }
+
+const std::vector<double> &GrayScott::v_ghost() const { return v; }
+
 std::vector<double> GrayScott::u_noghost() const { return data_noghost(u); }
 
 std::vector<double> GrayScott::v_noghost() const { return data_noghost(v); }
