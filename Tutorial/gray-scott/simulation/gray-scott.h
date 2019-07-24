@@ -109,7 +109,7 @@ protected:
     // Convert local coordinate to local index
     inline int l2i(int x, int y, int z) const
     {
-        return z + y * (size_z + 2) + x * (size_y + 2) * (size_z + 2);
+        return x + y * (size_x + 2) + z * (size_x + 2) * (size_y + 2);
     }
 
 private:
