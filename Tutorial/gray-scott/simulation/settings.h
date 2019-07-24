@@ -18,6 +18,7 @@ public:
     std::string output;
     std::string adios_config;
     bool adios_span;
+    bool adios_memory_selection;
     std::string mesh_type;
 
     Settings();

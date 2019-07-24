@@ -138,6 +138,13 @@ int main(int argc, char **argv)
                                   {sim.offset_z, sim.offset_y, sim.offset_x},
                                   {sim.size_z, sim.size_y, sim.size_x});
 
+    if (settings.adios_memory_selection) {
+        varU.SetMemorySelection(
+            {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
+        varV.SetMemorySelection(
+            {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
+    }
+
     adios2::Variable<int> varStep = io.DefineVariable<int>("step");
 
     adios2::Engine writer = io.Open(settings.output, adios2::Mode::Write);
@@ -178,8 +185,18 @@ int main(int argc, char **argv)
                       << std::endl;
         }
 
-        if (settings.adios_span) {
+        if (settings.adios_memory_selection) {
+            const std::vector<double> &u = sim.u_ghost();
+            const std::vector<double> &v = sim.v_ghost();
+
             writer.BeginStep();
+            writer.Put<int>(varStep, &i);
+            writer.Put<double>(varU, u.data());
+            writer.Put<double>(varV, v.data());
+            writer.EndStep();
+        } else if (settings.adios_span) {
+            writer.BeginStep();
+
             writer.Put<int>(varStep, &i);
 
             // provide memory directly from adios buffer
@@ -194,6 +211,7 @@ int main(int argc, char **argv)
         } else {
             std::vector<double> u = sim.u_noghost();
             std::vector<double> v = sim.v_noghost();
+
             writer.BeginStep();
             writer.Put<int>(varStep, &i);
             writer.Put<double>(varU, u.data());

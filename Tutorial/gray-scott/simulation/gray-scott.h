@@ -25,11 +25,15 @@ public:
 
     void init();
     void iterate();
+
+    const std::vector<double> &u_ghost() const;
+    const std::vector<double> &v_ghost() const;
+
     std::vector<double> u_noghost() const;
     std::vector<double> v_noghost() const;
 
-    void u_noghost(double* u_no_ghost) const;
-    void v_noghost(double* v_no_ghost) const;
+    void u_noghost(double *u_no_ghost) const;
+    void v_noghost(double *v_no_ghost) const;
 
 protected:
     Settings settings;
@@ -79,8 +83,7 @@ protected:
     std::vector<double> data_noghost(const std::vector<double> &data) const;
 
     // pointer version
-    void data_noghost(const std::vector<double>& data, double* no_ghost) const;
-
+    void data_noghost(const std::vector<double> &data, double *no_ghost) const;
 
     // Check if point is included in my subdomain
     inline bool is_inside(int x, int y, int z) const
@@ -106,13 +109,12 @@ protected:
     // Convert local coordinate to local index
     inline int l2i(int x, int y, int z) const
     {
-        return z + y * (size_z + 2) + x * (size_y + 2) * (size_z + 2);
+        return x + y * (size_x + 2) + z * (size_x + 2) * (size_y + 2);
     }
 
 private:
-
-    void data_no_ghost_common(const std::vector<double>& data, double* data_no_ghost) const;
-
+    void data_no_ghost_common(const std::vector<double> &data,
+                              double *data_no_ghost) const;
 };
 
 #endif

@@ -31,6 +31,10 @@ void GrayScott::iterate()
     v.swap(v2);
 }
 
+const std::vector<double> &GrayScott::u_ghost() const { return u; }
+
+const std::vector<double> &GrayScott::v_ghost() const { return v; }
+
 std::vector<double> GrayScott::u_noghost() const { return data_noghost(u); }
 
 std::vector<double> GrayScott::v_noghost() const { return data_noghost(v); }
@@ -68,9 +72,9 @@ void GrayScott::init_field()
     v2.resize(V, 0.0);
 
     const int d = 6;
-    for (int x = settings.L / 2 - d; x < settings.L / 2 + d; x++) {
+    for (int z = settings.L / 2 - d; z < settings.L / 2 + d; z++) {
         for (int y = settings.L / 2 - d; y < settings.L / 2 + d; y++) {
-            for (int z = settings.L / 2 - d; z < settings.L / 2 + d; z++) {
+            for (int x = settings.L / 2 - d; x < settings.L / 2 + d; x++) {
                 if (!is_inside(x, y, z)) continue;
                 int i = g2i(x, y, z);
                 u[i] = 0.25;
@@ -108,9 +112,9 @@ double GrayScott::laplacian(int x, int y, int z,
 void GrayScott::calc(const std::vector<double> &u, const std::vector<double> &v,
                      std::vector<double> &u2, std::vector<double> &v2)
 {
-    for (int x = 1; x < size_x + 1; x++) {
+    for (int z = 1; z < size_z + 1; z++) {
         for (int y = 1; y < size_y + 1; y++) {
-            for (int z = 1; z < size_z + 1; z++) {
+            for (int x = 1; x < size_x + 1; x++) {
                 const int i = l2i(x, y, z);
                 double du = 0.0;
                 double dv = 0.0;
@@ -168,18 +172,18 @@ void GrayScott::init_mpi()
     MPI_Cart_shift(cart_comm, 1, 1, &down, &up);
     MPI_Cart_shift(cart_comm, 2, 1, &south, &north);
 
-    // XY faces: (size_x + 2) * (size_y + 2)
-    MPI_Type_vector((size_x + 2) * (size_y + 2), 1, size_z + 2, MPI_DOUBLE,
-                    &xy_face_type);
+    // XY faces: size_x * (size_y + 2)
+    MPI_Type_vector(size_y + 2, size_x, size_x + 2, MPI_DOUBLE, &xy_face_type);
     MPI_Type_commit(&xy_face_type);
 
-    // XZ faces: loca_size_x * size_z
-    MPI_Type_vector(size_x, size_z, (size_y + 2) * (size_z + 2), MPI_DOUBLE,
+    // XZ faces: size_x * size_z
+    MPI_Type_vector(size_z, size_x, (size_x + 2) * (size_y + 2), MPI_DOUBLE,
                     &xz_face_type);
     MPI_Type_commit(&xz_face_type);
 
-    // YZ faces: (loca_size_y + 2) * size_z
-    MPI_Type_vector(size_y + 2, size_z, size_z + 2, MPI_DOUBLE, &yz_face_type);
+    // YZ faces: (size_y + 2) * (size_z + 2)
+    MPI_Type_vector((size_y + 2) * (size_z + 2), 1, size_x + 2, MPI_DOUBLE,
+                    &yz_face_type);
     MPI_Type_commit(&yz_face_type);
 }
 
@@ -188,12 +192,12 @@ void GrayScott::exchange_xy(std::vector<double> &local_data) const
     MPI_Status st;
 
     // Send XY face z=size_z to north and receive z=0 from south
-    MPI_Sendrecv(&local_data[l2i(0, 0, size_z)], 1, xy_face_type, north, 1,
-                 &local_data[l2i(0, 0, 0)], 1, xy_face_type, south, 1,
+    MPI_Sendrecv(&local_data[l2i(1, 0, size_z)], 1, xy_face_type, north, 1,
+                 &local_data[l2i(1, 0, 0)], 1, xy_face_type, south, 1,
                  cart_comm, &st);
     // Send XY face z=1 to south and receive z=size_z+1 from north
-    MPI_Sendrecv(&local_data[l2i(0, 0, 1)], 1, xy_face_type, south, 1,
-                 &local_data[l2i(0, 0, size_z + 1)], 1, xy_face_type, north, 1,
+    MPI_Sendrecv(&local_data[l2i(1, 0, 1)], 1, xy_face_type, south, 1,
+                 &local_data[l2i(1, 0, size_z + 1)], 1, xy_face_type, north, 1,
                  cart_comm, &st);
 }
 
@@ -216,12 +220,12 @@ void GrayScott::exchange_yz(std::vector<double> &local_data) const
     MPI_Status st;
 
     // Send YZ face x=size_x to east and receive x=0 from west
-    MPI_Sendrecv(&local_data[l2i(size_x, 0, 1)], 1, yz_face_type, east, 3,
-                 &local_data[l2i(0, 0, 1)], 1, yz_face_type, west, 3, cart_comm,
+    MPI_Sendrecv(&local_data[l2i(size_x, 0, 0)], 1, yz_face_type, east, 3,
+                 &local_data[l2i(0, 0, 0)], 1, yz_face_type, west, 3, cart_comm,
                  &st);
     // Send YZ face x=1 to west and receive x=size_x+1 from east
-    MPI_Sendrecv(&local_data[l2i(1, 0, 1)], 1, yz_face_type, west, 3,
-                 &local_data[l2i(size_x + 1, 0, 1)], 1, yz_face_type, east, 3,
+    MPI_Sendrecv(&local_data[l2i(1, 0, 0)], 1, yz_face_type, west, 3,
+                 &local_data[l2i(size_x + 1, 0, 0)], 1, yz_face_type, east, 3,
                  cart_comm, &st);
 }
 
@@ -239,9 +243,9 @@ void GrayScott::exchange(std::vector<double> &u, std::vector<double> &v) const
 void GrayScott::data_no_ghost_common(const std::vector<double> &data,
                                      double *data_no_ghost) const
 {
-    for (int x = 1; x < size_x + 1; x++) {
+    for (int z = 1; z < size_z + 1; z++) {
         for (int y = 1; y < size_y + 1; y++) {
-            for (int z = 1; z < size_z + 1; z++) {
+            for (int x = 1; x < size_x + 1; x++) {
                 data_no_ghost[(x - 1) + (y - 1) * size_x +
                               (z - 1) * size_x * size_y] = data[l2i(x, y, z)];
             }
