@@ -75,7 +75,6 @@ int main(int argc, char **argv)
     Writer writer_ckpt(settings, sim, io_ckpt);
 
     writer_main.open(settings.output);
-    writer_ckpt.open(settings.checkpoint_output);
 
     if (rank == 0) {
         print_io_settings(io_main);
@@ -122,7 +121,13 @@ int main(int argc, char **argv)
         }
 
         writer_main.write(i, sim);
-        writer_ckpt.write(i, sim);
+
+        if (settings.checkpoint &&
+            i % (settings.plotgap * settings.checkpoint_freq) == 0) {
+            writer_ckpt.open(settings.checkpoint_output);
+            writer_ckpt.write(i, sim);
+            writer_ckpt.close();
+        }
 
 #ifdef ENABLE_TIMERS
         double time_write = timer_write.stop();
@@ -135,7 +140,6 @@ int main(int argc, char **argv)
     }
 
     writer_main.close();
-    writer_ckpt.close();
 
 #ifdef ENABLE_TIMERS
     log << "total\t" << timer_total.elapsed() << "\t" << timer_compute.elapsed()
