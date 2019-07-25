@@ -34,9 +34,9 @@ void print_settings(const Settings &s)
 
 void print_simulator_settings(const GrayScott &s)
 {
-    std::cout << "decomposition:    " << s.npx << "x" << s.npy << "x" << s.npz
+    std::cout << "process layout:   " << s.npx << "x" << s.npy << "x" << s.npz
               << std::endl;
-    std::cout << "grid per process: " << s.size_x << "x" << s.size_y << "x"
+    std::cout << "local grid size:  " << s.size_x << "x" << s.size_y << "x"
               << s.size_z << std::endl;
 }
 
@@ -71,8 +71,11 @@ int main(int argc, char **argv)
     adios2::IO io_main = adios.DeclareIO("SimulationOutput");
     adios2::IO io_ckpt = adios.DeclareIO("SimulationCheckpoint");
 
-    Writer writer_main(settings.output, settings, sim, io_main);
-    Writer writer_ckpt(settings.checkpoint_output, settings, sim, io_ckpt);
+    Writer writer_main(settings, sim, io_main);
+    Writer writer_ckpt(settings, sim, io_ckpt);
+
+    writer_main.open(settings.output);
+    writer_ckpt.open(settings.checkpoint_output);
 
     if (rank == 0) {
         print_io_settings(io_main);

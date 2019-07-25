@@ -10,18 +10,19 @@
 class Writer
 {
 public:
-    Writer(const std::string &fname, const Settings &settings,
-           const GrayScott &sim, adios2::IO io);
+    Writer(const Settings &settings, const GrayScott &sim, adios2::IO io);
+    void open(const std::string &fname);
     void write(int step, const GrayScott &sim);
     void close();
 
 protected:
     Settings settings;
 
+    adios2::IO io;
+    adios2::Engine writer;
     adios2::Variable<double> var_u;
     adios2::Variable<double> var_v;
     adios2::Variable<int> var_step;
-    adios2::Engine writer;
 };
 
 #endif
