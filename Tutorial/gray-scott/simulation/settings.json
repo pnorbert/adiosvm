@@ -9,7 +9,7 @@
     "steps": 600,
     "noise": 0.01,
     "output": "gs.bp",
-    "checkpoint": true,
+    "checkpoint": false,
     "checkpoint_freq": 10,
     "checkpoint_output": "gs_ckpt.bp",
     "adios_config": "adios2.xml",
