@@ -68,12 +68,14 @@ int main(int argc, char **argv)
     sim.init();
 
     adios2::ADIOS adios(settings.adios_config, comm, adios2::DebugON);
-    adios2::IO io = adios.DeclareIO("SimulationOutput");
+    adios2::IO io_main = adios.DeclareIO("SimulationOutput");
+    adios2::IO io_ckpt = adios.DeclareIO("SimulationCheckpoint");
 
-    Writer writer(settings, sim, io);
+    Writer writer_main(settings.output, settings, sim, io_main);
+    Writer writer_ckpt(settings.checkpoint_output, settings, sim, io_ckpt);
 
     if (rank == 0) {
-        print_io_settings(io);
+        print_io_settings(io_main);
         std::cout << "========================================" << std::endl;
         print_settings(settings);
         print_simulator_settings(sim);
@@ -116,7 +118,8 @@ int main(int argc, char **argv)
                       << std::endl;
         }
 
-        writer.write(i, sim);
+        writer_main.write(i, sim);
+        writer_ckpt.write(i, sim);
 
 #ifdef ENABLE_TIMERS
         double time_write = timer_write.stop();
@@ -128,7 +131,8 @@ int main(int argc, char **argv)
 #endif
     }
 
-    writer.close();
+    writer_main.close();
+    writer_ckpt.close();
 
 #ifdef ENABLE_TIMERS
     log << "total\t" << timer_total.elapsed() << "\t" << timer_compute.elapsed()

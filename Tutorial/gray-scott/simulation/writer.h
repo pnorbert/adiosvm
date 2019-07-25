@@ -10,7 +10,8 @@
 class Writer
 {
 public:
-    Writer(const Settings &settings, const GrayScott &sim, adios2::IO io);
+    Writer(const std::string &fname, const Settings &settings,
+           const GrayScott &sim, adios2::IO io);
     void write(int step, const GrayScott &sim);
     void close();
 
