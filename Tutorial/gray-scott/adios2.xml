@@ -50,6 +50,17 @@
         </engine>
     </io>
 
+    <!--====================================
+           Configuration for Gray-Scott
+           (checkpointing)
+        ====================================-->
+
+    <io name="SimulationCheckpoint">
+        <engine type="BPFile">
+        </engine>
+    </io>
+
+
     <!-- example engines
 
         <engine type="BPFile"/>
