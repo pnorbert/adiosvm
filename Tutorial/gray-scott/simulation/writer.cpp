@@ -3,9 +3,9 @@
 void define_bpvtk_attribute(const Settings &s, adios2::IO &io)
 {
     auto lf_VTKImage = [](const Settings &s, adios2::IO &io) {
-        const std::string extent = "0 " + std::to_string(s.L + 1) + " " + "0 " +
-                                   std::to_string(s.L + 1) + " " + "0 " +
-                                   std::to_string(s.L + 1);
+        const std::string extent = "0 " + std::to_string(s.L) + " " + "0 " +
+                                   std::to_string(s.L) + " " + "0 " +
+                                   std::to_string(s.L);
 
         const std::string imageData = R"(
         <?xml version="1.0"?>
