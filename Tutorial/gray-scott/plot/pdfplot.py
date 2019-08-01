@@ -32,7 +32,7 @@ def PlotPDF(pdf, bins, args, start, count, step, fontsize):
     # Plotting part
     displaysec = args.displaysec
     gs = gridspec.GridSpec(1, 1)
-    fig = plt.figure(1, figsize=(10,10))
+    fig = plt.figure(1, figsize=(8,8))
     ax = fig.add_subplot(gs[0, 0])
     localSliceIdx = count[0] // 2
     globalSliceIdx = start[0] + localSliceIdx
@@ -64,7 +64,7 @@ def read_data(args, fr, start_coord, size_dims):
 
 if __name__ == "__main__":
     # fontsize on plot
-    fontsize = 32
+    fontsize = 24
 
     args = SetupArgs()
     # print(args)
