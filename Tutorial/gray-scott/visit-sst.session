@@ -1216,18 +1216,18 @@
                 <Field name="rangeScale" type="int">0</Field>
             </Object>
             <Object name="View2DAttributes">
-                <Field name="windowCoords" type="doubleArray" length="4">-7.83333333333333 39.1666666666667 -4.20798898071625 42.7920110192837 </Field>
+                <Field name="windowCoords" type="doubleArray" length="4">0 1 0 1 </Field>
                 <Field name="viewportCoords" type="doubleArray" length="4">0.2 0.95 0.15 0.95 </Field>
                 <Field name="fullFrameActivationMode" type="string">Auto</Field>
                 <Field name="fullFrameAutoThreshold" type="double">100</Field>
                 <Field name="xScale" type="int">0</Field>
                 <Field name="yScale" type="int">0</Field>
-                <Field name="windowValid" type="bool">true</Field>
+                <Field name="windowValid" type="bool">false</Field>
             </Object>
             <Object name="View3DAttributes">
-                <Field name="viewNormal" type="doubleArray" length="3">-0.674099616119369 0.416662999322556 -0.609902986173417 </Field>
+                <Field name="viewNormal" type="doubleArray" length="3">-0.610845012686084 0.537430302053441 0.581409529429373 </Field>
                 <Field name="focus" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
-                <Field name="viewUp" type="doubleArray" length="3">0.407175946783017 0.898539149740341 0.163814360619754 </Field>
+                <Field name="viewUp" type="doubleArray" length="3">0.0501762298240265 0.759135386451899 -0.648996002296758 </Field>
                 <Field name="viewAngle" type="double">30</Field>
                 <Field name="parallelScale" type="double">40.7031939778686</Field>
                 <Field name="nearPlane" type="double">-81.4063879557372</Field>
@@ -1563,8 +1563,8 @@
                 <Field name="initialFrameValue" type="int">0</Field>
             </Object>
             <Object name="FileOpenOptions">
-                <Field name="typeNames" type="stringVector">"ADIOS2" "AMR" "AMRTest" "ANALYZE" "ANSYS" "AUXFile" "AugDecomp" "BATL" "BOV" "CEAucd" "CMAT" "CTRL" "Cale" "CaleHDF5" "CarpetHDF5" "Chombo" "Claw" "CosmosPP" "Cube" "Curve2D" "DDCMD" "Denovo" "Dyna3D" "EnSight" "Enzo" "ExtrudedVol" "FLASH" "FT2" "Fluent" "GGCM" "GHOST" "GMV" "GTC" "GULP" "Gadget" "Geqdsk" "H5Nimrod" "HDFS" "Image" "KullLite" "LAMMPS" "Lines" "M3DC1" "M3D" "MFIX" "MM5" "MatrixMarket" "Miranda" "NASTRAN" "Nek5000" "OVERFLOW" "OpenFOAM" "PATRAN" "PDB" "PFLOTRAN" "PLOT3D" "PLY" "PVLD" "Pixie" "PlainText" "Point3D" "ProteinDataBank" "PuReMD" "RAW" "SAMI" "SAMRAI" "SAR" "SAS" "SPCTH" "STAR" "STL" "SXRIS" "Shapefile" "Silo" "SimV2" "Spheral" "TCGA" "TFT" "TSurf" "Tecplot" "Tetrad" "UNIC" "VASP" "VTK" "Velodyne" "Vis5D" "VisItXdmf" "Vista" "Vs" "WPPImage" "WavefrontOBJ" "WellLogs" "XGC" "XSF" "XYZ" "Xmdv" "ZipWrapper" "ffp" "lata" "unv" "volimage" "ADIOS" </Field>
-                <Field name="typeIDs" type="stringVector">"ADIOS2_1.0" "AMR_1.0" "AMRTest_1.0" "ANALYZE_1.0" "ANSYS_1.0" "AUXFile_1.0" "AugDecomp_1.0" "BATL_1.0" "BOV_1.0" "CEAucd_1.0" "CMAT_1.0" "CTRL_1.0" "Cale_1.1" "CaleHDF5_1.1" "CarpetHDF5_2.1" "Chombo_1.0" "Claw_1.0" "CosmosPP_1.0" "Cube_1.0" "Curve2D_1.0" "DDCMD_1.0" "Denovo_1.0" "Dyna3D_1.0" "EnSight_1.0" "Enzo_1.0" "ExtrudedVol_1.0" "FLASH_1.0" "FT2_1.0" "Fluent_1.0" "GGCM_1.0" "GHOST_1" "GMV_1.0" "GTC_1.0" "GULP_1.0" "Gadget_2.0a" "Geqdsk_1.0" "H5Nimrod_1.0" "HDFS_1.0" "Image_1.0" "KullLite_1.0" "LAMMPS_1.0" "Lines_1.0" "M3DC1_1.0" "M3D_1.0" "MFIX_1.0" "MM5_1.0" "MatrixMarket_1.0" "Miranda_2.0" "NASTRAN_1.0" "Nek5000_1.0" "OVERFLOW_1.0" "OpenFOAM_1.0" "PATRAN_1.0" "PDB_1.1" "PFLOTRAN_1.0" "PLOT3D_1.0" "PLY_1.0" "PVLD_1" "Pixie_1.0" "PlainText_1.0" "Point3D_1.0" "ProteinDataBank_1.0" "PuReMD_1.0" "RAW_1.0" "SAMI_1.0" "SAMRAI_1.0" "SAR_1.0" "SAS_1.0" "SPCTH_1.0" "STAR_1.0" "STL_1.0" "SXRIS_1.0" "Shapefile_1.0" "Silo_1.0" "SimV2_1.0" "Spheral_1.0" "TCGA_1.0" "TFT_1.0" "TSurf_1.0" "Tecplot_1.0" "Tetrad_1.0" "UNIC_1.0" "VASP_1.0" "VTK_1.0" "Velodyne_1.0" "Vis5D_1.0" "VisItXdmf_1.0" "Vista_1.0" "Vs_3.0.0" "WPPImage_2" "WavefrontOBJ_1.0" "WellLogs_1.0" "XGC_1.0" "XSF_1.0" "XYZ_1.0" "Xmdv_1.0" "ZipWrapper_1.0" "ffp_1.0" "lata_1.0" "unv_" "volimage_1.0" "ADIOS_1.0" </Field>
+                <Field name="typeNames" type="stringVector">"ADIOS2" "AMR" "AMRTest" "ANALYZE" "ANSYS" "AUXFile" "AugDecomp" "BATL" "BOV" "CEAucd" "CMAT" "CTRL" "Cale" "CaleHDF5" "CarpetHDF5" "Chombo" "Claw" "CosmosPP" "Cube" "Curve2D" "DDCMD" "Denovo" "Dyna3D" "EnSight" "Enzo" "ExtrudedVol" "FLASH" "FT2" "Fluent" "GGCM" "GHOST" "GMV" "GTC" "GULP" "Gadget" "Geqdsk" "H5Nimrod" "HDFS" "Image" "KullLite" "LAMMPS" "Lines" "M3DC1" "M3D" "MFIX" "MM5" "MatrixMarket" "Miranda" "NASTRAN" "Nek5000" "OVERFLOW" "OpenFOAM" "PATRAN" "PDB" "PFLOTRAN" "PLOT3D" "PLY" "PVLD" "Pixie" "PlainText" "Point3D" "ProteinDataBank" "PuReMD" "RAW" "SAMI" "SAMRAI" "SAR" "SAS" "SPCTH" "STAR" "STL" "SXRIS" "Shapefile" "Silo" "SimV2" "Spheral" "TCGA" "TFT" "TSurf" "Tecplot" "Tetrad" "UNIC" "VASP" "VTK" "Velodyne" "Vis5D" "VisItXdmf" "Vista" "Vs" "WPPImage" "WavefrontOBJ" "WellLogs" "XGC" "XSF" "XYZ" "Xmdv" "ZipWrapper" "ffp" "lata" "unv" "volimage" </Field>
+                <Field name="typeIDs" type="stringVector">"ADIOS2_1.0" "AMR_1.0" "AMRTest_1.0" "ANALYZE_1.0" "ANSYS_1.0" "AUXFile_1.0" "AugDecomp_1.0" "BATL_1.0" "BOV_1.0" "CEAucd_1.0" "CMAT_1.0" "CTRL_1.0" "Cale_1.1" "CaleHDF5_1.1" "CarpetHDF5_2.1" "Chombo_1.0" "Claw_1.0" "CosmosPP_1.0" "Cube_1.0" "Curve2D_1.0" "DDCMD_1.0" "Denovo_1.0" "Dyna3D_1.0" "EnSight_1.0" "Enzo_1.0" "ExtrudedVol_1.0" "FLASH_1.0" "FT2_1.0" "Fluent_1.0" "GGCM_1.0" "GHOST_1" "GMV_1.0" "GTC_1.0" "GULP_1.0" "Gadget_2.0a" "Geqdsk_1.0" "H5Nimrod_1.0" "HDFS_1.0" "Image_1.0" "KullLite_1.0" "LAMMPS_1.0" "Lines_1.0" "M3DC1_1.0" "M3D_1.0" "MFIX_1.0" "MM5_1.0" "MatrixMarket_1.0" "Miranda_2.0" "NASTRAN_1.0" "Nek5000_1.0" "OVERFLOW_1.0" "OpenFOAM_1.0" "PATRAN_1.0" "PDB_1.1" "PFLOTRAN_1.0" "PLOT3D_1.0" "PLY_1.0" "PVLD_1" "Pixie_1.0" "PlainText_1.0" "Point3D_1.0" "ProteinDataBank_1.0" "PuReMD_1.0" "RAW_1.0" "SAMI_1.0" "SAMRAI_1.0" "SAR_1.0" "SAS_1.0" "SPCTH_1.0" "STAR_1.0" "STL_1.0" "SXRIS_1.0" "Shapefile_1.0" "Silo_1.0" "SimV2_1.0" "Spheral_1.0" "TCGA_1.0" "TFT_1.0" "TSurf_1.0" "Tecplot_1.0" "Tetrad_1.0" "UNIC_1.0" "VASP_1.0" "VTK_1.0" "Velodyne_1.0" "Vis5D_1.0" "VisItXdmf_1.0" "Vista_1.0" "Vs_3.0.0" "WPPImage_2" "WavefrontOBJ_1.0" "WellLogs_1.0" "XGC_1.0" "XSF_1.0" "XYZ_1.0" "Xmdv_1.0" "ZipWrapper_1.0" "ffp_1.0" "lata_1.0" "unv_" "volimage_1.0" </Field>
                 <Object name="DBOptionsAttributes">
                     <Field name="types" type="intVector"></Field>
                     <Field name="names" type="stringVector"></Field>
@@ -2979,21 +2979,7 @@
                     <Field name="obsoleteNames" type="stringVector"></Field>
                     <Field name="help" type="string"></Field>
                 </Object>
-                <Object name="DBOptionsAttributes">
-                    <Field name="types" type="intVector"></Field>
-                    <Field name="names" type="stringVector"></Field>
-                    <Field name="optBools" type="intVector"></Field>
-                    <Field name="optFloats" type="doubleVector"></Field>
-                    <Field name="optDoubles" type="doubleVector"></Field>
-                    <Field name="optInts" type="intVector"></Field>
-                    <Field name="optStrings" type="stringVector"></Field>
-                    <Field name="optEnums" type="intVector"></Field>
-                    <Field name="enumStrings" type="stringVector"></Field>
-                    <Field name="enumStringsSizes" type="intVector"></Field>
-                    <Field name="obsoleteNames" type="stringVector"></Field>
-                    <Field name="help" type="string"></Field>
-                </Object>
-                <Field name="Enabled" type="intVector">1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 </Field>
+                <Field name="Enabled" type="intVector">1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 </Field>
                 <Field name="preferredIDs" type="stringVector">"Silo_1.0" </Field>
             </Object>
             <Object name="SeedMeAttributes">
@@ -4551,10 +4537,10 @@
         </Object>
         <Object name="ViewerSubject">
             <Object name="SourceMap">
-                <Field name="SOURCE00" type="string">localhost:/home/adios/work/adiosvm/Tutorial/gray-scott/gs.bp.sst</Field>
+                <Field name="SOURCE00" type="string">localhost:/home/adios/adiosvm/Tutorial/gray-scott/gs.bp.sst</Field>
             </Object>
             <Object name="SourcePlugins">
-                <Field name="localhost:/home/adios/work/adiosvm/Tutorial/gray-scott/gs.bp.sst" type="string">ADIOS2_1.0</Field>
+                <Field name="localhost:/home/adios/adiosvm/Tutorial/gray-scott/gs.bp.sst" type="string">ADIOS2_1.0</Field>
             </Object>
             <Object name="DatabaseCorrelationList">
                 <Field name="needPermission" type="bool">true</Field>
@@ -4572,9 +4558,9 @@
                 <Field name="viewExtentsType" type="string">AVT_ORIGINAL_EXTENTS</Field>
                 <Object name="Windows">
                     <Object name="ViewerWindow">
-                        <Field name="windowSize" type="intArray" length="2">1048 994 </Field>
-                        <Field name="windowImageSize" type="intArray" length="2">1048 924 </Field>
-                        <Field name="windowLocation" type="intArray" length="2">514 41 </Field>
+                        <Field name="windowSize" type="intArray" length="2">1278 1214 </Field>
+                        <Field name="windowImageSize" type="intArray" length="2">1278 1144 </Field>
+                        <Field name="windowLocation" type="intArray" length="2">400 26 </Field>
                         <Field name="maintainView" type="bool">false</Field>
                         <Field name="cameraView" type="bool">false</Field>
                         <Field name="viewExtentsType" type="string">AVT_ORIGINAL_EXTENTS</Field>
@@ -5178,18 +5164,18 @@
                             <Field name="rangeScale" type="int">0</Field>
                         </Object>
                         <Object name="View2DAttributes">
-                            <Field name="windowCoords" type="doubleArray" length="4">-7.83333333333333 39.1666666666667 -4.20798898071625 42.7920110192837 </Field>
+                            <Field name="windowCoords" type="doubleArray" length="4">0 1 0 1 </Field>
                             <Field name="viewportCoords" type="doubleArray" length="4">0.2 0.95 0.15 0.95 </Field>
                             <Field name="fullFrameActivationMode" type="string">Auto</Field>
                             <Field name="fullFrameAutoThreshold" type="double">100</Field>
                             <Field name="xScale" type="int">0</Field>
                             <Field name="yScale" type="int">0</Field>
-                            <Field name="windowValid" type="bool">true</Field>
+                            <Field name="windowValid" type="bool">false</Field>
                         </Object>
                         <Object name="View3DAttributes">
-                            <Field name="viewNormal" type="doubleArray" length="3">-0.674099616119369 0.416662999322556 -0.609902986173417 </Field>
+                            <Field name="viewNormal" type="doubleArray" length="3">-0.610845012686084 0.537430302053441 0.581409529429373 </Field>
                             <Field name="focus" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
-                            <Field name="viewUp" type="doubleArray" length="3">0.407175946783017 0.898539149740341 0.163814360619754 </Field>
+                            <Field name="viewUp" type="doubleArray" length="3">0.0501762298240265 0.759135386451899 -0.648996002296758 </Field>
                             <Field name="viewAngle" type="double">30</Field>
                             <Field name="parallelScale" type="double">40.7031939778686</Field>
                             <Field name="nearPlane" type="double">-81.4063879557372</Field>
@@ -5212,7 +5198,7 @@
                         </Object>
                         <Object name="AnnotationObjectList">
                             <Object name="AnnotationObject">
-                                <Field name="objectName" type="string">Plot0002</Field>
+                                <Field name="objectName" type="string">Plot0000</Field>
                                 <Field name="objectType" type="string">LegendAttributes</Field>
                                 <Field name="visible" type="bool">true</Field>
                                 <Field name="active" type="bool">false</Field>
@@ -5245,48 +5231,11 @@
                                     <Field name="fontHeight" type="double">0.015</Field>
                                     <Field name="legendType" type="int">1</Field>
                                     <Field name="numTicks" type="int">5</Field>
-                                    <Field name="suppliedValuesStrings" type="stringVector">("("0.488517",", "0.749259")")</Field>
+                                    <Field name="suppliedValuesStrings" type="stringVector">("0.522588")</Field>
                                 </Object>
                             </Object>
                             <Object name="AnnotationObject">
-                                <Field name="objectName" type="string">Plot0003</Field>
-                                <Field name="objectType" type="string">LegendAttributes</Field>
-                                <Field name="visible" type="bool">true</Field>
-                                <Field name="active" type="bool">false</Field>
-                                <Field name="position" type="doubleArray" length="3">0.05 0.9 0 </Field>
-                                <Field name="position2" type="doubleArray" length="3">1 1 1 </Field>
-                                <Object name="textColor">
-                                    <Object name="ColorAttribute">
-                                        <Field name="color" type="unsignedCharArray" length="4">0 0 0 255 </Field>
-                                    </Object>
-                                </Object>
-                                <Field name="useForegroundForTextColor" type="bool">true</Field>
-                                <Object name="color1">
-                                    <Object name="ColorAttribute">
-                                        <Field name="color" type="unsignedCharArray" length="4">0 0 0 50 </Field>
-                                    </Object>
-                                </Object>
-                                <Object name="color2">
-                                    <Object name="ColorAttribute">
-                                        <Field name="color" type="unsignedCharArray" length="4">0 0 0 255 </Field>
-                                    </Object>
-                                </Object>
-                                <Field name="text" type="stringVector">"%# -9.4g" </Field>
-                                <Field name="fontFamily" type="string">Arial</Field>
-                                <Field name="fontBold" type="bool">false</Field>
-                                <Field name="fontItalic" type="bool">false</Field>
-                                <Field name="fontShadow" type="bool">false</Field>
-                                <Field name="doubleAttribute1" type="double">0</Field>
-                                <Field name="intAttribute1" type="int">993</Field>
-                                <Object name="options" type="MapNode">
-                                    <Field name="fontHeight" type="double">0.015</Field>
-                                    <Field name="legendType" type="int">1</Field>
-                                    <Field name="numTicks" type="int">5</Field>
-                                    <Field name="suppliedValuesStrings" type="stringVector">("0.497101")</Field>
-                                </Object>
-                            </Object>
-                            <Object name="AnnotationObject">
-                                <Field name="objectName" type="string">Plot0004</Field>
+                                <Field name="objectName" type="string">Plot0001</Field>
                                 <Field name="objectType" type="string">LegendAttributes</Field>
                                 <Field name="visible" type="bool">true</Field>
                                 <Field name="active" type="bool">true</Field>
@@ -5319,7 +5268,7 @@
                                     <Field name="fontHeight" type="double">0.015</Field>
                                     <Field name="legendType" type="int">1</Field>
                                     <Field name="numTicks" type="int">5</Field>
-                                    <Field name="suppliedValuesStrings" type="stringVector">("0.194838")</Field>
+                                    <Field name="suppliedValuesStrings" type="stringVector">("0.334194")</Field>
                                 </Object>
                             </Object>
                         </Object>
@@ -5337,7 +5286,7 @@
                             </Object>
                             <Field name="activeTimeSlider" type="string">SOURCE00</Field>
                             <Object name="plot00">
-                                <Field name="plotName" type="string">Plot0003</Field>
+                                <Field name="plotName" type="string">Plot0000</Field>
                                 <Field name="pluginID" type="string">Contour_1.0</Field>
                                 <Field name="sourceID" type="string">SOURCE00</Field>
                                 <Field name="variableName" type="string">U</Field>
@@ -5444,7 +5393,7 @@
                                 </Object>
                             </Object>
                             <Object name="plot01">
-                                <Field name="plotName" type="string">Plot0004</Field>
+                                <Field name="plotName" type="string">Plot0001</Field>
                                 <Field name="pluginID" type="string">Contour_1.0</Field>
                                 <Field name="sourceID" type="string">SOURCE00</Field>
                                 <Field name="variableName" type="string">V</Field>

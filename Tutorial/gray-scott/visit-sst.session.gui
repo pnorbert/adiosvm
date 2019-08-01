@@ -3,14 +3,14 @@
     <Field name="Version" type="string">3.0.0b</Field>
     <Object name="GUI">
         <Object name="FileServerList">
-            <Field name="path" type="string">/home/adios/work/adiosvm/Tutorial/gray-scott</Field>
+            <Field name="path" type="string">/home/adios/adiosvm/Tutorial/gray-scott</Field>
             <Field name="filter" type="string">*</Field>
             <Field name="useCurrentDir" type="bool">true</Field>
             <Field name="automaticFileGrouping" type="bool">true</Field>
             <Field name="smartFileGrouping" type="bool">true</Field>
             <Field name="showDotFiles" type="bool">false</Field>
             <Object name="recentpaths">
-                <Field name="localhost" type="stringVector">"/home/adios/work/adiosvm/Tutorial/gray-scott" "/home/adios/adiosvm/Tutorial/gray-scott" </Field>
+                <Field name="localhost" type="stringVector">"/home/adios/adiosvm/Tutorial/gray-scott" </Field>
             </Object>
         </Object>
         <Object name="AppearanceAttributes">
@@ -27,68 +27,22 @@
             <Field name="defaultOrientation" type="int">0</Field>
         </Object>
         <Field name="postWhenShown" type="bool">false</Field>
-        <Object name="File open">
-            <Field name="x" type="int">1542</Field>
-            <Field name="y" type="int">806</Field>
-            <Field name="width" type="int">749</Field>
-            <Field name="height" type="int">489</Field>
-            <Field name="visible" type="bool">false</Field>
-        </Object>
-        <Object name="Information">
-            <Field name="x" type="int">1053</Field>
-            <Field name="y" type="int">845</Field>
-            <Field name="width" type="int">630</Field>
-            <Field name="height" type="int">298</Field>
-            <Field name="visible" type="bool">false</Field>
-        </Object>
         <Object name="MainWin">
-            <Field name="x" type="int">0</Field>
-            <Field name="y" type="int">41</Field>
-            <Field name="width" type="int">501</Field>
-            <Field name="height" type="int">2087</Field>
-            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.5454546 0.4519774 </Field>
+            <Field name="x" type="int">-1</Field>
+            <Field name="y" type="int">0</Field>
+            <Field name="width" type="int">398</Field>
+            <Field name="height" type="int">1938</Field>
+            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.5438984 0.4538929 </Field>
         </Object>
         <Object name="Contour plot attributes">
-            <Field name="x" type="int">2116</Field>
-            <Field name="y" type="int">41</Field>
+            <Field name="x" type="int">2374</Field>
+            <Field name="y" type="int">1052</Field>
             <Field name="width" type="int">498</Field>
             <Field name="height" type="int">832</Field>
             <Field name="visible" type="bool">false</Field>
             <Field name="posted" type="bool">false</Field>
         </Object>
-        <Object name="Clip operator attributes">
-            <Field name="x" type="int">2253</Field>
-            <Field name="y" type="int">275</Field>
-            <Field name="width" type="int">364</Field>
-            <Field name="height" type="int">554</Field>
-            <Field name="visible" type="bool">false</Field>
-            <Field name="posted" type="bool">false</Field>
-        </Object>
-        <Object name="EllipsoidSlice operator attributes">
-            <Field name="x" type="int">2253</Field>
-            <Field name="y" type="int">275</Field>
-            <Field name="width" type="int">364</Field>
-            <Field name="height" type="int">164</Field>
-            <Field name="visible" type="bool">false</Field>
-            <Field name="posted" type="bool">false</Field>
-        </Object>
-        <Object name="Isosurface operator attributes">
-            <Field name="x" type="int">2111</Field>
-            <Field name="y" type="int">55</Field>
-            <Field name="width" type="int">506</Field>
-            <Field name="height" type="int">203</Field>
-            <Field name="visible" type="bool">false</Field>
-            <Field name="posted" type="bool">false</Field>
-        </Object>
-        <Object name="ThreeSlice operator attributes">
-            <Field name="x" type="int">2253</Field>
-            <Field name="y" type="int">55</Field>
-            <Field name="width" type="int">364</Field>
-            <Field name="height" type="int">190</Field>
-            <Field name="visible" type="bool">false</Field>
-            <Field name="posted" type="bool">false</Field>
-        </Object>
-        <Field name="plotDatabases" type="stringVector">"localhost:/home/adios/work/adiosvm/Tutorial/gray-scott/gs.bp.sst" </Field>
+        <Field name="plotDatabases" type="stringVector">"localhost:/home/adios/adiosvm/Tutorial/gray-scott/gs.bp.sst" </Field>
         <Object name="TimeFormat">
             <Field name="displayMode" type="string">Cycles</Field>
             <Field name="precision" type="int">5</Field>
