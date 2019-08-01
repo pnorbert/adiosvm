@@ -53,7 +53,7 @@ def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
         x = fullshape[1] / args.nx * i
         ax.plot([x, x], [0, fullshape[0]], color='black')
 
-    ax.set_title("{0} plane, step {1}".format(plane_direction, step), fontsize=fontsize)
+    ax.set_title("{0}, {1} plane, step {2}".format(args.varname, plane_direction, step), fontsize=fontsize)
     ax.set_xlabel(plane_direction[0], fontsize=fontsize)
     ax.set_ylabel(plane_direction[1], fontsize=fontsize)
     plt.tick_params(labelsize = fontsize-8)
