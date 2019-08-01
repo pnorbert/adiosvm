@@ -113,7 +113,7 @@ if __name__ == "__main__":
         PlotPDF (pdf, bins, args, start, count, sim_step[0], fontsize)
         plot_step = plot_step + 1 
         if not args.nompi:
-            MPI.COMM_WORLD.Barrier() 
+            mpi.comm_app.Barrier() 
         
        
     fr.close()
