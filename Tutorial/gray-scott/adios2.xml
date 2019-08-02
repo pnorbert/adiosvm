@@ -1,43 +1,46 @@
 <?xml version="1.0"?>
 <adios-config>
 
-
-    <!--======================================
-           Configuration for Gray-Scott
-           and GS Plot
-        ======================================-->
+    <!--============================================
+           Configuration for Gray-Scott and GS Plot
+        ============================================-->
 
     <io name="SimulationOutput">
-        <engine type="BPFile">
+        <engine type="BP4">
+            <!-- SST engine parameters -->
             <parameter key="RendezvousReaderCount" value="0"/>
             <parameter key="QueueLimit" value="1"/>
             <parameter key="QueueFullPolicy" value="Discard"/>
+            <!-- BP4/SST engine parameters -->
+            <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
-        <!--
-        <variable name="U">
-            <operation type="zfp">
-                <parameter key="accuracy" value="0.00001"/>
-            </operation>
-        </variable>
-        <variable name="V">
-            <operation type="zfp">
-                <parameter key="accuracy" value="0.00001"/>
-            </operation>
-        </variable>
-        -->
     </io>
 
-    <!--====================================
-           Configuration for PDF calc
-           and PDF Plot
-        ====================================-->
+    <!--===========================================
+           Configuration for PDF calc and PDF Plot
+        ===========================================-->
 
     <io name="PDFAnalysisOutput">
-        <engine type="BPFile">
+        <engine type="BP4">
+            <!-- SST engine parameters -->
             <parameter key="RendezvousReaderCount" value="1"/>
             <parameter key="QueueLimit" value="5"/>
             <parameter key="QueueFullPolicy" value="Block"/>
+            <!-- BP4/SST engine parameters -->
+            <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
+
+        <!-- Compress variables -->
+        <variable name="U">
+            <operation type="sz">
+                <parameter key="accuracy" value="0.001"/>
+            </operation>
+        </variable>
+        <variable name="V">
+            <operation type="sz">
+                <parameter key="accuracy" value="0.001"/>
+            </operation>
+        </variable>
     </io>
 
     <!--====================================
@@ -46,17 +49,16 @@
         ====================================-->
 
     <io name="IsosurfaceOutput">
-        <engine type="BPFile">
+        <engine type="BP4">
         </engine>
     </io>
 
-    <!--====================================
-           Configuration for Gray-Scott
-           (checkpointing)
-        ====================================-->
+    <!--================================================
+           Configuration for Gray-Scott (checkpointing)
+        ================================================-->
 
     <io name="SimulationCheckpoint">
-        <engine type="BPFile">
+        <engine type="BP4">
         </engine>
     </io>
 
@@ -112,7 +114,7 @@
         </engine>
 
         === BPFile ===
-        BPFile is a token name for the BP3 old file format, currently.
+        BPFile is a token name for the BP3 old file format.
         It will refer to BP4 in the future. 
         'SubStreams' parameter is the same as for BP4.
         <engine type="BPFile">

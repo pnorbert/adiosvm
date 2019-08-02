@@ -43,34 +43,33 @@ $ cmake -DADIOS2_DIR=/opt/adios2 -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DVTK=ON ..
 ## How to run
 
 ```
-$ mpirun -n 8 build/gray-scott simulation/settings.json
+$ mpirun -n 4 build/gray-scott simulation/settings-files.json
 ========================================
 grid:             64x64x64
-steps:            3000
-plotgap:          20
-F:                0.02
-k:                0.048
-dt:               1
+steps:            1000
+plotgap:          10
+F:                0.01
+k:                0.05
+dt:               2
 Du:               0.2
 Dv:               0.1
-noise:            0.01
+noise:            1e-07
 output:           gs.bp
 adios_config:     adios2.xml
-decomposition:    2x2x2
-grid per process: 32x32x32
+process layout:   2x2x1
+local grid size:  32x32x64
 ========================================
-Writing step: 0
-Writing step: 20
-Writing step: 40
-Writing step: 60
-Writing step: 80
-Writing step: 100
+Simulation at step 10 writing output step     1
+Simulation at step 20 writing output step     2
+Simulation at step 30 writing output step     3
+Simulation at step 40 writing output step     4
 ...
 
 
 $ bpls -l gs.bp
-  double   U     12*{64, 64, 64} = 0.0956338 / 1.04389
-  double   V     12*{64, 64, 64} = 0 / 0.649263
+  double   U     100*{64, 64, 64} = 0.0907758 / 1
+  double   V     100*{64, 64, 64} = 0 / 0.674811
+  int32_t  step  100*scalar = 10 / 1000
 
 
 $ python3 plot/gsplot.py -i gs.bp
@@ -80,13 +79,14 @@ $ python3 plot/gsplot.py -i gs.bp
 ## Analysis example how to run
 
 ```
-$ mpirun -n 8 build/gray-scott simulation/settings.json
+$ mpirun -n 4 build/gray-scott simulation/settings-files.json
 $ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100
 $ bpls -l pdf.bp
-  double   U/bins  15*{100} = 0.0889799 / 1.03432
-  double   U/pdf   15*{64, 100} = 0 / 2079
-  double   V/bins  15*{100} = 0 / 0.650473
-  double   V/pdf   15*{64, 100} = 0 / 4096
+  double   U/bins  100*{100} = 0.0907758 / 0.991742
+  double   U/pdf   100*{64, 100} = 0 / 4096
+  double   V/bins  100*{100} = 0 / 0.668056
+  double   V/pdf   100*{64, 100} = 0 / 4096
+  int32_t  step    100*scalar = 10 / 1000
 
 $ python3 plot/pdfplot.py -i pdf.bp
 OR
@@ -135,7 +135,7 @@ In adios2.xml, change all IO groups' engine to SST.
 
 Launch the pipeline in 4 separate terminals:
 ```
-$ mpirun -n 4 build/gray-scott simulation/settings.json
+$ mpirun -n 4 build/gray-scott simulation/settings-staging.json
 $ mpirun -n 1 build/pdf_calc gs.bp pdf.bp 100
 $ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp
 $ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
@@ -143,7 +143,7 @@ $ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
 
 MPMD mode run in a single terminal:
 ```
-$ mpirun -n 4 build/gray-scott simulation/settings.json : \
+$ mpirun -n 4 build/gray-scott simulation/settings-staging.json : \
          -n 1 build/pdf_calc gs.bp pdf.bp 100 :           \
          -n 1 python3 plot/pdfplot.py -i pdf.bp :         \
          -n 1 python3 plot/gsplot.py -i gs.bp
