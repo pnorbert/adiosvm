@@ -4,6 +4,7 @@
     <!-- example engines 
 
         <engine type="BPFile">
+        <engine type="BP4">
         <engine type="HDF5">
         <engine type="InSituMPI">
         <engine type="SST">
