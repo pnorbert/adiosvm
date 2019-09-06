@@ -12,6 +12,7 @@
 
 #include <adios2.h>
 
+#include <vtkAppendPolyData.h>
 #include <vtkImageData.h>
 #include <vtkImageImport.h>
 #include <vtkMarchingCubes.h>
@@ -195,14 +196,19 @@ int main(int argc, char *argv[])
     if (argc < 4) {
         if (rank == 0) {
             std::cerr << "Too few arguments" << std::endl;
-            std::cout << "Usage: isosurface input output isovalue" << std::endl;
+            std::cout << "Usage: isosurface input output isovalues..."
+                      << std::endl;
         }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
     const std::string input_fname(argv[1]);
     const std::string output_fname(argv[2]);
-    const double isovalue = std::stod(argv[3]);
+
+    std::vector<double> isovalues;
+    for (int i = 3; i < argc; i++) {
+        isovalues.push_back(std::stod(argv[i]));
+    }
 
     adios2::ADIOS adios("adios2.xml", comm, adios2::DebugON);
 
@@ -286,7 +292,14 @@ int main(int argc, char *argv[])
         timer_compute.start();
 #endif
 
-        auto polyData = compute_isosurface(varU, u, isovalue);
+        auto appendFilter = vtkSmartPointer<vtkAppendPolyData>::New();
+
+        for (const auto isovalue : isovalues) {
+            auto polyData = compute_isosurface(varU, u, isovalue);
+            appendFilter->AddInputData(polyData);
+        }
+
+        appendFilter->Update();
 
 #ifdef ENABLE_TIMERS
         double time_compute = timer_compute.stop();
@@ -294,8 +307,8 @@ int main(int argc, char *argv[])
         timer_write.start();
 #endif
 
-        write_adios(writer, polyData, varPoint, varCell, varNormal, varOutStep,
-                    step, comm);
+        write_adios(writer, appendFilter->GetOutput(), varPoint, varCell,
+                    varNormal, varOutStep, step, comm);
 
 #ifdef ENABLE_TIMERS
         double time_write = timer_write.stop();
