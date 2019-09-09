@@ -10,6 +10,7 @@
 
 #include <adios2.h>
 
+#include <vtkAutoInit.h>
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCellArray.h>
@@ -25,6 +26,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
 
 typedef struct {
     vtkRenderView *renderView;
