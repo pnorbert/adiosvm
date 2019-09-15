@@ -83,7 +83,7 @@ def Plot2D(plane_direction, data, args, fullshape, step, fontsize):
 
 
 def read_data(args, fr, start_coord, size_dims):
-    
+
     var1 = args.varname
     data= fr.read(var1, start_coord, size_dims )
     data = np.squeeze(data)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
 
     # Get the ADIOS selections -- equally partition the data if parallelization is requested
- 
+
 
     # Read through the steps, one at a time
     plot_step = 0
@@ -122,21 +122,21 @@ if __name__ == "__main__":
         sim_step = fr_step.read("step")
 
         if myrank == 0:
-            print("GS Plot step {0} processing simulation output step {1} or computation step {2}".format(plot_step,cur_step, sim_step[0]), flush=True)
+            print("GS Plot step {0} processing simulation output step {1} or computation step {2}".format(plot_step,cur_step, sim_step), flush=True)
 #            if cur_step == 0:
 #                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
 
         if args.plane in ('xy', 'all'):
             data = read_data (args, fr_step, [0,0,int(shape3[2]/2)], [shape3[0],shape3[1],1])
-            Plot2D ('xy', data, args, fullshape, sim_step[0], fontsize)
-        
+            Plot2D ('xy', data, args, fullshape, sim_step, fontsize)
+
         if args.plane in ('xz', 'all'):
             data = read_data (args, fr_step, [0,int(shape3[1]/2),0], [shape3[0],1,shape3[2]])
-            Plot2D ('xz', data, args, fullshape, sim_step[0], fontsize)
-        
+            Plot2D ('xz', data, args, fullshape, sim_step, fontsize)
+
         if args.plane in ('yz', 'all'):
             data = read_data (args, fr_step, [int(shape3[0]/2),0,0], [1,shape3[1],shape3[2]])
-            Plot2D ('yz',  data, args, fullshape, sim_step[0], fontsize)
+            Plot2D ('yz',  data, args, fullshape, sim_step, fontsize)
         plot_step = plot_step + 1;
 
     fr.close()
