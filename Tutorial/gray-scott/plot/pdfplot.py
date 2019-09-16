@@ -38,7 +38,7 @@ def PlotPDF(pdf, bins, args, start, count, step, fontsize):
     globalSliceIdx = start[0] + localSliceIdx
 
     ax.plot(bins, pdf[localSliceIdx], 'r*-')
- 
+
     ax.set_title("{0}, slice {1}, step {2}".format(args.varname, globalSliceIdx, step), fontsize=fontsize)
     ax.set_xlabel("bins", fontsize=fontsize)
     ax.set_ylabel("count", fontsize=fontsize)
@@ -55,7 +55,7 @@ def PlotPDF(pdf, bins, args, start, count, step, fontsize):
 
 
 def read_data(args, fr, start_coord, size_dims):
-    
+
     var1 = args.varname
     data= fr.read(var1, start_coord, size_dims )
     data = np.squeeze(data)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     # Setup up 2D communicators if MPI is installed
     mpi = decomp.MPISetup(args, 4)
     myrank = mpi.rank['app']
-    
+
     # Read the data from this object
     if not args.nompi:
         fr = adios2.open(args.instream, "r", mpi.comm_app, "adios2.xml", "PDFAnalysisOutput")
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         binvar = args.varname+"/bins"
         shape2_str = vars_info[pdfvar]["Shape"].split(',')
         shape2 = list(map(int,shape2_str))
-        
+
         start = np.zeros(2, dtype=np.int64)
         count = np.zeros(2, dtype=np.int64)
         # Equally partition the PDF arrays among readers
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         start[1], count[1] = (0, shape2[1])
         start_bins = np.array([0], dtype=np.int64)
         count_bins = np.array([shape2[1]], dtype=np.int64)
-        
+
 #        print("Rank {0} reads {1}  slices from offset {2}".format(myrank, count[0], start[0]))
 
         pdf = fr_step.read(pdfvar, start, count)
@@ -106,15 +106,15 @@ if __name__ == "__main__":
         sim_step = fr_step.read("step")
 
         if myrank == 0:
-            print("PDF Plot step {0} processing analysis step {1} simulation step {2}".format(plot_step,cur_step, sim_step[0]), flush=True)
+            print("PDF Plot step {0} processing analysis step {1} simulation step {2}".format(plot_step,cur_step, sim_step), flush=True)
 #            if cur_step == 0:
 #                print("Variable" + pdfvar + " shape is {" + vars_info[pdfvar]["Shape"]+"}")
 
-        PlotPDF (pdf, bins, args, start, count, sim_step[0], fontsize)
-        plot_step = plot_step + 1 
+        PlotPDF (pdf, bins, args, start, count, sim_step, fontsize)
+        plot_step = plot_step + 1
         if not args.nompi:
-            mpi.comm_app.Barrier() 
-        
-       
+            mpi.comm_app.Barrier()
+
+
     fr.close()
 
