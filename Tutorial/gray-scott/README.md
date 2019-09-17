@@ -18,25 +18,29 @@ $ export PYTHONPATH=/opt/adios2/lib/python3.5/site-packages
 
 $ mkdir build
 $ cd build
-$ cmake -DADIOS2_DIR=/opt/adios2 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+$ export ADIOS2_DIR=/opt/adios2 
+$ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 $ make
 $ cd ..
 ```
 
 There are some applications that require VTK version 8. These are not 
-required for the current tutorial. To build with VTK, set VTK_ROOT to
+required for the current tutorial. To build with VTK, set VTK_DIR to
 the installation directory of VTK. If VTK is already in the path, it 
 is enough to set VTK to "ON". Assuming VTK is installed in /opt/vtk/8.1.0:
 
 ```
-$ cmake -DADIOS2_DIR=/opt/adios2 -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DVTK_ROOT=/opt/vtk/8.1.0 ..
+$ export ADIOS2_DIR=/opt/adios2 
+$ export VTK_DIR=/opt/vtk/8.1.0
+$ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 ```
 
 Or,
 
 ```
+$ export ADIOS2_DIR=/opt/adios2 
 $ export PATH=$PATH:/opt/vtk/8.1.0/bin
-$ cmake -DADIOS2_DIR=/opt/adios2 -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DVTK=ON ..
+$ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DVTK=ON ..
 ```
 
 
