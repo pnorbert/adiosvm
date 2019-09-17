@@ -214,21 +214,21 @@ int main(int argc, char *argv[])
 
         if (!var_u_in)
         {
-            std::cout << "ERROR:  rank " << rank 
+            std::cerr << "ERROR:  rank " << rank 
                       << " did not find variable 'U' after BeginStep() succeeded" 
                       << std::endl;
         }
 
         if (!var_v_in)
         {
-            std::cout << "ERROR:  rank " << rank 
+            std::cerr << "ERROR:  rank " << rank 
                       << " did not find variable 'V' after BeginStep() succeeded" 
                       << std::endl;
         }
 
         if (!var_step_in)
         {
-            std::cout << "ERROR:  rank " << rank 
+            std::cerr << "ERROR:  rank " << rank 
                       << " did not find variable 'step' after BeginStep() succeeded" 
                       << std::endl;
         }
