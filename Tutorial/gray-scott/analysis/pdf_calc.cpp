@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
 
         // Begin step
         adios2::StepStatus read_status =
-            reader.BeginStep(adios2::StepMode::Read, 10.0f);
+            reader.BeginStep(adios2::StepMode::Read, 0.2f);
         if (read_status == adios2::StepStatus::NotReady) {
             // std::cout << "Stream not ready yet. Waiting...\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         } else if (read_status != adios2::StepStatus::OK) {
             break;
@@ -211,6 +211,27 @@ int main(int argc, char *argv[])
         var_u_in = reader_io.InquireVariable<double>("U");
         var_v_in = reader_io.InquireVariable<double>("V");
         var_step_in = reader_io.InquireVariable<int>("step");
+
+        if (!var_u_in)
+        {
+            std::cout << "ERROR:  rank " << rank 
+                      << " did not find variable 'U' after BeginStep() succeeded" 
+                      << std::endl;
+        }
+
+        if (!var_v_in)
+        {
+            std::cout << "ERROR:  rank " << rank 
+                      << " did not find variable 'V' after BeginStep() succeeded" 
+                      << std::endl;
+        }
+
+        if (!var_step_in)
+        {
+            std::cout << "ERROR:  rank " << rank 
+                      << " did not find variable 'step' after BeginStep() succeeded" 
+                      << std::endl;
+        }
 
         std::pair<double, double> minmax_u = var_u_in.MinMax();
         std::pair<double, double> minmax_v = var_v_in.MinMax();

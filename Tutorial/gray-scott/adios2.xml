@@ -13,6 +13,9 @@
             <parameter key="QueueFullPolicy" value="Discard"/>
             <!-- BP4/SST engine parameters -->
             <parameter key="OpenTimeoutSecs" value="10.0"/>
+            <parameter key="BeginStepPollingFrequencySecs" value="0.1"/>
+            <parameter key="verbose" value="5"/>
+            <parameter key="SubStreams" value="2"/>
         </engine>
     </io>
 
