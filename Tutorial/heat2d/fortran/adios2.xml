@@ -46,6 +46,19 @@
         <engine type="BP4">
             <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
+
+        <!--
+        <variable name="T">
+            <operation type="zfp">
+                <parameter key="accuracy" value="0.01"/>
+            </operation>
+        </variable>
+        <variable name="dT">
+            <operation type="sz">
+                <parameter key="accuracy" value="0.01"/>
+            </operation>
+        </variable>
+        -->
     </io>
 
 
