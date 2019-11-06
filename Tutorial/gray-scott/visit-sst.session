@@ -350,8 +350,8 @@
                     <Field name="autoExpression" type="bool">false</Field>
                 </Object>
                 <Object name="Expression">
-                    <Field name="name" type="string">operators/ConnectedComponents/mesh48x48x48</Field>
-                    <Field name="definition" type="string">"cell_constant(&lt;mesh48x48x48&gt;, 0.)"</Field>
+                    <Field name="name" type="string">operators/ConnectedComponents/mesh64x64x64</Field>
+                    <Field name="definition" type="string">"cell_constant(&lt;mesh64x64x64&gt;, 0.)"</Field>
                     <Field name="hidden" type="bool">false</Field>
                     <Field name="type" type="string">ScalarMeshVar</Field>
                     <Field name="fromDB" type="bool">false</Field>
@@ -398,8 +398,8 @@
                     <Field name="autoExpression" type="bool">false</Field>
                 </Object>
                 <Object name="Expression">
-                    <Field name="name" type="string">operators/DataBinning/1D/mesh48x48x48</Field>
-                    <Field name="definition" type="string">"cell_constant(&lt;mesh48x48x48&gt;, 0)"</Field>
+                    <Field name="name" type="string">operators/DataBinning/1D/mesh64x64x64</Field>
+                    <Field name="definition" type="string">"cell_constant(&lt;mesh64x64x64&gt;, 0)"</Field>
                     <Field name="hidden" type="bool">false</Field>
                     <Field name="type" type="string">CurveMeshVar</Field>
                     <Field name="fromDB" type="bool">false</Field>
@@ -410,8 +410,8 @@
                     <Field name="autoExpression" type="bool">false</Field>
                 </Object>
                 <Object name="Expression">
-                    <Field name="name" type="string">operators/DataBinning/2D/mesh48x48x48</Field>
-                    <Field name="definition" type="string">"cell_constant(&lt;mesh48x48x48&gt;, 0)"</Field>
+                    <Field name="name" type="string">operators/DataBinning/2D/mesh64x64x64</Field>
+                    <Field name="definition" type="string">"cell_constant(&lt;mesh64x64x64&gt;, 0)"</Field>
                     <Field name="hidden" type="bool">false</Field>
                     <Field name="type" type="string">ScalarMeshVar</Field>
                     <Field name="fromDB" type="bool">false</Field>
@@ -422,8 +422,8 @@
                     <Field name="autoExpression" type="bool">false</Field>
                 </Object>
                 <Object name="Expression">
-                    <Field name="name" type="string">operators/DataBinning/3D/mesh48x48x48</Field>
-                    <Field name="definition" type="string">"cell_constant(&lt;mesh48x48x48&gt;, 0)"</Field>
+                    <Field name="name" type="string">operators/DataBinning/3D/mesh64x64x64</Field>
+                    <Field name="definition" type="string">"cell_constant(&lt;mesh64x64x64&gt;, 0)"</Field>
                     <Field name="hidden" type="bool">false</Field>
                     <Field name="type" type="string">ScalarMeshVar</Field>
                     <Field name="fromDB" type="bool">false</Field>
@@ -446,8 +446,8 @@
                     <Field name="autoExpression" type="bool">false</Field>
                 </Object>
                 <Object name="Expression">
-                    <Field name="name" type="string">operators/Flux/mesh48x48x48</Field>
-                    <Field name="definition" type="string">"cell_constant(&lt;mesh48x48x48&gt;, 0.)"</Field>
+                    <Field name="name" type="string">operators/Flux/mesh64x64x64</Field>
+                    <Field name="definition" type="string">"cell_constant(&lt;mesh64x64x64&gt;, 0.)"</Field>
                     <Field name="hidden" type="bool">false</Field>
                     <Field name="type" type="string">ScalarMeshVar</Field>
                     <Field name="fromDB" type="bool">false</Field>
@@ -746,8 +746,8 @@
                     <Field name="autoExpression" type="bool">false</Field>
                 </Object>
                 <Object name="Expression">
-                    <Field name="name" type="string">operators/SurfaceNormal/mesh48x48x48</Field>
-                    <Field name="definition" type="string">"cell_constant(&lt;mesh48x48x48&gt;, 0.)"</Field>
+                    <Field name="name" type="string">operators/SurfaceNormal/mesh64x64x64</Field>
+                    <Field name="definition" type="string">"cell_constant(&lt;mesh64x64x64&gt;, 0.)"</Field>
                     <Field name="hidden" type="bool">false</Field>
                     <Field name="type" type="string">VectorMeshVar</Field>
                     <Field name="fromDB" type="bool">false</Field>
@@ -1225,19 +1225,19 @@
                 <Field name="windowValid" type="bool">false</Field>
             </Object>
             <Object name="View3DAttributes">
-                <Field name="viewNormal" type="doubleArray" length="3">-0.610845012686084 0.537430302053441 0.581409529429373 </Field>
-                <Field name="focus" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
-                <Field name="viewUp" type="doubleArray" length="3">0.0501762298240265 0.759135386451899 -0.648996002296758 </Field>
+                <Field name="viewNormal" type="doubleArray" length="3">-0.653992028493531 0.564133042852979 0.504032078967555 </Field>
+                <Field name="focus" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
+                <Field name="viewUp" type="doubleArray" length="3">0.154467267659237 0.751810015799254 -0.641031639910086 </Field>
                 <Field name="viewAngle" type="double">30</Field>
-                <Field name="parallelScale" type="double">40.7031939778686</Field>
-                <Field name="nearPlane" type="double">-81.4063879557372</Field>
-                <Field name="farPlane" type="double">81.4063879557372</Field>
+                <Field name="parallelScale" type="double">54.5596004384196</Field>
+                <Field name="nearPlane" type="double">-109.119200876839</Field>
+                <Field name="farPlane" type="double">109.119200876839</Field>
                 <Field name="imagePan" type="doubleArray" length="2">0 0 </Field>
                 <Field name="imageZoom" type="double">1</Field>
                 <Field name="perspective" type="bool">true</Field>
                 <Field name="eyeAngle" type="double">2</Field>
                 <Field name="centerOfRotationSet" type="bool">false</Field>
-                <Field name="centerOfRotation" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
+                <Field name="centerOfRotation" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
                 <Field name="axis3DScaleFlag" type="bool">false</Field>
                 <Field name="axis3DScales" type="doubleArray" length="3">1 1 1 </Field>
                 <Field name="shear" type="doubleArray" length="3">0 0 1 </Field>
@@ -4560,7 +4560,7 @@
                     <Object name="ViewerWindow">
                         <Field name="windowSize" type="intArray" length="2">1278 1214 </Field>
                         <Field name="windowImageSize" type="intArray" length="2">1278 1144 </Field>
-                        <Field name="windowLocation" type="intArray" length="2">400 26 </Field>
+                        <Field name="windowLocation" type="intArray" length="2">401 52 </Field>
                         <Field name="maintainView" type="bool">false</Field>
                         <Field name="cameraView" type="bool">false</Field>
                         <Field name="viewExtentsType" type="string">AVT_ORIGINAL_EXTENTS</Field>
@@ -5173,19 +5173,19 @@
                             <Field name="windowValid" type="bool">false</Field>
                         </Object>
                         <Object name="View3DAttributes">
-                            <Field name="viewNormal" type="doubleArray" length="3">-0.610845012686084 0.537430302053441 0.581409529429373 </Field>
-                            <Field name="focus" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
-                            <Field name="viewUp" type="doubleArray" length="3">0.0501762298240265 0.759135386451899 -0.648996002296758 </Field>
+                            <Field name="viewNormal" type="doubleArray" length="3">-0.653992028493531 0.564133042852979 0.504032078967555 </Field>
+                            <Field name="focus" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
+                            <Field name="viewUp" type="doubleArray" length="3">0.154467267659237 0.751810015799254 -0.641031639910086 </Field>
                             <Field name="viewAngle" type="double">30</Field>
-                            <Field name="parallelScale" type="double">40.7031939778686</Field>
-                            <Field name="nearPlane" type="double">-81.4063879557372</Field>
-                            <Field name="farPlane" type="double">81.4063879557372</Field>
+                            <Field name="parallelScale" type="double">54.5596004384196</Field>
+                            <Field name="nearPlane" type="double">-109.119200876839</Field>
+                            <Field name="farPlane" type="double">109.119200876839</Field>
                             <Field name="imagePan" type="doubleArray" length="2">0 0 </Field>
                             <Field name="imageZoom" type="double">1</Field>
                             <Field name="perspective" type="bool">true</Field>
                             <Field name="eyeAngle" type="double">2</Field>
                             <Field name="centerOfRotationSet" type="bool">false</Field>
-                            <Field name="centerOfRotation" type="doubleArray" length="3">23.5 23.5 23.5 </Field>
+                            <Field name="centerOfRotation" type="doubleArray" length="3">31.5 31.5 31.5 </Field>
                             <Field name="axis3DScaleFlag" type="bool">false</Field>
                             <Field name="axis3DScales" type="doubleArray" length="3">1 1 1 </Field>
                             <Field name="shear" type="doubleArray" length="3">0 0 1 </Field>
@@ -5231,7 +5231,7 @@
                                     <Field name="fontHeight" type="double">0.015</Field>
                                     <Field name="legendType" type="int">1</Field>
                                     <Field name="numTicks" type="int">5</Field>
-                                    <Field name="suppliedValuesStrings" type="stringVector">("0.522588")</Field>
+                                    <Field name="suppliedValuesStrings" type="stringVector">("0.568957")</Field>
                                 </Object>
                             </Object>
                             <Object name="AnnotationObject">
@@ -5268,7 +5268,7 @@
                                     <Field name="fontHeight" type="double">0.015</Field>
                                     <Field name="legendType" type="int">1</Field>
                                     <Field name="numTicks" type="int">5</Field>
-                                    <Field name="suppliedValuesStrings" type="stringVector">("0.334194")</Field>
+                                    <Field name="suppliedValuesStrings" type="stringVector">("0.274798")</Field>
                                 </Object>
                             </Object>
                         </Object>
@@ -5387,7 +5387,7 @@
                                     </Object>
                                     <Object name="CompactSILRestrictionAttributes">
                                         <Field name="useSet" type="unsignedCharVector">2 2 </Field>
-                                        <Field name="topSet" type="string">mesh48x48x48</Field>
+                                        <Field name="topSet" type="string">mesh64x64x64</Field>
                                     </Object>
                                     <Field name="namedSelection" type="string"></Field>
                                 </Object>
@@ -5494,7 +5494,7 @@
                                     </Object>
                                     <Object name="CompactSILRestrictionAttributes">
                                         <Field name="useSet" type="unsignedCharVector">2 2 </Field>
-                                        <Field name="topSet" type="string">mesh48x48x48</Field>
+                                        <Field name="topSet" type="string">mesh64x64x64</Field>
                                     </Object>
                                     <Field name="namedSelection" type="string"></Field>
                                 </Object>

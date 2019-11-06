@@ -14,6 +14,6 @@
     "checkpoint_output": "gs_ckpt.bp",
     "adios_config": "adios2.xml",
     "adios_span": false,
-    "adios_memory_selection": false,
+    "adios_memory_selection": true,
     "mesh_type": "image"
 }
