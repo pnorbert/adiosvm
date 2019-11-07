@@ -1,8 +1,0 @@
-2D Heat Transfer R analysis example
-
-Read by Adios python wrapper. 
-
-First, have ../heat.bp, with at least 11 steps in it. 
-
-$ mpirun -np 4 Rscript test_heat.r
-
