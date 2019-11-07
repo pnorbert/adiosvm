@@ -307,27 +307,14 @@ III. ADIOS Installation
    Then:
    $ mkdir build
    $ cd build
-   $ ~/adiosvm/adiospackages/runconf.adios2
-    Configure ADIOS 2.x on VirtualBox.
-    ...
-
-   The configure command is running cmake like this:
-     cmake -DCMAKE_INSTALL_PREFIX=/opt/adios2 \
-           -DADIOS2_USE_MPI=ON \
-           -DADIOS2_USE_Fortran=ON \
-           -DADIOS2_USE_Python=ON \
-           -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-           -DADIOS2_USE_DataMan=ON \
-           -DADIOS2_USE_HDF5=ON  \
-           -DHDF5_ROOT=/opt/hdf5-parallel \
-           -DSZ_ROOT=/opt/SZ \
-           -DLIBFABRIC_PREFIX=/opt/libfabric \
-           -DADIOS2_BUILD_TESTING=ON \
-           -DADIOS2_BUILD_EXAMPLES_EXPERIMENTAL=OFF \
-           -DCMAKE_BUILD_TYPE=Debug \
-           -DMPIEXEC_MAX_NUMPROCS:STRING=4 \
-           ..
-
+   $ cmake -DCMAKE_INSTALL_PREFIX=/opt/adios2 \
+      -DCMAKE_BUILD_TYPE=Release  \
+      -DCMAKE_PREFIX_PATH="/opt/blosc;/opt/zfp/0.5.5;/opt/SZ/2.0.2.1;/opt/MGARD;/opt/hdf5-parallel" \
+      -DADIOS2_USE_MPI=ON \
+      -DADIOS2_USE_Python=ON \
+      -DADIOS2_USE_Profiling=ON \
+      -DADIOS2_BUILD_TESTING=OFF \
+      ..
    $ make -j 4
 
 3. Test ADIOS a bit

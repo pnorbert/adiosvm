@@ -3,14 +3,14 @@
     <Field name="Version" type="string">3.0.0b</Field>
     <Object name="GUI">
         <Object name="FileServerList">
-            <Field name="path" type="string">/home/adios/work/adiosvm/Tutorial/gray-scott</Field>
+            <Field name="path" type="string">/home/adios/adiosvm/Tutorial/gray-scott/gs.bp</Field>
             <Field name="filter" type="string">*</Field>
             <Field name="useCurrentDir" type="bool">true</Field>
             <Field name="automaticFileGrouping" type="bool">true</Field>
             <Field name="smartFileGrouping" type="bool">true</Field>
             <Field name="showDotFiles" type="bool">false</Field>
             <Object name="recentpaths">
-                <Field name="localhost" type="stringVector">"/home/adios/work/adiosvm/Tutorial/gray-scott" </Field>
+                <Field name="localhost" type="stringVector">"/home/adios/adiosvm/Tutorial/gray-scott" "/home/adios/adiosvm/Tutorial/gray-scott/gs.bp" </Field>
             </Object>
         </Object>
         <Object name="AppearanceAttributes">
@@ -28,21 +28,21 @@
         </Object>
         <Field name="postWhenShown" type="bool">false</Field>
         <Object name="MainWin">
-            <Field name="x" type="int">0</Field>
-            <Field name="y" type="int">41</Field>
-            <Field name="width" type="int">501</Field>
-            <Field name="height" type="int">2087</Field>
-            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.5439137 0.4535182 </Field>
+            <Field name="x" type="int">4</Field>
+            <Field name="y" type="int">52</Field>
+            <Field name="width" type="int">398</Field>
+            <Field name="height" type="int">2104</Field>
+            <Field name="SPLITTER_VALUES_V2" type="floatVector">0 0.544259 0.4537178 </Field>
         </Object>
         <Object name="Contour plot attributes">
-            <Field name="x" type="int">1616</Field>
-            <Field name="y" type="int">637</Field>
-            <Field name="width" type="int">602</Field>
-            <Field name="height" type="int">895</Field>
+            <Field name="x" type="int">2742</Field>
+            <Field name="y" type="int">916</Field>
+            <Field name="width" type="int">498</Field>
+            <Field name="height" type="int">832</Field>
             <Field name="visible" type="bool">false</Field>
             <Field name="posted" type="bool">false</Field>
         </Object>
-        <Field name="plotDatabases" type="stringVector">"localhost:/home/adios/work/adiosvm/Tutorial/gray-scott/gs.bp" </Field>
+        <Field name="plotDatabases" type="stringVector">"localhost:/home/adios/adiosvm/Tutorial/gray-scott/gs.bp/md.0" </Field>
         <Object name="TimeFormat">
             <Field name="displayMode" type="string">Cycles</Field>
             <Field name="precision" type="int">5</Field>
