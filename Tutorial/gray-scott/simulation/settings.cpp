@@ -21,6 +21,7 @@ void to_json(nlohmann::json &j, const Settings &s)
                        {"adios_config", s.adios_config},
                        {"adios_span", s.adios_span},
                        {"adios_memory_selection", s.adios_memory_selection},
+                       {"adios_memory_selection", s.adios_write_ghost},
                        {"mesh_type", s.mesh_type}};
 }
 
@@ -42,6 +43,7 @@ void from_json(const nlohmann::json &j, Settings &s)
     j.at("adios_config").get_to(s.adios_config);
     j.at("adios_span").get_to(s.adios_span);
     j.at("adios_memory_selection").get_to(s.adios_memory_selection);
+    j.at("adios_write_ghost").get_to(s.adios_write_ghost);
     j.at("mesh_type").get_to(s.mesh_type);
 }
 
@@ -63,6 +65,7 @@ Settings::Settings()
     adios_config = "adios2.xml";
     adios_span = false;
     adios_memory_selection = false;
+    adios_write_ghost = false;
     mesh_type = "image";
 }
 

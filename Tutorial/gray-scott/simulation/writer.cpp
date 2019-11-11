@@ -52,21 +52,35 @@ Writer::Writer(const Settings &settings, const GrayScott &sim, adios2::IO io)
         define_bpvtk_attribute(settings, io);
     }
 
-    var_u =
-        io.DefineVariable<double>("U", {settings.L, settings.L, settings.L},
-                                  {sim.offset_z, sim.offset_y, sim.offset_x},
-                                  {sim.size_z, sim.size_y, sim.size_x});
+    if(settings.adios_write_ghost) {
+        var_u =
+            io.DefineVariable<double>("U",
+                {settings.L + 2, settings.L + 2, settings.L + 2},
+                {sim.offset_z, sim.offset_y, sim.offset_x},
+                {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2});
+        var_v =
+            io.DefineVariable<double>("V",
+                {settings.L + 2, settings.L + 2, settings.L + 2},
+                {sim.offset_z, sim.offset_y, sim.offset_x},
+                {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2});
+    } else {
+        var_u =
+            io.DefineVariable<double>("U",
+                {settings.L, settings.L, settings.L},
+                {sim.offset_z, sim.offset_y, sim.offset_x},
+                {sim.size_z, sim.size_y, sim.size_x});
+        var_v =
+            io.DefineVariable<double>("V",
+                {settings.L, settings.L, settings.L},
+                {sim.offset_z, sim.offset_y, sim.offset_x},
+                {sim.size_z, sim.size_y, sim.size_x});
 
-    var_v =
-        io.DefineVariable<double>("V", {settings.L, settings.L, settings.L},
-                                  {sim.offset_z, sim.offset_y, sim.offset_x},
-                                  {sim.size_z, sim.size_y, sim.size_x});
-
-    if (settings.adios_memory_selection) {
-        var_u.SetMemorySelection(
-            {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
-        var_v.SetMemorySelection(
-            {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
+        if (settings.adios_memory_selection) {
+            var_u.SetMemorySelection(
+                {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
+            var_v.SetMemorySelection(
+                {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
+        }
     }
 
     var_step = io.DefineVariable<int>("step");
@@ -79,7 +93,7 @@ void Writer::open(const std::string &fname)
 
 void Writer::write(int step, const GrayScott &sim)
 {
-    if (settings.adios_memory_selection) {
+    if (settings.adios_memory_selection || settings.adios_write_ghost) {
         const std::vector<double> &u = sim.u_ghost();
         const std::vector<double> &v = sim.v_ghost();
 

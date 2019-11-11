@@ -34,53 +34,68 @@ target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
 option(VTK "Build VTK apps")
 if (VTK_ROOT)
   set(VTK ON)
-endif(VTK_ROOT)
+endif()
 
 if (VTK)
   message(STATUS "Configuring VTK apps")
 
   find_package(VTK COMPONENTS
-    vtkFiltersCore
-    vtkIOImage
-    vtkIOXML
+    FiltersCore IOImage IOXML IOParallelXML ParallelMPI
   )
 
   if(VTK_FOUND)
     add_executable(isosurface analysis/isosurface.cpp)
     target_link_libraries(isosurface adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
-  endif(VTK_FOUND)
 
-  find_package(VTK COMPONENTS
-    vtkFiltersCore
-    vtkFiltersGeometry
-  )
+    add_executable(BlockIsoSurface
+      analysis/mainIsoSurface.cpp
+      analysis/libIsoSurface.cpp)
+    target_link_libraries(BlockIsoSurface
+      adios2::adios2 MPI::MPI_C
+      VTK::CommonCore VTK::CommonDataModel
+      VTK::FiltersCore VTK::FiltersGeneral
+      VTK::IOImage VTK::IOXML VTK::IOParallelXML VTK::ParallelMPI
+    )
+
+    add_executable(gray-scott-iso
+      analysis/libIsoSurface.cpp
+      simulation/main.cpp
+      simulation/gray-scott.cpp
+      simulation/settings.cpp
+      simulation/writer.cpp
+    )
+    target_link_libraries(gray-scott-iso
+      adios2::adios2 MPI::MPI_C
+      VTK::CommonCore VTK::CommonDataModel
+      VTK::FiltersCore VTK::FiltersGeneral
+      VTK::IOImage VTK::IOXML VTK::IOParallelXML VTK::ParallelMPI
+    )
+    target_compile_definitions(gray-scott-iso PRIVATE USE_INLINE_ISOSURFACE=1)
+  endif()
+
+  find_package(VTK COMPONENTS FiltersCore FiltersGeometry IOXML)
 
   if(VTK_FOUND)
     add_executable(find_blobs analysis/find_blobs.cpp)
     target_link_libraries(find_blobs adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
-  endif(VTK_FOUND)
+  endif()
 
-  find_package(VTK COMPONENTS
-    vtkFiltersGeneral
-  )
+  find_package(VTK COMPONENTS FiltersGeneral)
 
   if(VTK_FOUND)
     add_executable(compute_curvature analysis/curvature.cpp)
     target_link_libraries(compute_curvature adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
-  endif(VTK_FOUND)
+  endif()
 
 
-  find_package(VTK COMPONENTS
-    vtkRenderingOpenGL2
-    vtkViewsInfovis
-  )
+  find_package(VTK COMPONENTS RenderingOpenGL2 ViewsInfovis)
 
   if(VTK_FOUND)
     add_executable(render_isosurface plot/render_isosurface.cpp)
     target_link_libraries(render_isosurface adios2::adios2 ${VTK_LIBRARIES}
       MPI::MPI_C)
-  endif(VTK_FOUND)
-endif(VTK)
+  endif()
+endif()
