@@ -20,6 +20,7 @@ struct Settings {
     std::string adios_config;
     bool adios_span;
     bool adios_memory_selection;
+    bool adios_write_ghost;
     std::string mesh_type;
 
     Settings();
