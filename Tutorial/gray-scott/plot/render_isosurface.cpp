@@ -10,6 +10,8 @@
 
 #include <adios2.h>
 
+#include <mpi.h>
+
 #include <vtkAutoInit.h>
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>

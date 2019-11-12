@@ -10,6 +10,10 @@
 #include "gray-scott.h"
 #include "writer.h"
 
+#ifdef USE_INLINE_ISOSURFACE
+#include <lib-isosurface.h>
+#endif
+
 void print_io_settings(const adios2::IO &io)
 {
     std::cout << "Simulation writes data using engine type:              "
@@ -71,6 +75,11 @@ int main(int argc, char **argv)
     adios2::IO io_main = adios.DeclareIO("SimulationOutput");
     adios2::IO io_ckpt = adios.DeclareIO("SimulationCheckpoint");
 
+#ifdef USE_INLINE_ISOSURFACE
+    io_main.SetEngine("Inline");
+    io_main.SetParameters({{"verbose", "4"}, {"writerID", settings.output}});
+#endif
+
     Writer writer_main(settings, sim, io_main);
     Writer writer_ckpt(settings, sim, io_ckpt);
 
@@ -83,6 +92,11 @@ int main(int argc, char **argv)
         print_simulator_settings(sim);
         std::cout << "========================================" << std::endl;
     }
+
+#ifdef USE_INLINE_ISOSURFACE
+    IsoSurface iso(comm, io_main, "inline_reader", "gs-iso", {.25, .5, .75},
+        true);
+#endif
 
 #ifdef ENABLE_TIMERS
     Timer timer_total;
@@ -136,6 +150,10 @@ int main(int argc, char **argv)
 
         log << i << "\t" << time_step << "\t" << time_compute << "\t"
             << time_write << std::endl;
+#endif
+
+#ifdef USE_INLINE_ISOSURFACE
+        iso.Step();
 #endif
     }
 
