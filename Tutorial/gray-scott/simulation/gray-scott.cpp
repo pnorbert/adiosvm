@@ -150,23 +150,23 @@ void GrayScott::init_mpi()
     py = coords[1];
     pz = coords[2];
 
-    size_x = (settings.L + npx - 1) / npx;
-    size_y = (settings.L + npy - 1) / npy;
-    size_z = (settings.L + npz - 1) / npz;
+    size_x = settings.L / npx;
+    size_y = settings.L / npy;
+    size_z = settings.L / npz;
 
-    offset_x = size_x * px;
-    offset_y = size_y * py;
-    offset_z = size_z * pz;
+    if (px < settings.L % npx) {
+        size_x++;
+    }
+    if (py < settings.L % npy) {
+        size_y++;
+    }
+    if (pz < settings.L % npz) {
+        size_z++;
+    }
 
-    if (px == npx - 1) {
-        size_x -= size_x * npx - settings.L;
-    }
-    if (py == npy - 1) {
-        size_y -= size_y * npy - settings.L;
-    }
-    if (pz == npz - 1) {
-        size_z -= size_z * npz - settings.L;
-    }
+    offset_x = (settings.L / npx * px) + std::min(settings.L % npx, px);
+    offset_y = (settings.L / npy * py) + std::min(settings.L % npy, py);
+    offset_z = (settings.L / npz * pz) + std::min(settings.L % npz, pz);
 
     MPI_Cart_shift(cart_comm, 0, 1, &west, &east);
     MPI_Cart_shift(cart_comm, 1, 1, &down, &up);

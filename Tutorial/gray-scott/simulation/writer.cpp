@@ -79,6 +79,12 @@ void Writer::open(const std::string &fname)
 
 void Writer::write(int step, const GrayScott &sim)
 {
+    if (!sim.size_x || !sim.size_y || !sim.size_z) {
+        writer.BeginStep();
+        writer.EndStep();
+        return;
+    }
+
     if (settings.adios_memory_selection) {
         const std::vector<double> &u = sim.u_ghost();
         const std::vector<double> &v = sim.v_ghost();
