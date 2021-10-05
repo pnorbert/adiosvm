@@ -10,8 +10,8 @@
 
 #include <adios2.h>
 
-#include <vtkAutoInit.h>
 #include <vtkActor.h>
+#include <vtkAutoInit.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
@@ -31,7 +31,8 @@ VTK_MODULE_INIT(vtkRenderingOpenGL2);
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType);
 
-typedef struct {
+typedef struct
+{
     vtkRenderView *renderView;
     vtkPolyDataMapper *mapper;
     adios2::IO *inIO;
@@ -47,12 +48,14 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
 
     auto points = vtkSmartPointer<vtkPoints>::New();
     points->SetNumberOfPoints(nPoints);
-    for (vtkIdType i = 0; i < nPoints; i++) {
+    for (vtkIdType i = 0; i < nPoints; i++)
+    {
         points->SetPoint(i, &bufPoints[i * 3]);
     }
 
     auto polys = vtkSmartPointer<vtkCellArray>::New();
-    for (vtkIdType i = 0; i < nCells; i++) {
+    for (vtkIdType i = 0; i < nCells; i++)
+    {
         vtkIdType a = bufCells[i * 3 + 0];
         vtkIdType b = bufCells[i * 3 + 1];
         vtkIdType c = bufCells[i * 3 + 2];
@@ -65,7 +68,8 @@ vtkSmartPointer<vtkPolyData> read_mesh(const std::vector<double> &bufPoints,
 
     auto normals = vtkSmartPointer<vtkDoubleArray>::New();
     normals->SetNumberOfComponents(3);
-    for (vtkIdType i = 0; i < nPoints; i++) {
+    for (vtkIdType i = 0; i < nPoints; i++)
+    {
         normals->InsertNextTuple(&bufNormals[i * 3]);
     }
 
@@ -89,7 +93,8 @@ void timer_func(vtkObject *object, unsigned long eid, void *clientdata,
 
     adios2::StepStatus status = context->reader->BeginStep();
 
-    if (status != adios2::StepStatus::OK) {
+    if (status != adios2::StepStatus::OK)
+    {
         return;
     }
 
@@ -98,7 +103,8 @@ void timer_func(vtkObject *object, unsigned long eid, void *clientdata,
     auto varNormal = context->inIO->InquireVariable<double>("normal");
     auto varStep = context->inIO->InquireVariable<int>("step");
 
-    if (varPoint.Shape().size() > 0 || varCell.Shape().size() > 0) {
+    if (varPoint.Shape().size() > 0 || varCell.Shape().size() > 0)
+    {
         varPoint.SetSelection(
             {{0, 0}, {varPoint.Shape()[0], varPoint.Shape()[1]}});
         varCell.SetSelection(
@@ -139,16 +145,20 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &procs);
 
-    if (argc < 2) {
-        if (rank == 0) {
+    if (argc < 2)
+    {
+        if (rank == 0)
+        {
             std::cerr << "Too few arguments" << std::endl;
             std::cout << "Usage: render_isosurface input" << std::endl;
         }
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
 
-    if (procs != 1) {
-        if (rank == 0) {
+    if (procs != 1)
+    {
+        if (rank == 0)
+        {
             std::cerr << "render_isosurface only supports serial execution"
                       << std::endl;
         }
@@ -157,7 +167,7 @@ int main(int argc, char *argv[])
 
     const std::string input_fname(argv[1]);
 
-    adios2::ADIOS adios("adios2.xml", comm, adios2::DebugON);
+    adios2::ADIOS adios("adios2.xml", comm);
 
     adios2::IO inIO = adios.DeclareIO("IsosurfaceOutput");
     adios2::Engine reader = inIO.Open(input_fname, adios2::Mode::Read);
