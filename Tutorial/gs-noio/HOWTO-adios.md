@@ -81,3 +81,143 @@
     writer.EndStep();
 ```
 
+
+## pdf-calc analysis to read data
+
+1. Add #include "adios2.h" to analysis/pdf-calc.cpp
+
+2. `u` and `pdf_u` are program variables that will hold the input/computed data. We need to declare ADIOS variables for the definition of input and output. 
+```
+    adios2::Variable<double> var_u_in, var_v_in;
+    adios2::Variable<int> var_step_in;
+    adios2::Variable<double> var_u_pdf, var_v_pdf;
+    adios2::Variable<double> var_u_bins, var_v_bins;
+    adios2::Variable<int> var_step_out;
+    adios2::Variable<double> var_u_out, var_v_out;
+```
+
+3. Add library initialization
+    - `adios2::ADIOS adios(settings.adios_config, comm);`
+
+4. Create two IO objects for reading Gray-Scott data and writing PDF output
+    - `adios2::IO reader_io = adios.DeclareIO("SimulationOutput");`
+    - `adios2::IO writer_io = adios.DeclareIO("PDFAnalysisOutput");`
+    - *SimulationOutput* is a label that can be used in XML config file to set up for runtime consistently with what Gray-Scott simulation is using
+    - *PDFAnalysisOutput* is another label to set up the analysis output for runtime. 
+
+5. Open streams for reading and for writing
+    - `adios2::Engine reader = reader_io.Open(in_filename, adios2::Mode::Read, comm);`
+    - `adios2::Engine writer = writer_io.Open(out_filename, adios2::Mode::Write, comm);`
+6. Set up BeginStep/Endstep loop without knowning how many steps will be available. Replace this snippet that fakes two steps of reading:
+```
+    if (stepAnalysis > 1)
+    {
+        break;
+    }
+```
+with this generic code for stepping in ADIOS2
+```
+    adios2::StepStatus status = reader.BeginStep(adios2::StepMode::Read, 10.0f);
+    if (status == adios2::StepStatus::NotReady)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        continue;
+    }
+    else if (status != adios2::StepStatus::OK)
+    {
+        break;
+    }
+```
+
+7. In every step, inquire the variables from the input file to create the ADIOS variable. The scope of the variable object is inside the step, so must inquire every step (variable may not be present in consecutive steps).
+```
+    var_u_in = reader_io.InquireVariable<double>("U");
+    var_v_in = reader_io.InquireVariable<double>("V");
+    var_step_in = reader_io.InquireVariable<int>("step");
+```
+
+8. In the first step, calculate decomposition (already there), set the per-process read selection and also declare output variables
+* Get the actual shape of the incoming variable
+    - replace fake `shape = {64, 64, 64};` with `shape = var_u_in.Shape();`
+* Read selection
+```
+    var_u_in.SetSelection({{start1, 0, 0}, {count1, shape[1], shape[2]}});
+    var_v_in.SetSelection({{start1, 0, 0}, {count1, shape[1], shape[2]}});
+```
+* Output variables
+```
+    var_u_pdf = writer_io.DefineVariable<double>("U/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
+    var_v_pdf = writer_io.DefineVariable<double>("V/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
+
+    if (!rank)
+    {
+        var_u_bins = writer_io.DefineVariable<double>("U/bins", {nbins}, {0}, {nbins});
+        var_v_bins = writer_io.DefineVariable<double>("V/bins", {nbins}, {0}, {nbins});
+        var_step_out = writer_io.DefineVariable<int>("step");
+    }
+
+    if (write_inputvars)
+    {
+        var_u_out = write_io.DefineVariable<double>("U", {shape[0], shape[1], shape[2]},
+                {start1, 0, 0}, {count1, shape[1], shape[2]});
+        var_v_out = write_io.DefineVariable<double>("V", {shape[0], shape[1], shape[2]},
+                {start1, 0, 0}, {count1, shape[1], shape[2]});
+    }
+```
+
+9. Read in data (completing read with EndStep)
+Replace the fake reading code:
+```
+    {
+        const size_t N = count1 * shape[1] * shape[2];
+        u.resize(N);
+        v.resize(N);
+        for (size_t i = 0; i < N; ++i)
+        {
+            u[i] = v[i] = stepAnalysis * 1.0;
+        }
+    }
+
+    if (!rank)
+    {
+        simStep = stepAnalysis * 10;
+    }
+```
+with
+```
+    reader.Get<double>(var_u_in, u);
+    reader.Get<double>(var_v_in, v);
+    if (!rank)
+    {
+        reader.Get<int>(var_step_in, &simStep);
+    }
+    reader.EndStep();
+    ++stepAnalysis;
+```
+
+10. Output the results
+```
+    writer.BeginStep();
+    writer.Put<double>(var_u_pdf, pdf_u.data());
+    writer.Put<double>(var_v_pdf, pdf_v.data());
+    if (!rank)
+    {
+        // #IO# write the bins
+        writer.Put<double>(var_u_bins, bins_u.data());
+        writer.Put<double>(var_v_bins, bins_v.data());
+        writer.Put<int>(var_step_out, simStep);
+    }
+    if (write_inputvars)
+    {
+        // #IO# write the input data
+        writer.Put<double>(var_u_out, u.data());
+        writer.Put<double>(var_v_out, v.data());
+    }
+    writer.EndStep();
+```
+
+11. Close the streams outside of the loop
+```
+    reader.Close();
+    writer.Close();
+```
