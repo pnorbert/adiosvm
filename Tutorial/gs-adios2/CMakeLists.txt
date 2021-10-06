@@ -19,8 +19,8 @@ add_executable(gray-scott
   simulation/settings.cpp
   simulation/writer.cpp
 )
-target_link_libraries(gray-scott adios2::adios2 MPI::MPI_C)
+target_link_libraries(gray-scott adios2::cxx11_mpi MPI::MPI_C)
 
 add_executable(pdf-calc analysis/pdf-calc.cpp)
-target_link_libraries(pdf-calc adios2::adios2 MPI::MPI_C)
+target_link_libraries(pdf-calc adios2::cxx11_mpi MPI::MPI_C)
 
