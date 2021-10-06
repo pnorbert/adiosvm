@@ -50,7 +50,7 @@ Simulation at step 40 writing output step     4
 
 ```
 $ mpirun -n 4 build/gray-scott simulation/settings-files.json
-$ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100
+$ mpirun -n 2 build/pdf-calc gs.bp pdf.bp 100
 ```
 
 ## How to change the parameters

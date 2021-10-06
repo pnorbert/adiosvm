@@ -63,7 +63,7 @@ $ python3 plot/gsplot.py -i gs.bp
 
 ```
 $ mpirun -n 4 build/gray-scott simulation/settings-files.json
-$ mpirun -n 2 build/pdf_calc gs.bp pdf.bp 100
+$ mpirun -n 2 build/pdf-calc gs.bp pdf.bp 100
 $ bpls -l pdf.bp
   double   U/bins  100*{100} = 0.0907758 / 0.991742
   double   U/pdf   100*{64, 100} = 0 / 4096
@@ -119,7 +119,7 @@ In adios2.xml, change all IO groups' engine to SST.
 Launch the pipeline in 4 separate terminals:
 ```
 $ mpirun -n 4 build/gray-scott simulation/settings-staging.json
-$ mpirun -n 1 build/pdf_calc gs.bp pdf.bp 100
+$ mpirun -n 1 build/pdf-calc gs.bp pdf.bp 100
 $ mpirun -n 1 python3 plot/pdfplot.py -i pdf.bp
 $ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
 ```
@@ -127,7 +127,7 @@ $ mpirun -n 1 python3 plot/gsplot.py -i gs.bp
 MPMD mode run in a single terminal:
 ```
 $ mpirun -n 4 build/gray-scott simulation/settings-staging.json : \
-         -n 1 build/pdf_calc gs.bp pdf.bp 100 :           \
+         -n 1 build/pdf-calc gs.bp pdf.bp 100 :           \
          -n 1 python3 plot/pdfplot.py -i pdf.bp :         \
          -n 1 python3 plot/gsplot.py -i gs.bp
 ```

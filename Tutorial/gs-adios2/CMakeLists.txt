@@ -21,6 +21,6 @@ add_executable(gray-scott
 )
 target_link_libraries(gray-scott adios2::adios2 MPI::MPI_C)
 
-add_executable(pdf_calc analysis/pdf_calc.cpp)
-target_link_libraries(pdf_calc adios2::adios2 MPI::MPI_C)
+add_executable(pdf-calc analysis/pdf-calc.cpp)
+target_link_libraries(pdf-calc adios2::adios2 MPI::MPI_C)
 
