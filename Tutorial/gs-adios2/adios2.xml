@@ -51,11 +51,11 @@
 
     <!-- example engines
 
-        <engine type="BPFile"/>
+        <engine type="FileStream"/>
+        <engine type="SST"/>
         <engine type="BP4"/>
         <engine type="HDF5"/>
-        <engine type="SST"/>
-        <engine type="InSituMPI"/>
+        <engine type="File"/>
 
         === SST ===
         SST can be set up to force blocking the producer on a consumer
@@ -84,34 +84,32 @@
         </engine>
 
         === BP4 ===
-        BP4 is a new file format.
-        'SubStreams' parameter controls how many files
+        BP4 is the default ADIOS2 file format.
+        'NumAggregators ' parameter controls how many files
             are created under the output folder. By default, each process
             writes its own file (N-to-N pattern), which is fast but is
             not scalable to tens of thousands of processes. The number of
             substreams should be chosen for the capability of the underlying
             filesystem (e.g. twice the number of OST servers on a Lustre file system).
-        'OpenTimeoutSecs' paramter specifies how long to wait on a reading Open
+        'OpenTimeoutSecs' parameter specifies how long to wait on a reading Open
             for the file to appear. Useful for streaming when the reader starts up
             faster than the writer produce any output.
-        <engine type="BPFile">
-            <parameter key="SubStreams" value="4"/>
+        <engine type="BP4">
+            <parameter key="NumAggregators " value="4"/>
             <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
 
-        === BPFile ===
-        BPFile is a token name for the BP3 old file format.
-        It will refer to BP4 in the future.
-        'SubStreams' parameter is the same as for BP4.
-        <engine type="BPFile">
-            <parameter key="SubStreams" value="4"/>
+        === FileStream ===
+        FileStream is a token name for a file format that supports reading while writing
+        It refers to BP4 currently. Timeout for opening is set to 1 hour by default for readers.
+        'NumAggregators ' parameter is the same as for BP4.
+        <engine type="FileStream">
+            <parameter key="NumAggregators " value="4"/>
         </engine>
 
-        === InSituMPI ===
-        One must launch producer and consumer as one MPI appliction in MPMD mode.
-        See Readme.md
-        Note: This engine does not support the high-level Python API in the plot
-        scripts, so it can only be used to couple the simulation and PDF calculation.
+        === File ===
+        FileStream is a token name for a file format, useful on reader side to open
+        any version of BP or an HDF5 file.
      -->
 </adios-config>
 
