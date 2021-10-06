@@ -6,7 +6,7 @@
     "k": 0.05,
     "dt": 2.0,
     "plotgap": 10,
-    "steps": 1000,
+    "steps": 100,
     "noise": 0.0000001,
     "output": "gs.bp",
     "adios_config": "adios2.xml"
