@@ -17,7 +17,7 @@
 #include <thread>
 #include <vector>
 
-// include IO library
+// #IO# include IO library
 #include <mpi.h>
 
 bool epsilon(double d) { return (d < 1.0e-20); }
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
     std::vector<double> bins_u;
     std::vector<double> bins_v;
 
-    // IO library need declarations for input and output data
+    // #IO# IO library need declarations for input and output data
     // input
     //   <double> var_u_in, var_v_in;
     //   <int> var_step_in;
@@ -186,9 +186,9 @@ int main(int argc, char *argv[])
     //   <int> var_step_out;
     //   <double> var_u_out, var_v_out;
 
-    // IO library init
+    // #IO# IO library init
 
-    // IO objects for reading and writing
+    // #IO# IO objects for reading and writing
 
     if (!rank)
     {
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
     int stepAnalysis = 0;
     while (true)
     {
-        // Begin read step
+        // #IO# Begin read step
         // have to wait for simulation to produce new step
         // have to check for errors
         // break when there are no more steps
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
         int stepSimOut = stepAnalysis; // assuming we did not skip steps
 
-        // Inquire variables and get
+        // #IO# Inquire variables and get
         // - global dimensions (shape)
         // - get min/max
         // var_u_in = double>("U");
@@ -245,13 +245,13 @@ int main(int argc, char *argv[])
                       << ",0,0} count={" << count1 << "," << shape[1] << ","
                       << shape[2] << "}" << std::endl;
 
-            // Set selection for reading from a global shape
+            // #IO# Set selection for reading from a global shape
             // Each process reads in a 3D slice
             //   offset:  {start1, 0, 0}
             //   size:    {count1, shape[1], shape[2]}
             // for var_u_in and var_v_in
 
-            // Declare variables to output
+            // #IO# Declare variables to output
             // PDF variables are 2D, each 2D slice has one 1D pdf of nbins
             //   shape:  {shape[0], nbins}
             //   offset: {start1, 0}
@@ -261,8 +261,8 @@ int main(int argc, char *argv[])
 
             if (!rank)
             {
-                // The bins should be recorded too, but everyone has the same
-                // data, so only one process needs to write this
+                // #IO# The bins should be recorded too, but everyone has the
+                // same data, so only one process needs to write this
                 //   shape:  {nbins}
                 //   offset: {0}
                 //   size:   {nbins}
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 
             if (write_inputvars)
             {
-                // a copy of the input data
+                // #IO# write a copy of the input data
                 //   shape:  {shape[0], shape[1], shape[2]}
                 //   offset: {start1, 0, 0}
                 //   size:   {count1, shape[1], shape[2]}
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
             firstStep = false;
         }
 
-        // Read in data, we fake it here
+        // #IO# Read in data
         // read <double> var_u_in --> u
         // read <double> var_v_in --> v
         {
@@ -299,12 +299,12 @@ int main(int argc, char *argv[])
 
         if (!rank)
         {
-            // read <int> var_step_in --> simStep
+            // #IO# read <int> var_step_in --> simStep
             // Fake read:
             simStep = stepAnalysis * 10;
         }
 
-        // End read step (let resources about step go)
+        // #IO# End read step (let resources about step go)
 
         if (!rank)
         {
@@ -334,18 +334,20 @@ int main(int argc, char *argv[])
         compute_pdf(v, shape, start1, count1, nbins, minmax_v.first,
                     minmax_v.second, pdf_v, bins_v);
 
-        // write U, V, and their norms out
+        // #IO# write U, V, and their norms
         // Begin output step
         //    <double> var_u_pdf  <-- pdf_u.data()
         //    <double> var_v_pdf <-- pdf_v.data()
         if (!rank)
         {
+            // #IO# write the bins
             //  <double> var_u_bins <-- bins_u.data()
             //  <double> var_v_bins <-- bins_v.data()
             //  <int> var_step_out <-- simStep
         }
         if (write_inputvars)
         {
+            // #IO# write the input data
             //  <double> var_u_out <-- u.data()
             //  <double> var_v_out <-- v.data()
         }
@@ -353,7 +355,7 @@ int main(int argc, char *argv[])
         ++stepAnalysis;
     }
 
-    // cleanup (close reader and writer)
+    // #IO# cleanup (close reader and writer)
 
     MPI_Barrier(comm);
     MPI_Finalize();

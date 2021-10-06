@@ -5,6 +5,7 @@
 Writer::Writer(const Settings &settings, const GrayScott &sim)
 : settings(settings)
 {
+    // #IO# make initializations, declarations as necessary
     // information from settings
     // <double>("F", settings.F);
     // <double>("k", settings.k);
@@ -28,21 +29,28 @@ Writer::Writer(const Settings &settings, const GrayScott &sim)
 
 void Writer::open(const std::string &fname)
 {
-    std::cout << "Create output file: " << fname << std::endl;
+    // #IO# Create the output
+    std::cout << "Create output stream: " << fname << std::endl;
 }
 
 void Writer::write(int step, const GrayScott &sim)
 {
+    // #IO# Write the output in a given step
     /* sim.u_ghost() provides access to the U variable as is */
     /* sim.u_noghost() provides a contiguous copy without the ghost cells */
     const std::vector<double> &u = sim.u_ghost();
     const std::vector<double> &v = sim.v_ghost();
 }
 
-void Writer::close() { std::cout << "Close output: " << std::endl; }
+void Writer::close()
+{
+    // #IO# Close the stream
+    std::cout << "Close output stream: " << std::endl;
+}
 
 void Writer::print_settings()
 {
+    // #IO# Just print information at the beginning about the IO setup
     std::cout << "Simulation writes data using engine type:              "
               << "NONE" << std::endl;
 }

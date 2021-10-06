@@ -23,20 +23,6 @@ $ make
 $ cd ..
 ```
 
-To enable internal application timers, add -DUSE_TIMERS=1 to the cmake command.
-```
-$ cmake -DUSE_TIMERS=1 -DCMAKE_PREFIX_PATH=/opt/adios2 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-```
-
-There are some applications that require VTK version 8. These are not 
-required for the current tutorial. To build with VTK, point to the VTK installation
-as well and turn on the flag VTK=ON:
-
-```
-$ cmake -DCMAKE_PREFIX_PATH="/opt/adios2;/opt/vtk/8.1.0" -DVTK=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-```
-
-
 ## How to run
 
 ```

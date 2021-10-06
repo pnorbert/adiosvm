@@ -1,7 +1,7 @@
 #ifndef __WRITER_H__
 #define __WRITER_H__
 
-// include IO library
+// #IO# include IO library
 #include <mpi.h>
 
 #include "gray-scott.h"

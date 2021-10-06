@@ -3,10 +3,9 @@
 #include <sstream>
 #include <vector>
 
-// include IO library
+// #IO# include IO library
 #include <mpi.h>
 
-#include "../common/timer.hpp"
 #include "gray-scott.h"
 #include "writer.h"
 
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
     GrayScott sim(settings, comm);
     sim.init();
 
-    // Need to initialize IO library
+    // #IO# Need to initialize IO library
     //
 
     Writer writer(settings, sim);
@@ -79,65 +78,23 @@ int main(int argc, char **argv)
         std::cout << "========================================" << std::endl;
     }
 
-#ifdef ENABLE_TIMERS
-    Timer timer_total;
-    Timer timer_compute;
-    Timer timer_write;
-
-    std::ostringstream log_fname;
-    log_fname << "gray_scott_pe_" << rank << ".log";
-
-    std::ofstream log(log_fname.str());
-    log << "step\ttotal_gs\tcompute_gs\twrite_gs" << std::endl;
-#endif
-
     for (int i = 0; i < settings.steps;)
     {
-#ifdef ENABLE_TIMERS
-        MPI_Barrier(comm);
-        timer_total.start();
-        timer_compute.start();
-#endif
-
         for (int j = 0; j < settings.plotgap; j++)
         {
             sim.iterate();
             i++;
         }
 
-#ifdef ENABLE_TIMERS
-        double time_compute = timer_compute.stop();
-        MPI_Barrier(comm);
-        timer_write.start();
-#endif
-
         if (rank == 0)
         {
             std::cout << "Simulation at step " << i
-                      << " writing output step     " << i / settings.plotgap
+                      << " publishing output step     " << i / settings.plotgap
                       << std::endl;
         }
-
         writer.write(i, sim);
-
-#ifdef ENABLE_TIMERS
-        double time_write = timer_write.stop();
-        double time_step = timer_total.stop();
-        MPI_Barrier(comm);
-
-        log << i << "\t" << time_step << "\t" << time_compute << "\t"
-            << time_write << std::endl;
-#endif
     }
 
     writer.close();
-
-#ifdef ENABLE_TIMERS
-    log << "total\t" << timer_total.elapsed() << "\t" << timer_compute.elapsed()
-        << "\t" << timer_write.elapsed() << std::endl;
-
-    log.close();
-#endif
-
     MPI_Finalize();
 }

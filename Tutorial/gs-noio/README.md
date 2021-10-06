@@ -20,11 +20,6 @@ $ make
 $ cd ..
 ```
 
-To enable internal application timers, add -DUSE_TIMERS=1 to the cmake command.
-```
-$ cmake -DUSE_TIMERS=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-```
-
 ## How to run
 
 ```

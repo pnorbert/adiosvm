@@ -10,12 +10,6 @@ project(gray-scott C CXX)
 find_package(MPI REQUIRED)
 find_package(ADIOS2 REQUIRED)
 
-option(USE_TIMERS "Use profiling timers")
-if(USE_TIMERS)
-  message(STATUS "Enabling profiling timers")
-  add_definitions(-DENABLE_TIMERS)
-endif()
-
 # We are not using the C++ API of MPI, this will stop the compiler look for it
 add_definitions(-DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
 
