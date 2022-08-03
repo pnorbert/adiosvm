@@ -259,33 +259,33 @@ int main(int argc, char *argv[])
 
             // Set selection
             var_u_in.SetSelection(adios2::Box<adios2::Dims>(
-                        {start1, 0, 0}, {count1, shape[1], shape[2]}));
+                {start1, 0, 0}, {count1, shape[1], shape[2]}));
             var_v_in.SetSelection(adios2::Box<adios2::Dims>(
-                        {start1, 0, 0}, {count1, shape[1], shape[2]}));
+                {start1, 0, 0}, {count1, shape[1], shape[2]}));
 
             // Declare variables to output
             var_u_pdf = writer_io.DefineVariable<double>(
-                    "U/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
+                "U/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
             var_v_pdf = writer_io.DefineVariable<double>(
-                    "V/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
+                "V/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
 
             if (shouldIWrite)
             {
                 var_u_bins = writer_io.DefineVariable<double>("U/bins", {nbins},
-                        {0}, {nbins});
+                                                              {0}, {nbins});
                 var_v_bins = writer_io.DefineVariable<double>("V/bins", {nbins},
-                        {0}, {nbins});
+                                                              {0}, {nbins});
                 var_step_out = writer_io.DefineVariable<int>("step");
             }
 
             if (write_inputvars)
             {
                 var_u_out = writer_io.DefineVariable<double>(
-                        "U", {shape[0], shape[1], shape[2]}, {start1, 0, 0},
-                        {count1, shape[1], shape[2]});
+                    "U", {shape[0], shape[1], shape[2]}, {start1, 0, 0},
+                    {count1, shape[1], shape[2]});
                 var_v_out = writer_io.DefineVariable<double>(
-                        "V", {shape[0], shape[1], shape[2]}, {start1, 0, 0},
-                        {count1, shape[1], shape[2]});
+                    "V", {shape[0], shape[1], shape[2]}, {start1, 0, 0},
+                    {count1, shape[1], shape[2]});
             }
             firstStep = false;
         }
@@ -298,37 +298,34 @@ int main(int argc, char *argv[])
             reader.Get<int>(var_step_in, &simStep);
         }
 
-         // End read step (let resources about step go)
+        // End read step (let resources about step go)
         reader.EndStep();
 
         if (!rank)
         {
             std::cout << "PDF Analysis step " << stepAnalysis
-                << " processing sim output step " << stepSimOut
-                << " sim compute step " << simStep << std::endl;
+                      << " processing sim output step " << stepSimOut
+                      << " sim compute step " << simStep << std::endl;
         }
 
-        std::pair<double, double> minmax_u = var_u_in.MinMax();
-        std::pair<double, double> minmax_v = var_v_in.MinMax();
-        // HDF5 engine does not provide min/max. Let's calculate it
-        if (reader_io.EngineType() == "HDF5")
-        {
-            auto mmu = std::minmax_element(u.begin(), u.end());
-            minmax_u = std::make_pair(*mmu.first, *mmu.second);
-            auto mmv = std::minmax_element(v.begin(), v.end());
-            minmax_v = std::make_pair(*mmv.first, *mmv.second);
-        }
+        // Calculate min/max of arrays
+        std::pair<double, double> minmax_u;
+        std::pair<double, double> minmax_v;
+        auto mmu = std::minmax_element(u.begin(), u.end());
+        minmax_u = std::make_pair(*mmu.first, *mmu.second);
+        auto mmv = std::minmax_element(v.begin(), v.end());
+        minmax_v = std::make_pair(*mmv.first, *mmv.second);
 
         // Compute PDF
         std::vector<double> pdf_u;
         std::vector<double> bins_u;
         compute_pdf(u, shape, start1, count1, nbins, minmax_u.first,
-                minmax_u.second, pdf_u, bins_u);
+                    minmax_u.second, pdf_u, bins_u);
 
         std::vector<double> pdf_v;
         std::vector<double> bins_v;
         compute_pdf(v, shape, start1, count1, nbins, minmax_v.first,
-                minmax_v.second, pdf_v, bins_v);
+                    minmax_v.second, pdf_v, bins_v);
 
         // write U, V, and their norms out
         writer.BeginStep();

@@ -316,12 +316,10 @@ int main(int argc, char *argv[])
         // Calculate min/max of arrays
         std::pair<double, double> minmax_u;
         std::pair<double, double> minmax_v;
-        {
-            auto mmu = std::minmax_element(u.begin(), u.end());
-            minmax_u = std::make_pair(*mmu.first, *mmu.second);
-            auto mmv = std::minmax_element(v.begin(), v.end());
-            minmax_v = std::make_pair(*mmv.first, *mmv.second);
-        }
+        auto mmu = std::minmax_element(u.begin(), u.end());
+        minmax_u = std::make_pair(*mmu.first, *mmu.second);
+        auto mmv = std::minmax_element(v.begin(), v.end());
+        minmax_v = std::make_pair(*mmv.first, *mmv.second);
 
         // Compute PDF
         std::vector<double> pdf_u;
