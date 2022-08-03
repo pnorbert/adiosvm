@@ -24,3 +24,22 @@ target_link_libraries(gray-scott adios2::cxx11_mpi MPI::MPI_C)
 add_executable(pdf-calc analysis/pdf-calc.cpp)
 target_link_libraries(pdf-calc adios2::cxx11_mpi MPI::MPI_C)
 
+
+#
+# Install commands
+#
+install(TARGETS gray-scott
+	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS pdf-calc
+	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+install(FILES "adios2.xml"
+              "simulation/settings-files.json"
+              "simulation/settings-staging.json"
+              "plot/decomp.py" "plot/gsplot.py" "plot/pdfplot.py"
+              "README.md"
+        DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+
+install(PROGRAMS "cleanup.sh"
+        DESTINATION ${CMAKE_INSTALL_PREFIX})
