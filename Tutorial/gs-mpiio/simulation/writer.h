@@ -1,0 +1,38 @@
+#ifndef __WRITER_H__
+#define __WRITER_H__
+
+// #IO# include IO library
+#include <mpi.h>
+
+#include "gray-scott.h"
+#include "settings.h"
+
+class Writer
+{
+public:
+    Writer(const Settings &settings, const GrayScott &sim, const MPI_Comm comm);
+    void open(const std::string &fname);
+    void write(int step, const GrayScott &sim);
+    void close();
+
+    void print_settings();
+
+protected:
+    const Settings &settings;
+    MPI_Comm comm;
+    int nproc, rank;
+    int err, cmode;
+    MPI_File fh;
+    MPI_Datatype memtype, filetype;
+
+    struct header
+    {
+        unsigned long long x;
+        unsigned long long y;
+        unsigned long long z;
+    };
+
+    //#IO# declare ADIOS variables for engine, io, variables
+};
+
+#endif
