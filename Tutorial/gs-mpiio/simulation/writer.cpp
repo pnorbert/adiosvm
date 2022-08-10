@@ -39,6 +39,12 @@ Writer::Writer(const Settings &settings, const GrayScott &sim,
 
     // information: <int> step   is a single value
 
+    /*
+     *  MPI Subarray data type for writing/reading parallel distributed arrays
+     *  See case II for array with ghost cells:
+     *  https://wgropp.cs.illinois.edu/courses/cs598-s15/lectures/lecture33.pdf
+     */
+
     int mshape[3] = {(int)sim.size_z + 2, (int)sim.size_y + 2,
                      (int)sim.size_x + 2};
     int mstart[3] = {1, 1, 1};
@@ -85,7 +91,7 @@ void Writer::open(const std::string &fname)
         unsigned long long L = static_cast<unsigned long long>(settings.L);
         struct header h = {L, L, L};
         MPI_Status status;
-        MPI_File_write(fh, &h, 3, MPI_LONG_LONG, &status);
+        MPI_File_write(fh, &h, sizeof(h), MPI_BYTE, &status);
     }
 
     err =

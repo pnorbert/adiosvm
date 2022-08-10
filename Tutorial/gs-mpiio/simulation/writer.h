@@ -27,9 +27,10 @@ protected:
 
     struct header
     {
-        unsigned long long x;
-        unsigned long long y;
+        // original coder used z as slowest dim, x as fastest!!!
         unsigned long long z;
+        unsigned long long y;
+        unsigned long long x;
     };
 
     //#IO# declare ADIOS variables for engine, io, variables
