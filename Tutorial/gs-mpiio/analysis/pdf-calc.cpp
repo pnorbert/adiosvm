@@ -1,6 +1,6 @@
 /*
  * Analysis code for the Gray-Scott application.
- * Reads variable U and V, and computes the PDF for each 2D slices of U and V.
+ * Reads variable U, and computes the PDF for each 2D slices of U
  * Writes the computed PDFs using ADIOS.
  *
  * Norbert Podhorszki, pnorbert@ornl.gov
@@ -17,7 +17,6 @@
 #include <thread>
 #include <vector>
 
-#include "adios2.h"
 #include <mpi.h>
 
 bool epsilon(double d) { return (d < 1.0e-20); }
@@ -110,13 +109,38 @@ void printUsage()
            "the analysis results\n\n";
 }
 
+#define CHECK_ERR(func)                                                        \
+    {                                                                          \
+        if (err != MPI_SUCCESS)                                                \
+        {                                                                      \
+            int errorStringLen;                                                \
+            char errorString[MPI_MAX_ERROR_STRING];                            \
+            MPI_Error_string(err, errorString, &errorStringLen);               \
+            printf("Error at line %d: calling %s (%s)\n", __LINE__, #func,     \
+                   errorString);                                               \
+        }                                                                      \
+    }
+
+struct header_in
+{
+    unsigned long long z;
+    unsigned long long y;
+    unsigned long long x;
+};
+
+struct header_pdf
+{
+    unsigned long long nslices;
+    unsigned long long nbins;
+};
+
 /*
  * MAIN
  */
 int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
-    int rank, comm_size, wrank;
+    int rank, comm_size, wrank, err;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
 
@@ -158,163 +182,151 @@ int main(int argc, char *argv[])
             write_inputvars = true;
     }
 
-    std::size_t u_global_size, v_global_size;
-    std::size_t u_local_size, v_local_size;
-
-    bool firstStep = true;
-
-    std::vector<std::size_t> shape;
+    std::size_t u_global_size;
+    std::size_t u_local_size;
     size_t count1;
     size_t start1;
 
-    std::vector<double> u;
-    std::vector<double> v;
+    std::vector<double> u; // input data
     int simStep = -5;
 
-    std::vector<double> pdf_u;
-    std::vector<double> pdf_v;
-    std::vector<double> bins_u;
-    std::vector<double> bins_v;
+    std::vector<double> pdf_u;  // output data
+    std::vector<double> bins_u; // output data
 
-    // adios2 variable declarations
-    adios2::Variable<double> var_u_in, var_v_in;
-    adios2::Variable<int> var_step_in;
-    adios2::Variable<double> var_u_pdf, var_v_pdf;
-    adios2::Variable<double> var_u_bins, var_v_bins;
-    adios2::Variable<int> var_step_out;
-    adios2::Variable<double> var_u_out, var_v_out;
-
-    // adios2 io object and engine init
-    adios2::ADIOS ad("adios2.xml", comm);
-
-    // IO objects for reading and writing
-    adios2::IO reader_io = ad.DeclareIO("SimulationOutput");
-    adios2::IO writer_io = ad.DeclareIO("PDFAnalysisOutput");
+    // Process header
+    struct header_in hdr;
+    int nsteps;
+    size_t varsize;
+    int mode = MPI_MODE_RDONLY;
+    MPI_Info info = MPI_INFO_NULL;
+    MPI_Status status;
+    MPI_File fin;
+    // open input file for reading
+    err = MPI_File_open(comm, in_filename.c_str(), mode, info, &fin);
+    CHECK_ERR(MPI_File_open input)
     if (!rank)
     {
-        std::cout << "PDF analysis reads from Simulation using engine type:  "
-                  << reader_io.EngineType() << std::endl;
-        std::cout << "PDF analysis writes using engine type:                 "
-                  << writer_io.EngineType() << std::endl;
+        MPI_Offset filesize;
+        err = MPI_File_get_size(fin, &filesize);
+        CHECK_ERR(MPI_File_get_size)
+        err = MPI_File_read(fin, &hdr, sizeof(hdr), MPI_BYTE, &status);
+        CHECK_ERR(MPI_File_read header)
+        size_t nelems = hdr.z * hdr.y * hdr.x;
+        varsize = nelems * sizeof(double);
+        double nsteps_d = (filesize - sizeof(hdr)) / (varsize * 1.0);
+        nsteps = (int)nsteps_d;
+        if ((double)nsteps != nsteps_d)
+        {
+            std::cerr << "ERROR file size " << filesize << " is unexpected. "
+                      << std::endl;
+        }
+        std::cout << "Found " << nsteps << " steps in file, size of U is "
+                  << hdr.z << "x" << hdr.y << "x" << hdr.x << std::endl;
+    }
+    MPI_Bcast(&hdr, sizeof(hdr), MPI_BYTE, 0, comm);
+    MPI_Bcast(&nsteps, 1, MPI_INT, 0, comm);
+    MPI_Bcast(&varsize, 1, MPI_INT, 0, comm);
+
+    std::vector<std::size_t> shape;
+    shape.push_back(hdr.z);
+    shape.push_back(hdr.y);
+    shape.push_back(hdr.x);
+
+    // Calculate global and local sizes of U
+    u_global_size = shape[0] * shape[1] * shape[2];
+    u_local_size = u_global_size / comm_size;
+
+    // 1D decomposition
+    count1 = shape[0] / comm_size;
+    start1 = count1 * rank;
+    if (rank == comm_size - 1)
+    {
+        // last process need to read all the rest of slices
+        count1 = shape[0] - count1 * (comm_size - 1);
     }
 
-    // Engines for reading and writing
-    adios2::Engine reader =
-        reader_io.Open(in_filename, adios2::Mode::Read, comm);
-    adios2::Engine writer =
-        writer_io.Open(out_filename, adios2::Mode::Write, comm);
+    size_t mynelems = count1 * shape[1] * shape[2];
+    u.resize(mynelems);
 
-    bool shouldIWrite = (!rank || reader_io.EngineType() == "HDF5");
+    // define datatype for reading parallel array
+    MPI_Datatype typeInU;
+    int fshape[3] = {(int)shape[0], (int)shape[1], (int)shape[2]};
+    int fstart[3] = {(int)start1, 0, 0};
+    int fcount[3] = {(int)count1, (int)shape[1], (int)shape[2]};
+    err = MPI_Type_create_subarray(3, fshape, fcount, fstart, MPI_ORDER_C,
+                                   MPI_DOUBLE, &typeInU);
+    CHECK_ERR(MPI_Type_create_subarray for input file type)
+    err = MPI_Type_commit(&typeInU);
+    CHECK_ERR(MPI_Type_commit for input file type)
+
+    err = MPI_File_set_view(fin, sizeof(header_in), MPI_DOUBLE, typeInU,
+                            "native", info);
+    CHECK_ERR(MPI_File_set_view)
+
+    // define datatype for writing parallel arrays (PDF)
+    MPI_Datatype typeOutPDF;
+    int pshape[2] = {(int)shape[0], (int)nbins};
+    int pstart[2] = {(int)start1, 0};
+    int pcount[2] = {(int)count1, (int)nbins};
+    err = MPI_Type_create_subarray(2, pshape, pcount, pstart, MPI_ORDER_C,
+                                   MPI_DOUBLE, &typeOutPDF);
+    CHECK_ERR(MPI_Type_create_subarray for PDF file type)
+    err = MPI_Type_commit(&typeOutPDF);
+    CHECK_ERR(MPI_Type_commit for PDF file type)
+
+    // create PDF file
+    int cmode = MPI_MODE_CREATE | MPI_MODE_WRONLY;
+    MPI_Info cinfo = MPI_INFO_NULL;
+    MPI_File fpdf;
+    std::string pdfname = out_filename + ".pdf";
+    err = MPI_File_open(comm, pdfname.c_str(), cmode, cinfo, &fpdf);
+    CHECK_ERR(MPI_File_open PDF)
+    struct header_pdf hout;
+    hout.nbins = nbins;
+    hout.nslices = shape[0];
+    if (!rank)
+    {
+        MPI_File_write(fpdf, &hout, sizeof(hout), MPI_BYTE, &status);
+    }
+    err = MPI_File_set_view(fpdf, sizeof(header_pdf), MPI_DOUBLE, typeOutPDF,
+                            "native", info);
+    CHECK_ERR(MPI_File_set_view)
+
+    // create BINS file
+    MPI_File fbins;
+    std::string binsname = out_filename + ".bins";
+    err = MPI_File_open(comm, binsname.c_str(), cmode, cinfo, &fbins);
+    CHECK_ERR(MPI_File_open BINS)
+    if (!rank)
+    {
+        MPI_File_write(fbins, &nbins, 1, MPI_LONG_LONG, &status);
+    }
+
+    MPI_Barrier(comm);
 
     // read data step-by-step
-    int stepAnalysis = 0;
-    while (true)
+    for (int step = 0; step < nsteps; ++step)
     {
-        // Begin read step
-        adios2::StepStatus read_status =
-            reader.BeginStep(adios2::StepMode::Read, 10.0f);
-        if (read_status == adios2::StepStatus::NotReady)
-        {
-            // std::cout << "Stream not ready yet. Waiting...\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            continue;
-        }
-        else if (read_status != adios2::StepStatus::OK)
-        {
-            break;
-        }
-
-        int stepSimOut = reader.CurrentStep();
-
-        // Inquire variable
-        var_u_in = reader_io.InquireVariable<double>("U");
-        var_v_in = reader_io.InquireVariable<double>("V");
-        var_step_in = reader_io.InquireVariable<int>("step");
-
-        // Set the selection at the first step only, assuming that
-        // the variable dimensions do not change across timesteps
-        if (firstStep)
-        {
-            shape = var_u_in.Shape();
-
-            // Calculate global and local sizes of U and V
-            u_global_size = shape[0] * shape[1] * shape[2];
-            u_local_size = u_global_size / comm_size;
-            v_global_size = shape[0] * shape[1] * shape[2];
-            v_local_size = v_global_size / comm_size;
-
-            // 1D decomposition
-            count1 = shape[0] / comm_size;
-            start1 = count1 * rank;
-            if (rank == comm_size - 1)
-            {
-                // last process need to read all the rest of slices
-                count1 = shape[0] - count1 * (comm_size - 1);
-            }
-
-            /*std::cout << "  rank " << rank << " slice start={" <<  start1
-              << ",0,0} count={" << count1  << "," << shape[1] << "," <<
-              shape[2]
-              << "}" << std::endl;*/
-
-            // Set selection
-            var_u_in.SetSelection(adios2::Box<adios2::Dims>(
-                {start1, 0, 0}, {count1, shape[1], shape[2]}));
-            var_v_in.SetSelection(adios2::Box<adios2::Dims>(
-                {start1, 0, 0}, {count1, shape[1], shape[2]}));
-
-            // Declare variables to output
-            var_u_pdf = writer_io.DefineVariable<double>(
-                "U/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
-            var_v_pdf = writer_io.DefineVariable<double>(
-                "V/pdf", {shape[0], nbins}, {start1, 0}, {count1, nbins});
-
-            if (shouldIWrite)
-            {
-                var_u_bins = writer_io.DefineVariable<double>("U/bins", {nbins},
-                                                              {0}, {nbins});
-                var_v_bins = writer_io.DefineVariable<double>("V/bins", {nbins},
-                                                              {0}, {nbins});
-                var_step_out = writer_io.DefineVariable<int>("step");
-            }
-
-            if (write_inputvars)
-            {
-                var_u_out = writer_io.DefineVariable<double>(
-                    "U", {shape[0], shape[1], shape[2]}, {start1, 0, 0},
-                    {count1, shape[1], shape[2]});
-                var_v_out = writer_io.DefineVariable<double>(
-                    "V", {shape[0], shape[1], shape[2]}, {start1, 0, 0},
-                    {count1, shape[1], shape[2]});
-            }
-            firstStep = false;
-        }
-
-        // Read adios2 data
-        reader.Get<double>(var_u_in, u);
-        reader.Get<double>(var_v_in, v);
-        if (shouldIWrite)
-        {
-            reader.Get<int>(var_step_in, &simStep);
-        }
-
-        // End read step (let resources about step go)
-        reader.EndStep();
+        // start of U in data file at this step
+        MPI_Offset stepOffset = sizeof(header_in) + step * varsize;
+        if (!rank)
+            std::cout << "Seek to " << stepOffset << std::endl;
+        err = MPI_File_seek_shared(fin, stepOffset, MPI_SEEK_SET);
+        CHECK_ERR(MPI_File_seek_shared)
+        err = MPI_File_read_all(fin, u.data(), mynelems, MPI_DOUBLE, &status);
+        CHECK_ERR(MPI_File_read_all)
 
         if (!rank)
         {
-            std::cout << "PDF Analysis step " << stepAnalysis
-                      << " processing sim output step " << stepSimOut
-                      << " sim compute step " << simStep << std::endl;
+            std::cout << "PDF Analysis step " << step << std::endl;
         }
 
         // Calculate min/max of arrays
         std::pair<double, double> minmax_u;
-        std::pair<double, double> minmax_v;
         auto mmu = std::minmax_element(u.begin(), u.end());
         minmax_u = std::make_pair(*mmu.first, *mmu.second);
-        auto mmv = std::minmax_element(v.begin(), v.end());
-        minmax_v = std::make_pair(*mmv.first, *mmv.second);
+        std::cout << "Rank " << rank << " min = " << *mmu.first
+                  << " max = " << *mmu.second << "\n";
 
         // Compute PDF
         std::vector<double> pdf_u;
@@ -322,33 +334,23 @@ int main(int argc, char *argv[])
         compute_pdf(u, shape, start1, count1, nbins, minmax_u.first,
                     minmax_u.second, pdf_u, bins_u);
 
-        std::vector<double> pdf_v;
-        std::vector<double> bins_v;
-        compute_pdf(v, shape, start1, count1, nbins, minmax_v.first,
-                    minmax_v.second, pdf_v, bins_v);
+        // write PDF
+        err = MPI_File_write_all(fpdf, pdf_u.data(), count1 * nbins, MPI_DOUBLE,
+                                 &status);
+        CHECK_ERR(MPI_File_write PDF)
 
-        // write U, V, and their norms out
-        writer.BeginStep();
-        writer.Put<double>(var_u_pdf, pdf_u.data());
-        writer.Put<double>(var_v_pdf, pdf_v.data());
-        if (shouldIWrite)
+        // write BINS
+        if (!rank)
         {
-            writer.Put<double>(var_u_bins, bins_u.data());
-            writer.Put<double>(var_v_bins, bins_v.data());
-            writer.Put<int>(var_step_out, simStep);
+            err = MPI_File_write(fbins, bins_u.data(), nbins, MPI_DOUBLE,
+                                 &status);
+            CHECK_ERR(MPI_File_write BINS)
         }
-        if (write_inputvars)
-        {
-            writer.Put<double>(var_u_out, u.data());
-            writer.Put<double>(var_v_out, v.data());
-        }
-        writer.EndStep();
-        ++stepAnalysis;
     }
 
     // cleanup (close reader and writer)
-    reader.Close();
-    writer.Close();
+    err = MPI_File_close(&fin);
+    CHECK_ERR(MPI_File_close on rank0)
 
     MPI_Barrier(comm);
     MPI_Finalize();

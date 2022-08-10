@@ -6,7 +6,7 @@
         ============================================-->
 
     <io name="SimulationOutput">
-        <engine type="BP5">
+        <engine type="FileStream">
             <!-- SST engine parameters -->
             <parameter key="RendezvousReaderCount" value="0"/>
             <parameter key="QueueLimit" value="1"/>
@@ -23,7 +23,7 @@
         ===========================================-->
 
     <io name="PDFAnalysisOutput">
-        <engine type="BP5">
+        <engine type="FileStream">
             <!-- SST engine parameters -->
             <parameter key="RendezvousReaderCount" value="1"/>
             <parameter key="QueueLimit" value="5"/>
