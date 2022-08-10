@@ -286,7 +286,8 @@ int main(int argc, char *argv[])
     hout.nslices = shape[0];
     if (!rank)
     {
-        MPI_File_write(fpdf, &hout, sizeof(hout), MPI_BYTE, &status);
+        err = MPI_File_write(fpdf, &hout, sizeof(hout), MPI_BYTE, &status);
+        CHECK_ERR(MPI_File_write PDF header)
     }
     err = MPI_File_set_view(fpdf, sizeof(header_pdf), MPI_DOUBLE, typeOutPDF,
                             "native", info);
@@ -294,12 +295,14 @@ int main(int argc, char *argv[])
 
     // create BINS file
     MPI_File fbins;
-    std::string binsname = out_filename + ".bins";
-    err = MPI_File_open(comm, binsname.c_str(), cmode, cinfo, &fbins);
-    CHECK_ERR(MPI_File_open BINS)
     if (!rank)
     {
-        MPI_File_write(fbins, &nbins, 1, MPI_LONG_LONG, &status);
+        std::string binsname = out_filename + ".bins";
+        err = MPI_File_open(MPI_COMM_SELF, binsname.c_str(), cmode, cinfo,
+                            &fbins);
+        CHECK_ERR(MPI_File_open BINS)
+        err = MPI_File_write(fbins, &nbins, 1, MPI_LONG_LONG, &status);
+        CHECK_ERR(MPI_File_write BINS header)
     }
 
     MPI_Barrier(comm);
@@ -307,12 +310,6 @@ int main(int argc, char *argv[])
     // read data step-by-step
     for (int step = 0; step < nsteps; ++step)
     {
-        // start of U in data file at this step
-        MPI_Offset stepOffset = sizeof(header_in) + step * varsize;
-        if (!rank)
-            std::cout << "Seek to " << stepOffset << std::endl;
-        err = MPI_File_seek_shared(fin, stepOffset, MPI_SEEK_SET);
-        CHECK_ERR(MPI_File_seek_shared)
         err = MPI_File_read_all(fin, u.data(), mynelems, MPI_DOUBLE, &status);
         CHECK_ERR(MPI_File_read_all)
 
@@ -325,8 +322,8 @@ int main(int argc, char *argv[])
         std::pair<double, double> minmax_u;
         auto mmu = std::minmax_element(u.begin(), u.end());
         minmax_u = std::make_pair(*mmu.first, *mmu.second);
-        std::cout << "Rank " << rank << " min = " << *mmu.first
-                  << " max = " << *mmu.second << "\n";
+        /*std::cout << "Rank " << rank << " min = " << *mmu.first
+                  << " max = " << *mmu.second << "\n";*/
 
         // Compute PDF
         std::vector<double> pdf_u;
@@ -350,7 +347,14 @@ int main(int argc, char *argv[])
 
     // cleanup (close reader and writer)
     err = MPI_File_close(&fin);
-    CHECK_ERR(MPI_File_close on rank0)
+    CHECK_ERR(MPI_File_close input)
+    err = MPI_File_close(&fpdf);
+    CHECK_ERR(MPI_File_close output PDF)
+    if (!rank)
+    {
+        err = MPI_File_close(&fbins);
+        CHECK_ERR(MPI_File_close output BINS)
+    }
 
     MPI_Barrier(comm);
     MPI_Finalize();
