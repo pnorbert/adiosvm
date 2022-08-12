@@ -13,8 +13,6 @@
             <parameter key="QueueFullPolicy" value="Discard"/>
             <!-- BP4/SST engine parameters -->
             <parameter key="OpenTimeoutSecs" value="10.0"/>
-            <!-- SSC engine parameters -->
-            <parameter key="MaxStreamsPerApp" value="2"/>
         </engine>
     </io>
 
@@ -30,8 +28,6 @@
             <parameter key="QueueFullPolicy" value="Block"/>
             <!-- BP4/SST engine parameters -->
             <parameter key="OpenTimeoutSecs" value="10.0"/>
-            <!-- SSC engine parameters -->
-            <parameter key="MaxStreamsPerApp" value="2"/>
         </engine>
 
         <!-- Compress variables -->
@@ -54,6 +50,7 @@
         <engine type="FileStream"/>
         <engine type="SST"/>
         <engine type="BP4"/>
+        <engine type="BP5"/>
         <engine type="HDF5"/>
         <engine type="File"/>
 
