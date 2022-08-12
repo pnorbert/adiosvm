@@ -37,7 +37,7 @@ install(TARGETS pdf-calc
 
 install(FILES "adios2.xml"
               "simulation/settings-files.json"
-              "plot/decomp.py" "plot/gsplot.py" "plot/pdfplot.py"
+              "plot/gsplot.py" 
               "README.md"
         DESTINATION ${CMAKE_INSTALL_PREFIX})
 
