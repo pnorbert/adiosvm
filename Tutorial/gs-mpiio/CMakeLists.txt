@@ -9,6 +9,7 @@ project(gray-scott C CXX)
 
 find_package(MPI REQUIRED)
 # #IO# look for ADIOS2
+find_package(ADIOS2 REQUIRED)
 
 # We are not using the C++ API of MPI, this will stop the compiler look for it
 add_definitions(-DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
@@ -19,12 +20,12 @@ add_executable(gray-scott
   simulation/settings.cpp
   simulation/writer.cpp
 )
-target_link_libraries(gray-scott MPI::MPI_C)
 # #IO# add link dependency adios2::cxx11_mpi
+target_link_libraries(gray-scott adios2::cxx11_mpi MPI::MPI_C)
 
 add_executable(pdf-calc analysis/pdf-calc.cpp)
-target_link_libraries(pdf-calc MPI::MPI_C)
 # #IO# add link dependency adios2::cxx11_mpi
+target_link_libraries(pdf-calc adios2::cxx11_mpi MPI::MPI_C)
 
 
 #
