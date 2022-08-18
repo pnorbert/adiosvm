@@ -67,7 +67,6 @@ Writer::Writer(const Settings &settings, const GrayScott &sim,
 
 void Writer::open(const std::string &fname)
 {
-    std::cout << "Create output stream: " << fname << std::endl;
     int cmode;
     MPI_Info info;
     MPI_Offset headersize = sizeof(header);
@@ -114,7 +113,6 @@ void Writer::write(int step, const GrayScott &sim)
 
 void Writer::close()
 {
-    std::cout << "Close output stream: " << std::endl;
     /* collectively close the file */
     err = MPI_File_close(&fh);
     CHECK_ERR(MPI_File_close);
