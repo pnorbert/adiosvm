@@ -2,22 +2,15 @@
 Fortran simulation - C++ analysis - Python plotter
 
 In adios2.xml, set the engines for 
-  SimulationOutput: InSituMPI
+  SimulationOutput: SSC
   AnalysisOutput:   SST
   VizInput:         SST
 
 This will plot on screen. No data file will be produced.
 
-$ mpirun -n 12 simulation/heatSimulation_adios2 heat 4 3 40 50 100 1000 : \
-         -n  3 ../cpp/heatAnalysis heat.bp analysis.bp 3 1 : \
+$ mpirun -n 4 simulation/heatSimulation_adios2 heat.bp 2 2 40 50 100 1000 : \
+         -n  2 ../cpp/heatAnalysis heat.bp analysis.bp 2 1 : \
          -n  1 ../python/heat_plot.py --in analysis.bp 
-
-This will produce a BP file with dT variable.
-
-$ mpirun -n 12 simulation/heatSimulation_adios2 heat 4 3 40 50 100 100 : \
-         -n  3 ../cpp/heatAnalysis heat.bp analysis.bp 3 1 : \
-         -n  1 ../python/heat_all.py --infile analysis.bp --outfile p.bp
-
 
 
 The demo also works with SST for all IO. i

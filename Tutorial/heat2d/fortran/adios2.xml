@@ -29,7 +29,7 @@
         ==========================================-->
 
     <io name="SimulationOutput">
-        <engine type="BP4">
+        <engine type="FileStream">
             <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
     </io>
@@ -43,8 +43,11 @@
         =========================================-->
     
     <io name="AnalysisOutput">
-        <engine type="BP4">
+        <engine type="FileStream">
             <parameter key="OpenTimeoutSecs" value="10.0"/>
+            <parameter key="RendezvousReaderCount" value="0"/>
+            <parameter key="QueueLimit" value="1"/>
+            <parameter key="QueueFullPolicy" value="Discard"/>
         </engine>
 
         <!--
@@ -70,7 +73,7 @@
         =============================================-->
     
     <io name="VizInput">
-        <engine type="BP4">
+        <engine type="FileStream">
             <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
     </io>
