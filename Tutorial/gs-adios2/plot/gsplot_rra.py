@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 #
-# gsplot with stream reading using a BeginStep/EndStep loop
-# This script can process steps concurrently with the simulation
+# gsplot with file-reader version instead of BeginStep/EndStep loop
+# here the script sees all steps at once (but only after the simulation completed)
 #
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -117,36 +117,38 @@ if __name__ == "__main__":
 
     # Read the data from this object
     io = adios.DeclareIO("SimulationOutput")
-    fr = io.Open(args.instream, adios2.Mode.Read)
+    fr = io.Open(args.instream, adios2.Mode.ReadRandomAccess)
+    print("Number of steps (file) = {0}".format(fr.Steps()))
+
+    vars = io.AvailableVariables()
+    # print(vars)
+    nsteps = int(vars["step"]["AvailableStepsCount"])
+    print("Number of steps (variable step) = {0}".format(nsteps))
+
+    vstep = io.InquireVariable("step")
+    print("Default number of steps for reading of a variable = {0}".format(
+        vstep.Steps()))
+    simsteps = np.zeros(fr.Steps(), dtype='int32')
+    vstep.SetStepSelection([0, fr.Steps()])
+    fr.Get(vstep, simsteps, adios2.Mode.Sync)
+    print("Simulation steps = ", simsteps)
+
+    for name, info in vars.items():
+        print("variable_name: " + name)
+        for key, value in info.items():
+            print("\t" + key + ": " + value)
+        print("\n")
+
+    vu = io.InquireVariable("U")
+    shape3 = vu.Shape()
+    print("U shape = {0}".format(shape3))
 
     # Read through the steps, one at a time
-    plot_step = 0
-    while True:
-        status = fr.BeginStep()
-        if status == adios2.StepStatus.EndOfStream:
-            print("-- no more steps found --")
-            break
-        elif status == adios2.StepStatus.NotReady:
-            sleep(1)
-            continue
-        elif status == adios2.StepStatus.OtherError:
-            print("-- error with stream --")
+    for step in range(0,  nsteps):
+        print("GS Plot step {0} simulation step {1}".format(
+              step, simsteps[0]), flush=True)
 
-        cur_step = fr.CurrentStep()
-        vars = io.AvailableVariables()
-        step = int(vars["step"]["Min"])
-
-        for name, info in vars.items():
-            print("variable_name: " + name)
-            for key, value in info.items():
-                print("\t" + key + ": " + value)
-            print("\n")
-
-        print("GS Plot step {0} output step {1} simulation step {2}".format(
-              plot_step, cur_step, step), flush=True)
-
-        vu = io.InquireVariable("U")
-        shape3 = vu.Shape()
+        vu.SetStepSelection([step, 1])
 
         if args.plane in ('xy', 'all'):
             data = np.empty([shape3[0], shape3[1]], dtype=np.float64)
@@ -168,8 +170,5 @@ if __name__ == "__main__":
                             [1, shape3[1], shape3[2]]])
             fr.Get(vu, data, adios2.Mode.Sync)
             Plot2D('yz',  data, args, shape3, step, fontsize)
-
-        fr.EndStep()
-        plot_step = plot_step + 1
 
     fr.Close()
