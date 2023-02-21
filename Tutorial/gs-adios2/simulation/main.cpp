@@ -67,8 +67,6 @@ int main(int argc, char **argv)
 
     Writer writer(settings, sim, io_main);
 
-    writer.open(settings.output);
-
     if (rank == 0)
     {
         writer.print_settings();
@@ -92,9 +90,11 @@ int main(int argc, char **argv)
                       << " publishing output step     " << i / settings.plotgap
                       << std::endl;
         }
+        std::string fn = settings.output + "_" + std::to_string(i) + ".bp";
+        writer.open(fn);
         writer.write(i, sim);
+        writer.close();
     }
 
-    writer.close();
     MPI_Finalize();
 }
