@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<adios-config>
+
+    <io name="ReadIO">
+        <engine type="BP4">
+            <parameter key="OpenTimeoutSecs" value="10.0"/>
+        </engine>
+    </io>
+
+    <io name="WriteIO">
+        <engine type="BP4">
+            <parameter key="OpenTimeoutSecs" value="10.0"/>
+        </engine>
+
+        <!-- Compress variables -->
+        <!--
+        <variable name="e_f">
+            <operation type="mgard">
+                <parameter key="accuracy" value="0.001"/>
+                <parameter key="mode" value="REL"/>
+                <parameter key="s" value="0"/>
+            </operation>
+        </variable>
+        <variable name="i_f">
+            <operation type="mgard">
+                <parameter key="accuracy" value="0.001"/>
+                <parameter key="mode" value="REL"/>
+                <parameter key="s" value="0"/>
+            </operation>
+        </variable>
+        -->
+    </io>
+
+</adios-config>
+

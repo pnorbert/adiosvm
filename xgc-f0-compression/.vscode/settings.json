@@ -1,0 +1,8 @@
+{
+    "C_Cpp.default.includePath": [${default
+        }
+    ],
+    "cmake.configureOnOpen": false,
+    "clang-format.executable": "/home/adios/bin/clang-format",
+    "editor.formatOnSave": true,
+}
