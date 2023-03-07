@@ -84,6 +84,10 @@ Timers runtest()
     size_t myplane = static_cast<size_t>(rank) % nplanes;      // 0, 1, ... nplanes-1
     size_t plane_rank = static_cast<size_t>(rank) / nplanes;   // 0, 1, ... n_per_plane
     size_t n_per_plane = static_cast<size_t>(nproc) / nplanes; // num proc per plane
+    if (!n_per_plane)
+    {
+        n_per_plane = 1;
+    }
 
     if (!rank)
     {
