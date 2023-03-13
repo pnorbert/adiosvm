@@ -10,5 +10,7 @@ add_definitions(-DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
 add_executable(xgc-f0-compression xgc-f0-compression.cpp)
 target_link_libraries(xgc-f0-compression Kokkos::kokkos adios2::adios2 MPI::MPI_C)
 
+add_executable(xgc-f0-compression-cpu xgc-f0-compression-cpu.cpp)
+target_link_libraries(xgc-f0-compression-cpu Kokkos::kokkos adios2::adios2 MPI::MPI_C)
 
 
