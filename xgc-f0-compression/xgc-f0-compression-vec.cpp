@@ -6,28 +6,8 @@
 #include <limits>
 #include <sys/time.h>
 
-#include <Kokkos_Core.hpp>
 #include <adios2.h>
-#include <adios2/cxx11/KokkosView.h>
-#include <mgard/compress_x.hpp>
 #include <mpi.h>
-
-#ifdef KOKKOS_ENABLE_CUDA
-#define MemSpace Kokkos::CudaSpace
-#endif
-#ifdef KOKKOS_ENABLE_HIP
-#define MemSpace Kokkos::Experimental::HIPSpace
-#endif
-#ifdef KOKKOS_ENABLE_OPENMPTARGET
-#define MemSpace Kokkos::OpenMPTargetSpace
-#endif
-
-#ifndef MemSpace
-#define MemSpace Kokkos::HostSpace
-#endif
-
-using ExecSpace = MemSpace::execution_space;
-using range_policy = Kokkos::RangePolicy<ExecSpace>;
 
 int rank, nproc;
 MPI_Comm comm;
@@ -75,17 +55,12 @@ Timers runtest()
     adios2::IO writer_io = ad.DeclareIO("WriteIO");
     adios2::Engine reader = reader_io.Open(in_filename, adios2::Mode::ReadRandomAccess, comm);
     adios2::Engine writer = writer_io.Open(out_filename, adios2::Mode::Write, comm);
-    bool decompress = false;
 
     var_ef_in = reader_io.InquireVariable<double>("e_f");
-    // var_if_in = reader_io.InquireVariable<double>("i_f");
+    var_if_in = reader_io.InquireVariable<double>("i_f");
     auto shape = var_ef_in.Shape();
 
     // 4D array nplanes * 39 * nnode * 39, decomposed on dim 'nnode'
-    if (shape.size() == 2)
-    {
-        decompress = true;
-    }
 
     size_t nplanes = shape[0];
     size_t myplane = static_cast<size_t>(rank) % nplanes;      // 0, 1, ... nplanes-1
@@ -98,106 +73,63 @@ Timers runtest()
 
     if (!rank)
     {
-        std::cout << DimsToString(shape) << "   nplanes = " << nplanes << " decompress = " << decompress
-                  << std::endl;
+        std::cout << DimsToString(shape) << "   nplanes = " << nplanes << std::endl;
     }
 
-    size_t nnode;
-    size_t local_nnode;
-    size_t start_nnode;
-    size_t N = 0;
-    if (decompress)
-    {
-    }
-    else
-    {
-        nnode = shape[2];
-        local_nnode = nnode / n_per_plane;
-        start_nnode = local_nnode * plane_rank;
+    size_t nnode = shape[2];
+    size_t local_nnode = nnode / n_per_plane;
+    size_t start_nnode = local_nnode * plane_rank;
 
-        N = shape[1] * local_nnode * shape[3]; // number of elements per vector
+    size_t N = shape[1] * local_nnode * shape[3]; // number of elements per vector
 
-        std::cout << "Rank " << rank << " reads 1x" << shape[1] << "x" << local_nnode << "x" << shape[3]
-                  << " array from offset " << myplane << ":0:" << start_nnode << ":0"
-                  << "  nelems = " << N << std::endl;
+    std::cout << "Rank " << rank << " reads 1x" << shape[1] << "x" << local_nnode << "x" << shape[3]
+              << " array from offset " << myplane << ":0:" << start_nnode << ":0"
+              << "  nelems = " << N << std::endl;
 
-        var_ef_in.SetSelection({{myplane, 0, start_nnode, 0}, {1, shape[1], local_nnode, shape[3]}});
-        // var_if_in.SetSelection({{myplane, 0, start_nnode, 0}, {1, shape[1], local_nnode, shape[3]}});
-    }
-
-    // Allocate vectors on device.
-    typedef Kokkos::View<double *, Kokkos::LayoutLeft, MemSpace> ViewVectorType;
-    ViewVectorType e_f("e_f", N);
-    // ViewVectorType i_f("i_f", N);
+    std::vector<double> e_f(N);
+    std::vector<double> i_f(N);
 
     TimePoint tstart_read = Now();
-
+    var_ef_in.SetSelection({{myplane, 0, start_nnode, 0}, {1, shape[1], local_nnode, shape[3]}});
+    var_if_in.SetSelection({{myplane, 0, start_nnode, 0}, {1, shape[1], local_nnode, shape[3]}});
     reader.Get<double>(var_ef_in, e_f);
-    // reader.Get<double>(var_if_in, i_f);
+    reader.Get<double>(var_if_in, i_f);
     reader.PerformGets();
     TimePoint tend_read = Now();
     reader.Close();
 
-    TimePoint tstart_decomp = Now();
-    if (decompress)
-    {
-    }
-    TimePoint tend_decomp = Now();
+    var_ef_out =
+        writer_io.DefineVariable<double>("e_f", {nplanes, shape[1], local_nnode * n_per_plane, shape[3]},
+                                         {myplane, 0, start_nnode, 0}, {1, shape[1], local_nnode, shape[3]});
+    var_if_out =
+        writer_io.DefineVariable<double>("i_f", {nplanes, shape[1], local_nnode * n_per_plane, shape[3]},
+                                         {myplane, 0, start_nnode, 0}, {1, shape[1], local_nnode, shape[3]});
 
     if (compress == "mgard")
     {
-        // ViewVectorType e_f_comp("e_f", N);
+        adios2::Operator op = ad.DefineOperator("Compressor", "mgard");
+        var_ef_out.AddOperation(op, {{"accuracy", "0.1"}});
+        var_if_out.AddOperation(op, {{"accuracy", "0.1"}});
     }
-
-    TimePoint tstart_comp = Now();
-    double *e_f_out; // could be a pointer on device or host
-    if (compress == "none")
+    else if (compress == "blosc")
     {
-        var_ef_out = writer_io.DefineVariable<double>(
-            "e_f", {nplanes, shape[1], local_nnode * n_per_plane, shape[3]}, {myplane, 0, start_nnode, 0},
-            {1, shape[1], local_nnode, shape[3]});
-        /*var_if_out = writer_io.DefineVariable<double>(
-            "i_f", {nplanes, shape[1], local_nnode * n_per_plane, shape[3]}, {myplane, 0, start_nnode, 0},
-            {1, shape[1], local_nnode, shape[3]});*/
-        e_f_out = e_f.data(); // on device
+        adios2::Operator op = ad.DefineOperator("Compressor", "blosc");
+        var_ef_out.AddOperation(op, {{"clevel", "1"}});
+        var_if_out.AddOperation(op, {{"clevel", "1"}});
     }
-    else
-    {
-        mgard_x::data_type mgardType = mgard_x::data_type::Double;
-        mgard_x::DIM mgardDim = 3;
-        std::vector<mgard_x::SIZE> mgardCount = {shape[1], local_nnode, shape[3]};
-        bool hasTolerance = false;
-        double tolerance = 0.001;
-        double s = 0.0;
-        auto errorBoundType = mgard_x::error_bound_type::REL;
-        e_f_out = (double *)malloc(N * sizeof(double)); // on host
-                                                        // void *compressedData = (void *)e_f_out;
-        void *compressedData = (void *)(e_f_out);
-        size_t compressedSize = N;
 
-        mgard_x::compress(mgardDim, mgardType, mgardCount, tolerance, s, errorBoundType, e_f.data(),
-                          compressedData, compressedSize, true);
-
-        var_ef_out = writer_io.DefineVariable<double>("e_f", {nplanes, compressedSize}, {myplane, 0},
-                                                      {1, compressedSize});
-    }
-    TimePoint tend_comp = Now();
-
-    std::cout << "Rank " << rank << " write block " << DimsToString(var_ef_out.Count())
-              << " compress = " << compress << std::endl;
+    std::cout << "Rank " << rank << " write block " << DimsToString(var_ef_out.Count()) << std::endl;
     TimePoint tstart_write = Now();
     writer.BeginStep();
-    writer.Put(var_ef_out, e_f_out);
-    // writer.Put(var_if_out, i_f);
+    writer.Put(var_if_out, i_f.data());
+    writer.Put(var_ef_out, e_f.data());
     writer.EndStep();
     writer.Close();
     TimePoint tend_write = Now();
 
     Timers t;
     t.tread = Seconds(tend_read - tstart_read).count();
-    t.tdecomp = Seconds(tend_decomp - tstart_decomp).count();
-    t.tread = Seconds(tend_read - tstart_read).count();
-    t.tcomp = Seconds(tend_comp - tstart_comp).count();
+    t.twrite = Seconds(tend_write - tstart_write).count();
 
     return t;
 }
@@ -210,8 +142,10 @@ void print_timers(Timers &timers)
     if (!rank)
     {
         Timers maxs;
-        std::cout << "Rank :      read   decompression  write  compression (seconds)\n";
-        std::cout << "--------------------------------------------------------------\n";
+        std::cout << "Rank :      read   decompression  write  "
+                     "compression (seconds)\n";
+        std::cout << "--------------------------------------------------"
+                     "------------\n";
         for (int r = 0; r < nproc; ++r)
         {
             std::cout << std::setw(5) << r << ":   " << std::fixed << std::setw(8) << std::setprecision(3)
@@ -224,21 +158,21 @@ void print_timers(Timers &timers)
             maxs.tdecomp = (maxs.tdecomp > tv[r].tdecomp ? maxs.tdecomp : tv[r].tdecomp);
         }
         std::cout << "  max:   " << std::fixed << std::setw(8) << std::setprecision(3) << maxs.tread << "   "
-                  << std::setw(8) << std::setprecision(3) << maxs.tdecomp << "   " << std::setw(8)
+                  << std::setw(8) << std::setprecision(3) << maxs.tcomp << "   " << std::setw(8)
                   << std::setprecision(3) << maxs.twrite << "   " << std::setw(8) << std::setprecision(3)
-                  << maxs.tcomp << "\n";
+                  << maxs.tdecomp << "\n";
         std::cout << std::endl;
     }
 }
 
 void Usage(const char *prgname)
 {
-    std::cout << "Usage: " << prgname << " XML-file  f0_input  f0_output none|mgard" << std::endl;
+    std::cout << "Usage: " << prgname << " XML-file  f0_input  f0_output  none|mgard|blosc" << std::endl;
 }
 
 int main(int argc, char *argv[])
 {
-    if (argc < 4)
+    if (argc < 5)
     {
         Usage(argv[0]);
         return 1;
@@ -258,15 +192,13 @@ int main(int argc, char *argv[])
     if (!rank)
     {
         std::cout << "Test f0 data\n  input    = " << in_filename << "\n  output   = " << out_filename
-                  << "\n  settings = " << xml_filename << "\n  memspace = " << MemSpace::name() << std::endl;
+                  << "\n  settings = " << xml_filename << "\n  " << std::endl;
     }
 
-    Kokkos::initialize(argc, argv);
     {
         Timers t = runtest();
         print_timers(t);
     }
-    Kokkos::finalize();
     MPI_Finalize();
     return 0;
 }

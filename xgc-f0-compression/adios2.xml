@@ -2,14 +2,15 @@
 <adios-config>
 
     <io name="ReadIO">
-        <engine type="BP4">
+        <engine type="BPFile">
             <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
     </io>
 
     <io name="WriteIO">
-        <engine type="BP4">
+        <engine type="BP5">
             <parameter key="OpenTimeoutSecs" value="10.0"/>
+            <!--parameter key="AggregatorRatio" value="8"/-->
         </engine>
 
         <!-- Compress variables -->

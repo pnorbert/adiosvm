@@ -6,6 +6,7 @@
                 "${workspaceFolder}/**",
                 "/opt/adios2/include",
                 "/opt/kokkos/3.7.1/include",
+                "/opt/mgard/include",
                 "/usr/include/x86_64-linux-gnu/mpi"
             ],
             "defines": [
