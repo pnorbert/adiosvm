@@ -19,3 +19,6 @@ target_link_libraries(xgc-f0-compression-vec Kokkos::kokkos adios2::adios2 MPI::
 
 add_executable(xgc-f0-compression-adioscompression xgc-f0-compression-adioscompression.cpp)
 target_link_libraries(xgc-f0-compression-adioscompression Kokkos::kokkos adios2::adios2 MPI::MPI_C)
+
+add_executable(nrmse nrmse.cpp)
+target_link_libraries(nrmse adios2::cxx11)
