@@ -6,9 +6,9 @@
 #include <limits>
 #include <sys/time.h>
 #include <vector>
+#include <math.h>
 
 #include <adios2.h>
-#include <mpi.h>
 
 std::string filename1; // = "xgc.f0.1.bp";
 std::string filename2; // = "xgc.f0.2.bp";
@@ -39,6 +39,21 @@ struct Errors
 Errors calc_errors(const std::vector<double> &a1, const std::vector<double> &a2)
 {
     Errors e;
+    double diff, maxdiff = 0.0;
+    double maxv = 0.0;
+    double sum = 0.0;
+
+    size_t N = a1.size();
+    for (size_t n = 0; n < N; ++n)
+    {
+        double diff = fabs(a1[n] - a2[n]);
+        maxdiff = fmaxf64(maxdiff, diff);
+        maxv = fmaxf64(maxv, fabs(a1[n]));
+        sum += diff * diff;
+    }
+    e.ePointwise = maxdiff;
+    e.eLinf = maxdiff / maxv;
+    e.eNRMSE = sqrtf64(sum / N) / maxv;
 
     return e;
 }
@@ -83,20 +98,21 @@ std::vector<Errors> runtest()
 void print_errors(std::vector<Errors> &ev)
 {
     Errors maxs;
-    std::cout << "Rank :      pointwise   L-inf   NRMSE\n";
+    std::cout << "Rank :    pointwise       L-inf           NRMSE\n";
     std::cout << "--------------------------------------------------------------\n";
+    int p = 9, w = 3 + p;
     for (int r = 0; r < ev.size(); ++r)
     {
-        std::cout << std::setw(5) << r << ":   " << std::fixed << std::setw(8) << std::setprecision(3)
-                  << ev[r].ePointwise << "   " << std::setw(8) << std::setprecision(3) << ev[r].eLinf << "   "
-                  << std::setw(8) << std::setprecision(3) << ev[r].eNRMSE << "\n";
+        std::cout << std::setw(5) << r << ":   " << std::fixed << std::setw(w) << std::setprecision(p)
+                  << ev[r].ePointwise << "    " << std::setw(w) << std::setprecision(p) << ev[r].eLinf << "   "
+                  << std::setw(w) << std::setprecision(p) << ev[r].eNRMSE << "\n";
         maxs.ePointwise = (maxs.ePointwise > ev[r].ePointwise ? maxs.ePointwise : ev[r].ePointwise);
         maxs.eLinf = (maxs.eLinf > ev[r].eLinf ? maxs.eLinf : ev[r].eLinf);
         maxs.eNRMSE = (maxs.eNRMSE > ev[r].eNRMSE ? maxs.eNRMSE : ev[r].eNRMSE);
     }
-    std::cout << "  max:   " << std::fixed << std::setw(8) << std::setprecision(3) << maxs.ePointwise << "   "
-              << std::setw(8) << std::setprecision(3) << maxs.eLinf << "   " << std::setw(8)
-              << std::setprecision(3) << maxs.eNRMSE << "\n";
+    std::cout << "  max:   " << std::fixed << std::setw(w) << std::setprecision(p) << maxs.ePointwise << "    "
+              << std::setw(w) << std::setprecision(p) << maxs.eLinf << "   " << std::setw(w)
+              << std::setprecision(p) << maxs.eNRMSE << "\n";
     std::cout << std::endl;
 }
 
