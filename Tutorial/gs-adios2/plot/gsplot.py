@@ -113,7 +113,7 @@ if __name__ == "__main__":
                       "It uses MPI to be able to share communicator with gray-scott " +
                       "when using an MPI-based ADIOS staging engine")
             quit()
-        adios = adios2.ADIOS("adios2.xml", mpi.comm_app, True)
+        adios = adios2.ADIOS("adios2.xml", mpi.comm_app)
 
     # Read the data from this object
     io = adios.DeclareIO("SimulationOutput")
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         print("GS Plot step {0} output step {1} simulation step {2}".format(
               plot_step, cur_step, step), flush=True)
 
-        vu = io.InquireVariable("U")
+        vu = io.InquireVariable(args.varname)
         shape3 = vu.Shape()
 
         if args.plane in ('xy', 'all'):
