@@ -6,7 +6,7 @@
         ============================================-->
 
     <io name="SimulationOutput">
-        <engine type="FileStream">
+        <engine type="BP5">
             <!-- SST engine parameters -->
             <parameter key="RendezvousReaderCount" value="0"/>
             <parameter key="QueueLimit" value="1"/>
@@ -21,7 +21,7 @@
         ===========================================-->
 
     <io name="PDFAnalysisOutput">
-        <engine type="FileStream">
+        <engine type="BP5">
             <!-- SST engine parameters -->
             <parameter key="RendezvousReaderCount" value="1"/>
             <parameter key="QueueLimit" value="5"/>
@@ -47,12 +47,12 @@
 
     <!-- example engines
 
-        <engine type="FileStream"/>
         <engine type="SST"/>
         <engine type="BP4"/>
         <engine type="BP5"/>
         <engine type="HDF5"/>
         <engine type="File"/>
+        <engine type="FileStream"/>
 
         === SST ===
         SST can be set up to force blocking the producer on a consumer
@@ -81,7 +81,7 @@
         </engine>
 
         === BP4 ===
-        BP4 is the default ADIOS2 file format.
+        BP4 was the default ADIOS2 file format before 2.8.x
         'NumAggregators ' parameter controls how many files
             are created under the output folder. By default, each process
             writes its own file (N-to-N pattern), which is fast but is
@@ -95,6 +95,10 @@
             <parameter key="NumAggregators " value="4"/>
             <parameter key="OpenTimeoutSecs" value="10.0"/>
         </engine>
+
+        === BP5 ===
+        BP5 is the default ADIOS2 file format since 2.9.0
+        Similar to BP4 but has more features and lower memory usage
 
         === FileStream ===
         FileStream is a token name for a file format that supports reading while writing

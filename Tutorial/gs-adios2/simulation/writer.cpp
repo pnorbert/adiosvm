@@ -22,11 +22,6 @@ Writer::Writer(const Settings &settings, const GrayScott &sim, adios2::IO io)
                                   {sim.offset_z, sim.offset_y, sim.offset_x},
                                   {sim.size_z, sim.size_y, sim.size_x});
 
-    var_u.SetMemorySelection(
-        {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
-    var_v.SetMemorySelection(
-        {{1, 1, 1}, {sim.size_z + 2, sim.size_y + 2, sim.size_x + 2}});
-
     var_step = io.DefineVariable<int>("step");
 }
 
@@ -37,8 +32,8 @@ void Writer::open(const std::string &fname)
 
 void Writer::write(int step, const GrayScott &sim)
 {
-    const std::vector<double> &u = sim.u_ghost();
-    const std::vector<double> &v = sim.v_ghost();
+    const std::vector<double> &u = sim.u_noghost();
+    const std::vector<double> &v = sim.v_noghost();
 
     writer.BeginStep();
     writer.Put<int>(var_step, &step);

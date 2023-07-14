@@ -23,7 +23,7 @@ protected:
     int nproc, rank;
     int err, cmode;
     MPI_File fh;
-    MPI_Datatype memtype, filetype;
+    MPI_Datatype filetype;
 
     struct header
     {
@@ -33,7 +33,7 @@ protected:
         unsigned long long x;
     };
 
-    //#IO# declare ADIOS variables for engine, io, variables
+    // #IO# declare ADIOS variables for engine, io, variables
 };
 
 #endif

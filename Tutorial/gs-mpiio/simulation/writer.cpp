@@ -45,16 +45,6 @@ Writer::Writer(const Settings &settings, const GrayScott &sim,
      *  https://wgropp.cs.illinois.edu/courses/cs598-s15/lectures/lecture33.pdf
      */
 
-    int mshape[3] = {(int)sim.size_z + 2, (int)sim.size_y + 2,
-                     (int)sim.size_x + 2};
-    int mstart[3] = {1, 1, 1};
-    int mcount[3] = {(int)sim.size_z, (int)sim.size_y, (int)sim.size_x};
-    err = MPI_Type_create_subarray(3, mshape, mcount, mstart, MPI_ORDER_C,
-                                   MPI_DOUBLE, &memtype);
-    CHECK_ERR(MPI_Type_create_subarray for memory type)
-    err = MPI_Type_commit(&memtype);
-    CHECK_ERR(MPI_Type_commit for memory type)
-
     int fshape[3] = {(int)settings.L, (int)settings.L, (int)settings.L};
     int fstart[3] = {(int)sim.offset_z, (int)sim.offset_y, (int)sim.offset_x};
     int fcount[3] = {(int)sim.size_z, (int)sim.size_y, (int)sim.size_x};
@@ -103,11 +93,12 @@ void Writer::write(int step, const GrayScott &sim)
 {
     /* sim.u_ghost() provides access to the U variable as is */
     /* sim.u_noghost() provides a contiguous copy without the ghost cells */
-    const std::vector<double> &u = sim.u_ghost();
-    const std::vector<double> &v = sim.v_ghost();
+    const std::vector<double> &u = sim.u_noghost();
+    const std::vector<double> &v = sim.v_noghost();
 
     MPI_Status status;
-    err = MPI_File_write_all(fh, u.data(), 1, memtype, &status);
+    int nelem = (int)(sim.size_z * sim.size_y * sim.size_x);
+    err = MPI_File_write_all(fh, u.data(), nelem, MPI_DOUBLE, &status);
     CHECK_ERR(MPI_File_write_all)
 }
 
