@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/adios2/2.9.2/include",
+                "/opt/c-blosc-2/2.4.3/include",
+                "/opt/hdf5-parallel/default/include",
+                "/usr/include/x86_64-linux-gnu/mpi/",
+                "/home/adios/ADIOS2/thirdparty/GTest/googletest/googletest/include",
+                "/home/adios/ADIOS2/thirdparty/yaml-cpp/yaml-cpp/include",
+                "/opt/kokkos/3.7.1/include",
+                "/opt/zfp/include"
+            ],
+            "defines": [
+                "ADIOS2_USE_MPI=1",
+                "ADIOS2_HAVE_BLOSC=1",
+                "ADIOS2_HAVE_BLOSC2=1",
+                "ADIOS2_HAVE_ZFP=1"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
