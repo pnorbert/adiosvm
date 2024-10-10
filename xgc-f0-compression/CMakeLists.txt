@@ -3,6 +3,7 @@ project (XGCF0CompressionTest)
 
 find_package(Kokkos REQUIRED)
 find_package(MGARD REQUIRED)
+find_package(ZFP REQUIRED)
 find_package(ADIOS2 REQUIRED COMPONENTS CXX MPI)
 
 add_definitions(-DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
