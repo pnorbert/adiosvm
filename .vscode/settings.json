@@ -61,7 +61,9 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "list": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "forward_list": "cpp",
+        "valarray": "cpp"
     },
     "git.ignoreLimitWarning": true,
     "C_Cpp.clang_format_path": "/home/adios/bin/clang-format"
