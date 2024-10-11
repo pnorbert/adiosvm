@@ -7,7 +7,7 @@
         <variable name="T">
         	<operation type="zfp">
         	    <!--parameter key="rate" value="8"/-->
-        	    <parameter key="accuracy" value="0.001"/>
+        	    <parameter key="accuracy" value="0.1"/>
         	</operation>
         </variable>
 
