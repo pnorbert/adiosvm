@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<adios-config>
+    <io name="writer">
+        <engine type="BP5">
+        </engine>
+        
+        <variable name="T">
+        	<operation type="mgard">
+        	    <parameter key="accuracy" value="0.1"/>
+        	</operation>
+        </variable>
+
+    </io>
+</adios-config>

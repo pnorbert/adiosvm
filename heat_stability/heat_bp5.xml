@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<adios-config>
+    <io name="writer">
+        <engine type="BP5">
+        </engine>
+        
+        <!--variable name="T">
+        	<operation type="zfp">
+        	    <parameter key="rate" value="8"/>
+        	</operation>
+        </variable-->
+
+    </io>
+</adios-config>
