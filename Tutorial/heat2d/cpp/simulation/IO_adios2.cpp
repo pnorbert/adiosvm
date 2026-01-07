@@ -22,7 +22,7 @@ adios2::Variable<unsigned int> varGndx;
 
 IO::IO(const Settings &s, MPI_Comm comm)
 {
-    ad = new adios2::ADIOS(s.configfile, comm, adios2::DebugON);
+    ad = new adios2::ADIOS(s.configfile, comm);
 
     adios2::IO io = ad->DeclareIO("SimulationOutput");
     if (!io.InConfigFile())

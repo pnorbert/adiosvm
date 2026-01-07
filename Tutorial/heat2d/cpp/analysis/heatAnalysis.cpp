@@ -12,6 +12,7 @@
 
 #include "adios2.h"
 
+#include <chrono>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
@@ -19,9 +20,8 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <vector>
-#include <chrono>
 #include <thread>
+#include <vector>
 
 #include "AnalysisSettings.h"
 
@@ -34,8 +34,7 @@ void printUsage()
               << "  M:       number of processes in Y dimension\n\n";
 }
 
-void Compute(const std::vector<double> &Tin, std::vector<double> &Tout,
-             std::vector<double> &dT, bool firstStep)
+void Compute(const std::vector<double> &Tin, std::vector<double> &Tout, std::vector<double> &dT, bool firstStep)
 {
     /* Compute dT and
      * copy Tin into Tout as it will be used for calculating dT in the
@@ -85,7 +84,7 @@ int main(int argc, char *argv[])
     try
     {
         AnalysisSettings settings(argc, argv, rank, nproc);
-        adios2::ADIOS ad(settings.configfile, mpiReaderComm, adios2::DebugON);
+        adios2::ADIOS ad(settings.configfile, mpiReaderComm);
 
         // Define IO method for engine creation
         adios2::IO inIO = ad.DeclareIO("SimulationOutput");
@@ -96,9 +95,7 @@ int main(int argc, char *argv[])
             std::cout << "Using " << outIO.EngineType() << " engine for output" << std::endl;
         }
 
-
-        adios2::Engine reader =
-            inIO.Open(settings.inputfile, adios2::Mode::Read, mpiReaderComm);
+        adios2::Engine reader = inIO.Open(settings.inputfile, adios2::Mode::Read, mpiReaderComm);
 
         std::vector<double> Tin;
         std::vector<double> Tout;
@@ -114,8 +111,7 @@ int main(int argc, char *argv[])
 
         while (true)
         {
-            adios2::StepStatus status =
-                reader.BeginStep(adios2::StepMode::Read, 10.0f);
+            adios2::StepStatus status = reader.BeginStep(adios2::StepMode::Read, 10.0f);
             if (status == adios2::StepStatus::NotReady)
             {
                 // std::cout << "Stream not ready yet. Waiting...\n";
@@ -150,18 +146,13 @@ int main(int argc, char *argv[])
                 dT.resize(settings.readsize[0] * settings.readsize[1]);
 
                 /* Create output variables and open output stream */
-                vTout = outIO.DefineVariable<double>(
-                    "T", {gndx, gndy}, settings.offset, settings.readsize);
-                vdT = outIO.DefineVariable<double>(
-                    "dT", {gndx, gndy}, settings.offset, settings.readsize);
-                writer = outIO.Open(settings.outputfile, adios2::Mode::Write,
-                                     mpiReaderComm);
-                outIO.DefineAttribute<std::string>("unit", 
-                        aT_unit.Data()[0], vTout.Name());
-                outIO.DefineAttribute<std::string>("T/description", 
-                        aT_desc.Data()[0]);
-                outIO.DefineAttribute<std::string>("description", 
-                        "Temperature difference between two steps calculated in analysis", "dT");
+                vTout = outIO.DefineVariable<double>("T", {gndx, gndy}, settings.offset, settings.readsize);
+                vdT = outIO.DefineVariable<double>("dT", {gndx, gndy}, settings.offset, settings.readsize);
+                writer = outIO.Open(settings.outputfile, adios2::Mode::Write, mpiReaderComm);
+                outIO.DefineAttribute<std::string>("unit", aT_unit.Data()[0], vTout.Name());
+                outIO.DefineAttribute<std::string>("T/description", aT_desc.Data()[0]);
+                outIO.DefineAttribute<std::string>("description", "Temperature difference between two steps calculated in analysis",
+                                                   "dT");
 
                 writer.LockWriterDefinitions();
 
@@ -169,8 +160,7 @@ int main(int argc, char *argv[])
             }
 
             // Create a 2D selection for the subset
-            vTin.SetSelection(
-                adios2::Box<adios2::Dims>(settings.offset, settings.readsize));
+            vTin.SetSelection(adios2::Box<adios2::Dims>(settings.offset, settings.readsize));
 
             if (firstStep)
             {
@@ -186,9 +176,7 @@ int main(int argc, char *argv[])
 
             if (!rank)
             {
-                std::cout << "Analysis step " << step
-                          << " processing simulation step "
-                          << reader.CurrentStep() << std::endl;
+                std::cout << "Analysis step " << step << " processing simulation step " << reader.CurrentStep() << std::endl;
             }
 
             /* Compute dT from current T (Tin) and previous T (Tout)

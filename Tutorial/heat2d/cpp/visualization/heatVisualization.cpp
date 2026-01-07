@@ -6,17 +6,17 @@
 
 #include "adios2.h"
 
+#include <chrono>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <math.h>
 #include <memory>
+#include <numeric>
 #include <stdexcept>
 #include <string>
-#include <vector>
-#include <chrono>
 #include <thread>
-#include <numeric>
+#include <vector>
 
 #include "VizOutput.h"
 #include "VizSettings.h"
@@ -60,8 +60,7 @@ int main(int argc, char *argv[])
         try
         {
             VizSettings settings(argc, argv);
-            adios2::ADIOS ad(settings.configfile, MPI_COMM_SELF,
-                             adios2::DebugON);
+            adios2::ADIOS ad(settings.configfile, MPI_COMM_SELF);
 
             // Define method for engine creation
             // 1. Get method def from config file or define new one
@@ -70,11 +69,10 @@ int main(int argc, char *argv[])
 
             if (!rank)
             {
-//                std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
+                //                std::cout << "Using " << inIO.m_EngineType << " engine for input" << std::endl;
             }
 
-            adios2::Engine reader = inIO.Open(
-                settings.inputfile, adios2::Mode::Read, MPI_COMM_SELF);
+            adios2::Engine reader = inIO.Open(settings.inputfile, adios2::Mode::Read, MPI_COMM_SELF);
 
             std::vector<double> Tin;
             adios2::Variable<double> vTin;
@@ -83,13 +81,11 @@ int main(int argc, char *argv[])
 
             while (true)
             {
-                adios2::StepStatus status =
-                    reader.BeginStep(adios2::StepMode::Read, 10.0f);
+                adios2::StepStatus status = reader.BeginStep(adios2::StepMode::Read, 10.0f);
                 if (status == adios2::StepStatus::NotReady)
                 {
                     // std::cout << "Stream not ready yet. Waiting...\n";
-                    std::this_thread::sleep_for(
-                        std::chrono::milliseconds(1000));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                     continue;
                 }
                 else if (status != adios2::StepStatus::OK)
@@ -109,19 +105,17 @@ int main(int argc, char *argv[])
 
                     if (rank == 0)
                     {
-                        std::cout << "gndx       = " << vTin.Shape()[0]
-                                  << std::endl;
-                        std::cout << "gndy       = " << vTin.Shape()[1]
-                                  << std::endl;
+                        std::cout << "gndx       = " << vTin.Shape()[0] << std::endl;
+                        std::cout << "gndy       = " << vTin.Shape()[1] << std::endl;
                     }
-                    //Tin.resize(std::accumulate(vTin.Count().begin(), vTin.Count().end(), vTin.Sizeof(), std::multiplies<size_t>()));
-                    Tin.resize(gndx*gndy);
+                    // Tin.resize(std::accumulate(vTin.Count().begin(), vTin.Count().end(), vTin.Sizeof(),
+                    // std::multiplies<size_t>()));
+                    Tin.resize(gndx * gndy);
                     std::cout << "size       = " << Tin.size() << std::endl;
                 }
 
                 // Create a 2D selection for the subset
-                vTin.SetSelection(
-                    adios2::Box<adios2::Dims>({0, 0}, vTin.Shape()));
+                vTin.SetSelection(adios2::Box<adios2::Dims>({0, 0}, vTin.Shape()));
                 reader.Get<double>(vTin, Tin.data());
 
                 if (firstStep)
@@ -131,9 +125,7 @@ int main(int argc, char *argv[])
 
                 reader.EndStep();
 
-                std::cout << "Visualization step " << step
-                          << " processing analysis step "
-                          << reader.CurrentStep() << std::endl;
+                std::cout << "Visualization step " << step << " processing analysis step " << reader.CurrentStep() << std::endl;
 
                 /* Plot or print T */
                 OutputVariable(vTin, Tin, settings, reader.CurrentStep());
